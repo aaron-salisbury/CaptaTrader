@@ -30,9 +30,14 @@ namespace CaptaTrader
             TradingServiceTypes tradingServiceType = (TradingServiceTypes)(Convert.ToInt32(menuSelection) - 1);
             Manager manager = new Manager(tradingServiceType);
 
+            Console.WriteLine($"Press any key to activate {tradingServiceType} bot . . .");
+            Console.ReadLine();
 
-
-            manager.TradingBotService.GetAccountBalance();
+            foreach (string botResponse in manager.Activate())
+            {
+                Console.WriteLine(botResponse);
+                //Console.Write(Environment.NewLine);
+            }
         }
 
         private static string GetProductVersion()
