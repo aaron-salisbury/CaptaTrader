@@ -33,10 +33,9 @@ namespace CaptaTrader
             Console.WriteLine($"Press any key to activate {tradingServiceType} bot . . .");
             Console.ReadLine();
 
-            foreach (string botResponse in manager.Activate())
+            foreach (string botResponse in manager.TradingBotService.ActivateAutoTrading())
             {
                 Console.WriteLine(botResponse);
-                //Console.Write(Environment.NewLine);
             }
         }
 
