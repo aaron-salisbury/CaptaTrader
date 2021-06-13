@@ -1,40 +1,30 @@
-﻿using CaptaTrader.Services.TradingBots;
+﻿using CaptaTrader.Services;
+using System.Collections.Generic;
 
 namespace CaptaTrader.Core
 {
     public class Manager
     {
-        //TODO:
-        // Logging, rewatch that one video on serilog logging in a console app.
-        // Has a trading service
-        // First servcice will be Binance
-        // all services will have things in common, like needing to be able to find out assests in the account, balances, etc
-        // Console app should look for a saved service, or this when it gets newed up
-        // Console options, new service, load service (if one was found to have been saved)
-        // If new service is selected, show options that the app can do. v1.0 will just be Binanace.us
-        // After loading or creating a new one, option to start it
-        // service needs to record every transaction and create a report on them (mostly for taxes)
+        private const string NOMICS_API_KEY = "your-nomics-api-key-here";
+        private const string BINANCE_API_KEY = "your-binance-api-key-here";
+        private const string BINANCE_SECRET_API_KEY = "your-binance-secret-api-key-here";
 
-        // maybe instead of new vs load, have one save file per service
+        public BitcoinTradingBot BitcoinTradingBot { get; set; }
 
-        public enum TradingServiceTypes
+        public Manager()
         {
-            Binance
+            //TODO: pass real logger, not null
+            ICryptoDataService cryptoDataService = new NomicsCryptoDataService(null, NOMICS_API_KEY);
+            IExchangeService exchangeService = new BinanceExchangeService(BINANCE_API_KEY, BINANCE_SECRET_API_KEY);
+
+            BitcoinTradingBot = new BitcoinTradingBot(cryptoDataService, exchangeService);
         }
 
-        public TradingServiceTypes TradingServiceType { get; set; }
-
-        public ITradingBotService TradingBotService { get; set; }
-
-        public Manager(TradingServiceTypes tradingService)
+        public IEnumerable<string> ActivateAutoTrading()
         {
-            TradingServiceType = tradingService;
-
-            switch (tradingService)
+            foreach (string response in BitcoinTradingBot.Activate())
             {
-                case TradingServiceTypes.Binance:
-                    TradingBotService = new BinanceTradingBotService();
-                    break;
+                yield return response;
             }
         }
     }

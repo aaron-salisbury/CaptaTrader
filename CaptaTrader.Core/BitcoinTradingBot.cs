@@ -1,81 +1,60 @@
-﻿using System;
+﻿using CaptaTrader.Core.Base.Extensions;
+using CaptaTrader.Domains;
+using CaptaTrader.Services;
+using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Binance.Net;
-using Binance.Net.Enums;
-using Binance.Net.Objects;
-using Binance.Net.Objects.Spot;
-using Binance.Net.Objects.Spot.MarketData;
-using Binance.Net.Objects.Spot.SpotData;
-using CaptaTrader.Domains;
-using CaptaTrader.Services.Base.Extensions;
-using CryptoExchange.Net.Authentication;
-using CryptoExchange.Net.Logging;
-using CryptoExchange.Net.Objects;
 
-namespace CaptaTrader.Services.TradingBots
+namespace CaptaTrader.Core
 {
-    public class BinanceTradingBotService : ITradingBotService
+    public class BitcoinTradingBot
     {
-        // https://github.com/JKorf/Binance.Net
-        // https://github.com/JKorf/Binance.Net/blob/master/Examples/ClientConsole/Program.cs
-
-        private const string ENDPOINT = "https://api.binance.us";
-        //TODO: RIGHT NOW REPOSITORY IS PRIVATE. BEFORE MAKING PUBLIC GET NEW KEYS AND DELETE THESE!!!
-        private const string API_KEY = "Z1m1ZhRsRSm6IJTmI5rfXaWIc9Y3AE7CZfrCkL2BWxKI6LwCXz8LbkqPunISoFUj";
-        private const string SECRET_KEY = "tJ6Hg4O6hEIKhdPIYmx4AC4rFEKBc4r4TNkTbgQHuGhXMvAEjIFmVYpRks7HTWCj";
+        private const string BITCOIN_SYMBOL = "BTC";
         private const decimal TRADING_FEE_SPOT = 0.001M;
         private const decimal TRADING_FEE_INSTANT = 0.005M;
+
+        public ICryptoDataService CryptoDataService { get; set; }
+
+        public IExchangeService ExchangeService { get; set; }
+
+        public PriceInterval PriceIntervalMonth { get; set; }
+
+        public PriceInterval PriceIntervalDay { get; set; }
 
         public decimal AccountBalance { get; set; }
 
         public decimal BitcoinBalance { get; set; }
 
-        //public decimal Paid { get; set; }
-
-        //public decimal AveragePricePaid => Paid / BitcoinBalance;
-
         public decimal AveragePricePaid { get; set; }
 
-        public BinanceTradingBotService()
+        public BitcoinTradingBot(ICryptoDataService cryptoDataService, IExchangeService exchangeService)
         {
-            BinanceClient.SetDefaultOptions(new BinanceClientOptions()
-            {
-                BaseAddress = ENDPOINT,
+            CryptoDataService = cryptoDataService;
+            ExchangeService = exchangeService;
 
+            DateTime dateTimeTodayStart = DateTime.Now.Date;
+            //TODO: Update every midnight.
+            PriceIntervalMonth = Task.Run(() => CryptoDataService.GetPricesOverInterval(BITCOIN_SYMBOL, dateTimeTodayStart.AddMonths(-1), dateTimeTodayStart)).Result;
+            PriceIntervalDay = Task.Run(() => CryptoDataService.GetPricesOverInterval(BITCOIN_SYMBOL, dateTimeTodayStart.AddDays(-1), dateTimeTodayStart)).Result;
 
-
-                ApiCredentials = new ApiCredentials(API_KEY, SECRET_KEY),
-                //LogVerbosity = LogVerbosity.Debug,
-                //LogWriters = new List<TextWriter> { Console.Out }
-            });
-
-            BinanceSocketClient.SetDefaultOptions(new BinanceSocketClientOptions()
-            {
-                ApiCredentials = new ApiCredentials(API_KEY, SECRET_KEY),
-                LogVerbosity = LogVerbosity.Debug,
-                LogWriters = new List<TextWriter> { Console.Out }
-            });
+            AccountBalance = ExchangeService.GetAccountBalance();
+            BitcoinBalance = ExchangeService.GetAssetBalance(BITCOIN_SYMBOL);
         }
 
-        public IEnumerable<string> ActivateAutoTrading()
+        public IEnumerable<string> Activate()
         {
             yield return "Bot is active.";
+            yield return Environment.NewLine;
 
-            AccountBalance = GetAccountBalance();
             yield return $"Account Balance: {AccountBalance}";
-
-            BitcoinBalance = GetAssetBalance("BTC");
             yield return $"Bitcoin Balance: {BitcoinBalance}";
+            yield return Environment.NewLine;
 
             //TODO: Also need quantity with the price.
             //decimal bitcoinSpotPrice = GetSpotPrice("BTCUSDT");
 
-
-            while(true)
+            while (true)
             {
                 ExchangeTransaction buyTransaction = LookToBuy();
                 if (buyTransaction != null)
@@ -101,36 +80,6 @@ namespace CaptaTrader.Services.TradingBots
             //if im holding BTC, look for a price to sell it, should be as soon as profit will be double the fee
 
             // if im holding USD, look for a price to buy (should either be when down or when a signifigant climb is predicted)
-        }
-
-        public decimal GetAccountBalance()
-        {
-            using (var client = new BinanceClient())
-            {
-                WebCallResult<BinanceAccountInfo> result = client.General.GetAccountInfo();
-
-                return result.Data.Balances.Where(b => string.Equals(b.Asset, "USD")).FirstOrDefault().Free;
-            }
-        }
-
-        public decimal GetAssetBalance(string symbol)
-        {
-            using (var client = new BinanceClient())
-            {
-                WebCallResult<BinanceAccountInfo> result = client.General.GetAccountInfo();
-
-                return result.Data.Balances.Where(b => string.Equals(b.Asset, symbol)).FirstOrDefault().Total;
-            }
-        }
-
-        public decimal GetSpotPrice(string symbol)
-        {
-            using (var client = new BinanceClient())
-            {
-                WebCallResult<BinanceBookPrice> result = client.Spot.Market.GetBookPrice(symbol);
-
-                return result.Data.BestAskPrice;
-            }
         }
 
         //TODO: Instead of figuring cost/sale in real money, need to get cost AND fee into real money.

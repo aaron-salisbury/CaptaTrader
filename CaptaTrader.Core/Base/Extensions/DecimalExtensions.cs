@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace CaptaTrader.Services.Base.Extensions
+namespace CaptaTrader.Core.Base.Extensions
 {
     public static class DecimalExtensions
     {
