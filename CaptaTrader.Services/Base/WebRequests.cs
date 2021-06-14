@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CaptaTrader.Services.Base
 {
-    public class WebRequests
+    public static class WebRequests
     {
         public static async Task<string> GetCurlResponseAsync(string curlURL, ILogger logger, Dictionary<string, string> requestHeaders = null)
         {

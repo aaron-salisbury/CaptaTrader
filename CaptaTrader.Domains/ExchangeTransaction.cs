@@ -21,7 +21,7 @@ namespace CaptaTrader.Domains
 
         public override string ToString()
         {
-            return $"{Type.ToString().ToUpper()} | {Date} | Quantity: {Quantity} | Price: ${Price} | Fee: ${Fee} | Total ${Total}";
+            return $"{Type.ToString().ToUpper()} | {Date} | Quantity: {Quantity} | Price: ${Price} | Fee: ${Fee} | Total: ${Total}";
         }
     }
 }

@@ -45,7 +45,7 @@ namespace CaptaTrader.Core
 
         public IEnumerable<string> Activate()
         {
-            //TODO: Maybe move all of these messages before the while loop into the ToString of Manager, and print it in Program.cs after newing up the manager,
+            //TODO: Maybe move all of these messages before the while loop into the ToString of Manager (or the bot), and print it in Program.cs after newing up the manager,
             //      so they can be used to inform the user as to whether they want to activate trading in the first place.
             yield return "Bot is active.";
             yield return Environment.NewLine;
@@ -59,7 +59,7 @@ namespace CaptaTrader.Core
             //TODO: Also need quantity with the price.
             //decimal bitcoinSpotPrice = GetSpotPrice("BTCUSDT");
 
-            while (true)
+            while (true) //TODO: Replace true with some sort of class level cancellation token
             {
                 ExchangeTransaction buyTransaction = LookToBuy();
                 if (buyTransaction != null)

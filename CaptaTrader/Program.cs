@@ -14,7 +14,7 @@ namespace CaptaTrader
 
             Manager manager = new Manager();
 
-            Console.WriteLine($"Press any key to activate bitcoin trading bot . . .");
+            Console.WriteLine("Press any key to activate bitcoin trading bot . . .");
             Console.ReadLine();
 
             foreach (string botResponse in manager.ActivateAutoTrading())

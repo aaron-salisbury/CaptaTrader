@@ -40,17 +40,17 @@ namespace CaptaTrader.Services
             string curl = $"{API_SERVER_URL}{SPARKLINE_QUERY_PREFIX}{keyParam}{idParam}{startParam}{endParam}";
 
             string response = await WebRequests.GetCurlResponseAsync(curl, _logger);
-            NomicsCurrenciesSparkline nomicsCurrenciesSparkline = (await Json.ToObjectAsync<List<NomicsCurrenciesSparkline>>(response)).FirstOrDefault();
+            NomicsCurrenciesSparkline currenciesSparkline = (await Json.ToObjectAsync<List<NomicsCurrenciesSparkline>>(response)).FirstOrDefault();
 
-            if (nomicsCurrenciesSparkline != null)
+            if (currenciesSparkline != null)
             {
-                if (decimal.TryParse(nomicsCurrenciesSparkline.Prices.First(), out decimal startPrice) && decimal.TryParse(nomicsCurrenciesSparkline.Prices.Last(), out decimal endPrice))
+                if (decimal.TryParse(currenciesSparkline.Prices.First(), out decimal startPrice) && decimal.TryParse(currenciesSparkline.Prices.Last(), out decimal endPrice))
                 {
                     return new PriceInterval
                     {
-                        Symbol = nomicsCurrenciesSparkline.Currency,
-                        StartDate = nomicsCurrenciesSparkline.Timestamps.First(),
-                        EndDate = nomicsCurrenciesSparkline.Timestamps.Last(),
+                        Symbol = currenciesSparkline.Currency,
+                        StartDate = currenciesSparkline.Timestamps.First(),
+                        EndDate = currenciesSparkline.Timestamps.Last(),
                         StartPrice = startPrice,
                         EndPrice = endPrice
                     };
