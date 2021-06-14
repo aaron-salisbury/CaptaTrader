@@ -3,6 +3,7 @@ using CaptaTrader.Services.Base;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -39,7 +40,7 @@ namespace CaptaTrader.Services
             string curl = $"{API_SERVER_URL}{SPARKLINE_QUERY_PREFIX}{keyParam}{idParam}{startParam}{endParam}";
 
             string response = await WebRequests.GetCurlResponseAsync(curl, _logger);
-            List<NomicsCurrenciesSparkline> nomicsCurrenciesSparklines = await Json.ToObjectAsync<List<NomicsCurrenciesSparkline>>(response);
+            NomicsCurrenciesSparkline nomicsCurrenciesSparkline = (await Json.ToObjectAsync<List<NomicsCurrenciesSparkline>>(response)).FirstOrDefault();
 
             //TODO: to convert dates back: XmlConvert.ToDateTime(string s, XmlDateTimeSerializationMode dateTimeOption)
 
