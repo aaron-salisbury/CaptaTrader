@@ -1,6 +1,8 @@
 ﻿using CaptaTrader.Domains;
+using CaptaTrader.Services.Base;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -12,8 +14,8 @@ namespace CaptaTrader.Services
         private const string API_SERVER_URL = "https://api.nomics.com/v1";
         private const string SPARKLINE_QUERY_PREFIX = "/currencies/sparkline";
 
-        private ILogger _logger;
-        private string _apiKey;
+        private readonly ILogger _logger;
+        private readonly string _apiKey;
 
         public NomicsCryptoDataService(ILogger logger, string apiKey)
         {
@@ -28,8 +30,8 @@ namespace CaptaTrader.Services
             string keyParam = $"?key={_apiKey}";
             string idParam = $"&ids={symbol}";
 
-            string startRFC3339Escaped = Uri.EscapeUriString(XmlConvert.ToString(start, XmlDateTimeSerializationMode.Utc));
-            string endRFC3339Escaped = Uri.EscapeUriString(XmlConvert.ToString(end, XmlDateTimeSerializationMode.Utc));
+            string startRFC3339Escaped = Uri.EscapeDataString(XmlConvert.ToString(start, XmlDateTimeSerializationMode.Utc));
+            string endRFC3339Escaped = Uri.EscapeDataString(XmlConvert.ToString(end, XmlDateTimeSerializationMode.Utc));
 
             string startParam = $"&start={startRFC3339Escaped}";
             string endParam = $"&end={endRFC3339Escaped}";
@@ -37,8 +39,10 @@ namespace CaptaTrader.Services
             string curl = $"{API_SERVER_URL}{SPARKLINE_QUERY_PREFIX}{keyParam}{idParam}{startParam}{endParam}";
 
             string response = await WebRequests.GetCurlResponseAsync(curl, _logger);
+            List<NomicsCurrenciesSparkline> nomicsCurrenciesSparklines = await Json.ToObjectAsync<List<NomicsCurrenciesSparkline>>(response);
+
             //TODO: to convert dates back: XmlConvert.ToDateTime(string s, XmlDateTimeSerializationMode dateTimeOption)
-            
+
             throw new NotImplementedException();
         }
     }

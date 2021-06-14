@@ -97,7 +97,7 @@ namespace CaptaTrader.Core
                     decimal amountOfBitcoinICanAfford = AccountBalance / priceBitcoin;
                     decimal costOfMaxAmountOfBitcoin = amountOfBitcoinICanAfford * priceBitcoin;
                     // Take out fee from max cost, to make sure I can cover the most it could be.
-                    costOfMaxAmountOfBitcoin = costOfMaxAmountOfBitcoin - (costOfMaxAmountOfBitcoin * TRADING_FEE_SPOT);
+                    costOfMaxAmountOfBitcoin -= (costOfMaxAmountOfBitcoin * TRADING_FEE_SPOT);
                     decimal costInRealMoney = costOfMaxAmountOfBitcoin.PrecisionTruncate(2);
                     decimal bitcoinToBuy = costInRealMoney / priceBitcoin;
 

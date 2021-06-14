@@ -6,7 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace CaptaTrader.Services
+namespace CaptaTrader.Services.Base
 {
     public class WebRequests
     {
