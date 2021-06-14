@@ -42,7 +42,22 @@ namespace CaptaTrader.Services
             string response = await WebRequests.GetCurlResponseAsync(curl, _logger);
             NomicsCurrenciesSparkline nomicsCurrenciesSparkline = (await Json.ToObjectAsync<List<NomicsCurrenciesSparkline>>(response)).FirstOrDefault();
 
-            //TODO: to convert dates back: XmlConvert.ToDateTime(string s, XmlDateTimeSerializationMode dateTimeOption)
+            if (nomicsCurrenciesSparkline != null)
+            {
+                if (decimal.TryParse(nomicsCurrenciesSparkline.Prices.First(), out decimal startPrice) && decimal.TryParse(nomicsCurrenciesSparkline.Prices.Last(), out decimal endPrice))
+                {
+                    return new PriceInterval
+                    {
+                        Symbol = nomicsCurrenciesSparkline.Currency,
+                        StartDate = nomicsCurrenciesSparkline.Timestamps.First(),
+                        EndDate = nomicsCurrenciesSparkline.Timestamps.Last(),
+                        StartPrice = startPrice,
+                        EndPrice = endPrice
+                    };
+                }
+            }
+
+            //TODO: log log log
 
             throw new NotImplementedException();
         }

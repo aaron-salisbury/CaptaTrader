@@ -7,7 +7,7 @@ namespace CaptaTrader.Domains
     public class NomicsCurrenciesSparkline
     {
         public string Currency { get; set; }
-        public List<string> Timestamps { get; set; }
+        public List<DateTime> Timestamps { get; set; }
         public List<string> Prices { get; set; }
     }
 }
