@@ -26,6 +26,8 @@ namespace CaptaTrader.Services
             //TODO: Create a http client to reuse with web requests.
         }
 
+        public int GetMinimumSecondsBetweenCalls() => 1; // Nomics.com’s free plan allows for 1 request / second.
+
         public async Task<PriceInterval> GetPricesOverInterval(string symbol, DateTime start, DateTime end)
         {
             string keyParam = $"?key={_apiKey}";

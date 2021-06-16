@@ -1,6 +1,9 @@
 ﻿using CaptaTrader.Core.Base.Extensions;
+using CaptaTrader.Core.Jobs;
 using CaptaTrader.Domains;
 using CaptaTrader.Services;
+using Quartz;
+using Quartz.Impl;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -33,14 +36,50 @@ namespace CaptaTrader.Core
             CryptoDataService = cryptoDataService;
             ExchangeService = exchangeService;
 
-            DateTime dateTimeTodayStart = DateTime.Now.Date;
-            //TODO: Update every midnight.
-            //TODO: May want more intervals, like 6 months and year.
-            PriceIntervalMonth = Task.Run(() => CryptoDataService.GetPricesOverInterval(BITCOIN_SYMBOL, dateTimeTodayStart.AddMonths(-1), dateTimeTodayStart)).Result;
-            PriceIntervalDay = Task.Run(() => CryptoDataService.GetPricesOverInterval(BITCOIN_SYMBOL, dateTimeTodayStart.AddDays(-1), dateTimeTodayStart)).Result;
-
             AccountBalance = ExchangeService.GetAccountBalance();
             BitcoinBalance = ExchangeService.GetAssetBalance(BITCOIN_SYMBOL);
+
+            Task.Run(() => UpdateBitcoinPriceIntervalsAsync());
+
+            Task.Run(() => ScheduleJobsAsync());
+        }
+
+        private async Task ScheduleJobsAsync()
+        {
+            StdSchedulerFactory factory = new StdSchedulerFactory();
+            IScheduler scheduler = await factory.GetScheduler();
+
+            await scheduler.Start();
+
+            scheduler.Context.Put(nameof(BitcoinTradingBot), this);
+
+            IJobDetail bitcoinPriceIntervalsJob = JobBuilder.Create<BitcoinPriceIntervalsJob>()
+                .WithIdentity(nameof(BitcoinPriceIntervalsJob), nameof(BitcoinTradingBot))
+                .Build();
+
+            ITrigger bitcoinPriceIntervalsTrigger = TriggerBuilder.Create()
+                .WithIdentity($"{nameof(BitcoinPriceIntervalsJob)}Trigger", nameof(BitcoinTradingBot))
+                .StartAt(new DateTimeOffset(DateTime.Now.Date.AddDays(1)))
+                .WithSimpleSchedule(x => x
+                    .WithIntervalInHours(24)
+                    .RepeatForever())
+                .Build();
+
+            await scheduler.ScheduleJob(bitcoinPriceIntervalsJob, bitcoinPriceIntervalsTrigger);
+        }
+
+        public async Task UpdateBitcoinPriceIntervalsAsync()
+        {
+            DateTime dateTimeTodayStart = DateTime.Now.Date;
+
+            //TODO: May want more intervals, like 6 months and year.
+            //TODO: To reduce the number of requests, maybe just get the longest period, then make the rest of the periods from that.
+
+            PriceIntervalMonth = await CryptoDataService.GetPricesOverInterval(BITCOIN_SYMBOL, dateTimeTodayStart.AddMonths(-1), dateTimeTodayStart);
+
+            await Task.Delay(TimeSpan.FromSeconds(CryptoDataService.GetMinimumSecondsBetweenCalls()));
+
+            PriceIntervalDay = await CryptoDataService.GetPricesOverInterval(BITCOIN_SYMBOL, dateTimeTodayStart.AddDays(-1), dateTimeTodayStart);
         }
 
         public IEnumerable<string> Activate()
