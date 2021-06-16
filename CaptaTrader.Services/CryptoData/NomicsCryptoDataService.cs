@@ -1,6 +1,6 @@
 ﻿using CaptaTrader.Domains;
 using CaptaTrader.Services.Base;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;

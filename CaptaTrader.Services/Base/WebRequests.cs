@@ -1,4 +1,4 @@
-﻿using Serilog;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,7 +29,7 @@ namespace CaptaTrader.Services.Base
             }
             catch (Exception e)
             {
-                logger.Error($"Curl request failed: {e.Message}");
+                logger.LogError($"Curl request failed: {e.Message}");
                 return null;
             }
         }
@@ -45,7 +45,7 @@ namespace CaptaTrader.Services.Base
             }
             catch (Exception e)
             {
-                logger.Error($"Failed to complete web request: {e.Message}");
+                logger.LogError($"Failed to complete web request: {e.Message}");
                 return null;
             }
 

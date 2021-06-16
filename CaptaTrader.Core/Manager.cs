@@ -1,4 +1,5 @@
 ﻿using CaptaTrader.Services;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 
 namespace CaptaTrader.Core
@@ -9,13 +10,16 @@ namespace CaptaTrader.Core
         private const string BINANCE_API_KEY = "your-binance-api-key-here";
         private const string BINANCE_SECRET_API_KEY = "your-binance-secret-api-key-here";
 
+        private readonly ILogger _logger;
+
         public BitcoinTradingBot BitcoinTradingBot { get; set; }
 
-        public Manager()
+        public Manager(ILogger logger)
         {
-            //TODO: pass real logger, not null
-            ICryptoDataService cryptoDataService = new NomicsCryptoDataService(null, NOMICS_API_KEY);
-            IExchangeService exchangeService = new BinanceExchangeService(BINANCE_API_KEY, BINANCE_SECRET_API_KEY);
+            _logger = logger;
+
+            ICryptoDataService cryptoDataService = new NomicsCryptoDataService(_logger, NOMICS_API_KEY);
+            IExchangeService exchangeService = new BinanceExchangeService(_logger, BINANCE_API_KEY, BINANCE_SECRET_API_KEY);
 
             BitcoinTradingBot = new BitcoinTradingBot(cryptoDataService, exchangeService);
         }

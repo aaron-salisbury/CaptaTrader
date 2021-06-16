@@ -5,6 +5,7 @@ using Binance.Net.Objects.Spot.SpotData;
 using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Logging;
 using CryptoExchange.Net.Objects;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,8 +18,12 @@ namespace CaptaTrader.Services
     {
         private const string ENDPOINT = "https://api.binance.us";
 
-        public BinanceExchangeService(string apiKey, string secretApiKey)
+        private readonly ILogger _logger;
+
+        public BinanceExchangeService(ILogger logger, string apiKey, string secretApiKey)
         {
+            _logger = logger;
+
             BinanceClient.SetDefaultOptions(new BinanceClientOptions()
             {
                 BaseAddress = ENDPOINT,

@@ -1,7 +1,9 @@
-﻿using CaptaTrader.Core;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Serilog;
 using System;
-using System.Diagnostics;
-using System.Reflection;
+using System.IO;
 
 namespace CaptaTrader
 {
@@ -9,25 +11,33 @@ namespace CaptaTrader
     {
         static void Main(string[] args)
         {
-            Console.WriteLine($"Capta Trader v{GetProductVersion()}");
-            Console.Write(Environment.NewLine);
+            IHost host = ConfigureApp();
 
-            Manager manager = new Manager();
-
-            Console.WriteLine("Press any key to activate bitcoin trading bot . . .");
-            Console.ReadLine();
-
-            foreach (string botResponse in manager.ActivateAutoTrading())
-            {
-                Console.WriteLine(botResponse);
-            }
+            MainService svc = ActivatorUtilities.CreateInstance<MainService>(host.Services);
+            svc.Run();
         }
 
-        private static string GetProductVersion()
+        private static IHost ConfigureApp()
         {
-            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+            ConfigurationBuilder builder = new ConfigurationBuilder();
+            builder.SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production}.json", optional: true)
+                .AddEnvironmentVariables();
 
-            return fileVersionInfo.ProductVersion;
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Build())
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            return Host.CreateDefaultBuilder()
+                .ConfigureServices((context, services) =>
+                {
+                    services.AddTransient<IMainService, MainService>();
+                })
+                .UseSerilog()
+                .Build();
         }
     }
 }
