@@ -22,14 +22,14 @@ namespace CaptaTrader.Services
         {
             _logger = logger;
             _apiKey = apiKey;
-
-            //TODO: Create a http client to reuse with web requests.
         }
 
         public int GetMinimumSecondsBetweenCalls() => 1; // Nomics.com’s free plan allows for 1 request / second.
 
         public async Task<PriceInterval> GetPricesOverInterval(string symbol, DateTime start, DateTime end)
         {
+            PriceInterval priceInterval = null;
+
             string keyParam = $"?key={_apiKey}";
             string idParam = $"&ids={symbol}";
 
@@ -41,27 +41,32 @@ namespace CaptaTrader.Services
 
             string curl = $"{API_SERVER_URL}{SPARKLINE_QUERY_PREFIX}{keyParam}{idParam}{startParam}{endParam}";
 
-            string response = await WebRequests.GetCurlResponseAsync(curl, _logger);
-            NomicsCurrenciesSparkline currenciesSparkline = (await Json.ToObjectAsync<List<NomicsCurrenciesSparkline>>(response)).FirstOrDefault();
-
-            if (currenciesSparkline != null)
+            try
             {
-                if (decimal.TryParse(currenciesSparkline.Prices.First(), out decimal startPrice) && decimal.TryParse(currenciesSparkline.Prices.Last(), out decimal endPrice))
+                string response = await WebRequests.GetCurlResponseAsync(curl, _logger);
+                NomicsCurrenciesSparkline currenciesSparkline = (await Json.ToObjectAsync<List<NomicsCurrenciesSparkline>>(response)).FirstOrDefault();
+
+                if (currenciesSparkline != null)
                 {
-                    return new PriceInterval
+                    if (decimal.TryParse(currenciesSparkline.Prices.First(), out decimal startPrice) && decimal.TryParse(currenciesSparkline.Prices.Last(), out decimal endPrice))
                     {
-                        Symbol = currenciesSparkline.Currency,
-                        StartDate = currenciesSparkline.Timestamps.First(),
-                        EndDate = currenciesSparkline.Timestamps.Last(),
-                        StartPrice = startPrice,
-                        EndPrice = endPrice
-                    };
+                        priceInterval = new PriceInterval
+                        {
+                            Symbol = currenciesSparkline.Currency,
+                            StartDate = currenciesSparkline.Timestamps.First(),
+                            EndDate = currenciesSparkline.Timestamps.Last(),
+                            StartPrice = startPrice,
+                            EndPrice = endPrice
+                        };
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to update historical price data: {e.Message}");
+            }
 
-            //TODO: log log log
-
-            throw new NotImplementedException();
+            return priceInterval;
         }
     }
 }
