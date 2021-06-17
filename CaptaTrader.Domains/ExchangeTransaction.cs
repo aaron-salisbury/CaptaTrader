@@ -16,6 +16,7 @@ namespace CaptaTrader.Domains
         public string Symbol { get; set; }
         public decimal Quantity { get; set; }
         public decimal Price { get; set; }
+        public decimal Cost { get; set; }
         public decimal Fee { get; set; }
         public decimal Total { get; set; }
 

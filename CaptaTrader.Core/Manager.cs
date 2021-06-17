@@ -21,7 +21,7 @@ namespace CaptaTrader.Core
             ICryptoDataService cryptoDataService = new NomicsCryptoDataService(_logger, NOMICS_API_KEY);
             IExchangeService exchangeService = new BinanceExchangeService(_logger, BINANCE_API_KEY, BINANCE_SECRET_API_KEY);
 
-            BitcoinTradingBot = new BitcoinTradingBot(cryptoDataService, exchangeService);
+            BitcoinTradingBot = new BitcoinTradingBot(cryptoDataService, exchangeService, _logger);
         }
 
         public IEnumerable<string> ActivateAutoTrading()

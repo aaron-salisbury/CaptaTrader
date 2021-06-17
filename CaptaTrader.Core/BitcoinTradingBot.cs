@@ -2,10 +2,12 @@
 using CaptaTrader.Core.Jobs;
 using CaptaTrader.Domains;
 using CaptaTrader.Services;
+using Microsoft.Extensions.Logging;
 using Quartz;
 using Quartz.Impl;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,24 +19,21 @@ namespace CaptaTrader.Core
         private const decimal TRADING_FEE_SPOT = 0.001M;
         private const decimal TRADING_FEE_INSTANT = 0.005M;
 
+        private readonly ILogger _logger;
+
         public ICryptoDataService CryptoDataService { get; set; }
-
         public IExchangeService ExchangeService { get; set; }
-
         public PriceInterval PriceIntervalMonth { get; set; }
-
         public PriceInterval PriceIntervalDay { get; set; }
-
         public decimal AccountBalance { get; set; }
-
         public decimal BitcoinBalance { get; set; }
-
         public decimal AveragePricePaid { get; set; }
 
-        public BitcoinTradingBot(ICryptoDataService cryptoDataService, IExchangeService exchangeService)
+        public BitcoinTradingBot(ICryptoDataService cryptoDataService, IExchangeService exchangeService, ILogger logger)
         {
             CryptoDataService = cryptoDataService;
             ExchangeService = exchangeService;
+            _logger = logger;
 
             AccountBalance = ExchangeService.GetAccountBalance();
             BitcoinBalance = ExchangeService.GetAssetBalance(BITCOIN_SYMBOL);
@@ -103,6 +102,8 @@ namespace CaptaTrader.Core
                 ExchangeTransaction buyTransaction = LookToBuy();
                 if (buyTransaction != null)
                 {
+                    Task.Run(() => WriteTransactionToFile(buyTransaction));
+
                     yield return buyTransaction.ToString();
                     yield return $"Account Balance: {AccountBalance}";
                     yield return $"Bitcoin Balance: {BitcoinBalance}";
@@ -113,6 +114,8 @@ namespace CaptaTrader.Core
                 ExchangeTransaction sellTransaction = LookToSell();
                 if (sellTransaction != null)
                 {
+                    Task.Run(() => WriteTransactionToFile(sellTransaction));
+
                     yield return sellTransaction.ToString();
                     yield return $"Account Balance: {AccountBalance}";
                     yield return $"Bitcoin Balance: {BitcoinBalance}";
@@ -127,6 +130,7 @@ namespace CaptaTrader.Core
         }
 
         //TODO: Instead of figuring cost/sale in real money, need to get cost AND fee into real money.
+        //TODO: Set cost on transactions.
 
         private ExchangeTransaction LookToBuy()
         {
@@ -157,7 +161,6 @@ namespace CaptaTrader.Core
                         BitcoinBalance += newTotalBitcoinBalance;
                         AccountBalance -= costPlusFee;
 
-                        //TODO: Write to permanent log.
                         return new ExchangeTransaction
                         {
                             Type = ExchangeTransaction.Types.Buy,
@@ -200,7 +203,6 @@ namespace CaptaTrader.Core
                         AccountBalance += saleMinusFee;
                         BitcoinBalance -= unitsToSell;
 
-                        //TODO: Write to permanent log.
                         return new ExchangeTransaction
                         {
                             Type = ExchangeTransaction.Types.Sell,
@@ -215,6 +217,36 @@ namespace CaptaTrader.Core
             }
 
             return null;
+        }
+
+        private async Task WriteTransactionToFile(ExchangeTransaction exchangeTransaction)
+        {
+            if (exchangeTransaction != null)
+            {
+                try
+                {
+                    //TODO: Write to a CSV instead.
+                    string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                    string appFolderPath = Path.Combine(documentsPath, AppDomain.CurrentDomain.FriendlyName);
+
+                    if (!Directory.Exists(appFolderPath))
+                    {
+                        Directory.CreateDirectory(appFolderPath);
+                    }
+
+                    string filename = $"Transactions_{exchangeTransaction.Date.Year}.txt";
+                    string filePath = Path.Combine(appFolderPath, filename);
+
+                    using (StreamWriter writer = File.AppendText(filePath))
+                    {
+                        await writer.WriteLineAsync(exchangeTransaction.ToString());
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"Failed to write transaction to file: {e.Message}", exchangeTransaction);
+                }
+            }
         }
     }
 }
