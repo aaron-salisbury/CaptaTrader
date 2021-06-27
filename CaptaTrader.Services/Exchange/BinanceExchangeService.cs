@@ -14,6 +14,7 @@ using System.Linq;
 namespace CaptaTrader.Services
 {
     // API Examples: https://github.com/JKorf/Binance.Net/blob/master/Examples/ClientConsole/Program.cs
+    //               https://github.com/JKorf/Binance.Net/blob/master/Examples/ClientWPF/ViewModels/MainViewModel.cs
     public class BinanceExchangeService : IExchangeService
     {
         private const string ENDPOINT = "https://api.binance.us";
@@ -27,12 +28,9 @@ namespace CaptaTrader.Services
             BinanceClient.SetDefaultOptions(new BinanceClientOptions()
             {
                 BaseAddress = ENDPOINT,
-
-
-
                 ApiCredentials = new ApiCredentials(apiKey, secretApiKey),
-                //LogVerbosity = LogVerbosity.Debug,
-                //LogWriters = new List<TextWriter> { Console.Out }
+                LogVerbosity = LogVerbosity.Debug,
+                LogWriters = new List<TextWriter> { Console.Out }
             });
 
             BinanceSocketClient.SetDefaultOptions(new BinanceSocketClientOptions()
