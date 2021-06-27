@@ -8,6 +8,7 @@ using Quartz.Impl;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -71,9 +72,6 @@ namespace CaptaTrader.Core
         {
             DateTime dateTimeTodayStart = DateTime.Now.Date;
 
-            //TODO: May want more intervals, like 6 months and year.
-            //TODO: To reduce the number of requests, maybe just get the longest period, then make the rest of the periods from that.
-
             PriceIntervalMonth = await CryptoDataService.GetPricesOverInterval(BITCOIN_SYMBOL, dateTimeTodayStart.AddMonths(-1), dateTimeTodayStart);
 
             await Task.Delay(TimeSpan.FromSeconds(CryptoDataService.GetMinimumSecondsBetweenCalls()));
@@ -83,16 +81,8 @@ namespace CaptaTrader.Core
 
         public IEnumerable<string> Activate()
         {
-            //TODO: Maybe move all of these messages before the while loop into the ToString of Manager (or the bot), and print it in Program.cs after newing up the manager,
-            //      so they can be used to inform the user as to whether they want to activate trading in the first place.
             yield return "Bot is active.";
-            yield return Environment.NewLine;
-
-            //TODO: return message about general bitcoin trends (price intervals)
-
-            yield return $"Account Balance: {AccountBalance}";
-            yield return $"Bitcoin Balance: {BitcoinBalance}";
-            yield return Environment.NewLine;
+            yield return string.Empty;
 
             //TODO: Also need quantity with the price.
             //decimal bitcoinSpotPrice = GetSpotPrice("BTCUSDT");
@@ -108,7 +98,7 @@ namespace CaptaTrader.Core
                     yield return $"Account Balance: {AccountBalance}";
                     yield return $"Bitcoin Balance: {BitcoinBalance}";
                     yield return $"Average Price: {AveragePricePaid}";
-                    yield return Environment.NewLine;
+                    yield return string.Empty;
                 }
 
                 ExchangeTransaction sellTransaction = LookToSell();
@@ -120,7 +110,7 @@ namespace CaptaTrader.Core
                     yield return $"Account Balance: {AccountBalance}";
                     yield return $"Bitcoin Balance: {BitcoinBalance}";
                     yield return $"Average Price: {AveragePricePaid}";
-                    yield return Environment.NewLine;
+                    yield return string.Empty;
                 }
             }
 
@@ -131,6 +121,20 @@ namespace CaptaTrader.Core
 
         //TODO: Instead of figuring cost/sale in real money, need to get cost AND fee into real money.
         //TODO: Set cost on transactions.
+
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine($"Account Balance: {AccountBalance}");
+            builder.AppendLine($"Bitcoin Balance: {BitcoinBalance}");
+            builder.Append(Environment.NewLine);
+
+            builder.AppendLine($"Bitcoin Last Month: {PriceIntervalMonth.Direction} {PriceIntervalMonth.Change}%");
+            builder.AppendLine($"Bitcoin Last Day: {PriceIntervalDay.Direction} {PriceIntervalDay.Change}%");
+            builder.Append(Environment.NewLine);
+
+            return builder.ToString();
+        }
 
         private ExchangeTransaction LookToBuy()
         {

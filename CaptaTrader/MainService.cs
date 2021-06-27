@@ -20,10 +20,11 @@ namespace CaptaTrader
 
         public void Run()
         {
-            Console.WriteLine($"Capta Trader v{GetProductVersion()}");
+            Console.WriteLine($"Capta Trader v{GetAppVersion()}");
             Console.Write(Environment.NewLine);
 
             Manager manager = new Manager(_log);
+            Console.Write(manager.BitcoinTradingBot.ToString());
 
             Console.WriteLine("Press any key to activate bitcoin trading bot . . .");
             Console.ReadLine();
@@ -34,7 +35,7 @@ namespace CaptaTrader
             }
         }
 
-        private static string GetProductVersion()
+        private static string GetAppVersion()
         {
             FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
 

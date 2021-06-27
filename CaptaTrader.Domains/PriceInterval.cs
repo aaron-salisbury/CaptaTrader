@@ -10,5 +10,7 @@ namespace CaptaTrader.Domains
         public DateTime EndDate { get; set; }
         public decimal StartPrice { get; set; }
         public decimal EndPrice { get; set; }
+        public decimal Change => StartPrice == 0 ? 0 : ((EndPrice - StartPrice) / StartPrice) * 100;
+        public string Direction => Change > 0 ? "Up" : "Down";
     }
 }
