@@ -1,4 +1,5 @@
 ﻿using Binance.Net;
+using Binance.Net.Enums;
 using Binance.Net.Objects.Spot;
 using Binance.Net.Objects.Spot.MarketData;
 using Binance.Net.Objects.Spot.SpotData;
@@ -35,39 +36,100 @@ namespace CaptaTrader.Services
 
             BinanceSocketClient.SetDefaultOptions(new BinanceSocketClientOptions()
             {
+                BaseAddress = ENDPOINT,
                 ApiCredentials = new ApiCredentials(apiKey, secretApiKey),
                 LogVerbosity = LogVerbosity.Debug,
                 LogWriters = new List<TextWriter> { Console.Out }
             });
         }
 
-        public decimal GetAccountBalance()
+        public decimal? GetAccountBalance()
         {
-            using (BinanceClient client = new BinanceClient())
+            try
             {
-                WebCallResult<BinanceAccountInfo> result = client.General.GetAccountInfo();
+                using (BinanceClient client = new BinanceClient())
+                {
+                    WebCallResult<BinanceAccountInfo> result = client.General.GetAccountInfo();
 
-                return result.Data.Balances.Where(b => string.Equals(b.Asset, "USD")).FirstOrDefault().Free;
+                    return result.Data.Balances.Where(b => string.Equals(b.Asset, "USD")).FirstOrDefault().Free;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to get account balance: {e.Message}");
+                return null;
             }
         }
 
-        public decimal GetAssetBalance(string symbol)
+        public decimal? GetAssetBalance(string symbol)
         {
-            using (BinanceClient client = new BinanceClient())
+            try
             {
-                WebCallResult<BinanceAccountInfo> result = client.General.GetAccountInfo();
+                using (BinanceClient client = new BinanceClient())
+                {
+                    WebCallResult<BinanceAccountInfo> result = client.General.GetAccountInfo();
 
-                return result.Data.Balances.Where(b => string.Equals(b.Asset, symbol)).FirstOrDefault().Total;
+                    return result.Data.Balances.Where(b => string.Equals(b.Asset, symbol)).FirstOrDefault().Total;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to get asset balance of {symbol}: {e.Message}");
+                return null;
             }
         }
 
-        public decimal GetSpotPrice(string symbol)
+        public decimal? GetSpotPrice(string symbol)
         {
-            using (BinanceClient client = new BinanceClient())
+            try
             {
-                WebCallResult<BinanceBookPrice> result = client.Spot.Market.GetBookPrice(symbol);
+                using (BinanceClient client = new BinanceClient())
+                {
+                    WebCallResult<BinanceBookPrice> result = client.Spot.Market.GetBookPrice(symbol);
 
-                return result.Data.BestAskPrice;
+                    return result.Data.BestAskPrice;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to get spot price of {symbol}: {e.Message}");
+                return null;
+            }
+        }
+
+        public bool Buy(string symbol, decimal quantity, decimal price)
+        {
+            try
+            {
+                using (var client = new BinanceClient())
+                {
+                    WebCallResult<BinancePlacedOrder> result = client.Spot.Order.PlaceOrder(symbol, OrderSide.Buy, OrderType.Limit, quantity, price: price, timeInForce: TimeInForce.ImmediateOrCancel);
+
+                    return result.Success;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to buy {quantity} of {symbol} at ${price}: {e.Message}");
+                return false;
+            }
+        }
+
+        public bool Sell(string symbol, decimal quantity, decimal price)
+        {
+            try
+            {
+                using (var client = new BinanceClient())
+                {
+                    WebCallResult<BinancePlacedOrder> result = client.Spot.Order.PlaceOrder(symbol, OrderSide.Sell, OrderType.Limit, quantity, price: price, timeInForce: TimeInForce.ImmediateOrCancel);
+
+                    return result.Success;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to sell {quantity} of {symbol} at ${price}: {e.Message}");
+                return false;
             }
         }
     }

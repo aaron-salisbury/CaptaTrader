@@ -113,10 +113,6 @@ namespace CaptaTrader.Core
                     yield return string.Empty;
                 }
             }
-
-            //if im holding BTC, look for a price to sell it, should be as soon as profit will be double the fee
-
-            // if im holding USD, look for a price to buy (should either be when down or when a signifigant climb is predicted)
         }
 
         //TODO: Instead of figuring cost/sale in real money, need to get cost AND fee into real money.
@@ -138,6 +134,7 @@ namespace CaptaTrader.Core
 
         private ExchangeTransaction LookToBuy()
         {
+            // if im holding USD, look for a price to buy (should either be when down or when a signifigant climb is predicted)
             if (AccountBalance > 0M)
             {
                 //TODO: Get best price of BTC. Also factor in the quanity may be less than I could buy.
@@ -183,6 +180,7 @@ namespace CaptaTrader.Core
 
         private ExchangeTransaction LookToSell()
         {
+            //if im holding BTC, look for a price to sell it, should be as soon as profit will be double the fee
             if (BitcoinBalance > 0M)
             {
                 //TODO: Get best sell price of BTC. Also factor in the quanity may be less than I could sell.
