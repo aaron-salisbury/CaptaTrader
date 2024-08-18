@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Diagnostics;
 using System.Reflection;
 
 namespace CaptaTrader
@@ -23,7 +22,7 @@ namespace CaptaTrader
             Console.WriteLine($"Capta Trader v{GetAppVersion()}");
             Console.Write(Environment.NewLine);
 
-            Manager manager = new Manager(_log);
+            Manager manager = new(_log);
             Console.Write(manager.BitcoinTradingBot.ToString());
 
             Console.WriteLine("Press any key to activate bitcoin trading bot . . .");
@@ -37,9 +36,25 @@ namespace CaptaTrader
 
         private static string GetAppVersion()
         {
-            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+            string versionNumber = string.Empty;
 
-            return fileVersionInfo.ProductVersion;
+            // Version set in Project File (right-click project) > Package > Package Version
+            Assembly executingAssembly = Assembly.GetExecutingAssembly();
+            AssemblyName assemblyName = executingAssembly.GetName();
+
+            if (assemblyName.Version != null)
+            {
+                versionNumber = assemblyName.Version.ToString();
+
+                // Drop 4th position, only care about Major.Minor.Patch
+                int index = versionNumber.LastIndexOf(".");
+                if (index >= 0)
+                {
+                    versionNumber = versionNumber.Substring(0, index);
+                }
+            }
+
+            return versionNumber;
         }
     }
 }

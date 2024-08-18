@@ -36,10 +36,10 @@ namespace CaptaTrader.Core
             ExchangeService = exchangeService;
             _logger = logger;
 
-            AccountBalance = ExchangeService.GetAccountBalance();
-            BitcoinBalance = ExchangeService.GetAssetBalance(BITCOIN_SYMBOL);
+            AccountBalance = ExchangeService.GetAccountBalance() ?? 0.0M;
+            BitcoinBalance = ExchangeService.GetAssetBalance(BITCOIN_SYMBOL) ?? 0.0M;
 
-            Task.Run(() => UpdateBitcoinPriceIntervalsAsync());
+            Task.Run(() => UpdateBitcoinPriceIntervalsAsync()).Wait();
 
             Task.Run(() => ScheduleJobsAsync());
         }
@@ -125,8 +125,16 @@ namespace CaptaTrader.Core
             builder.AppendLine($"Bitcoin Balance: {BitcoinBalance}");
             builder.Append(Environment.NewLine);
 
-            builder.AppendLine($"Bitcoin Last Month: {PriceIntervalMonth.Direction} {PriceIntervalMonth.Change}%");
-            builder.AppendLine($"Bitcoin Last Day: {PriceIntervalDay.Direction} {PriceIntervalDay.Change}%");
+            if (PriceIntervalMonth != null)
+            {
+                builder.AppendLine($"Bitcoin Last Month: {PriceIntervalMonth.Direction} {PriceIntervalMonth.Change}%");
+                builder.AppendLine($"Bitcoin Last Day: {PriceIntervalDay.Direction} {PriceIntervalDay.Change}%");
+            }
+            else
+            {
+                builder.AppendLine($"No Bitcoin price interval data.");
+            }
+
             builder.Append(Environment.NewLine);
 
             return builder.ToString();
@@ -183,7 +191,7 @@ namespace CaptaTrader.Core
             //if im holding BTC, look for a price to sell it, should be as soon as profit will be double the fee
             if (BitcoinBalance > 0M)
             {
-                //TODO: Get best sell price of BTC. Also factor in the quanity may be less than I could sell.
+                //TODO: Get best sell price of BTC. Also factor in the quantity may be less than I could sell.
                 Thread.Sleep(1000);
                 decimal priceBitcoin = new decimal(new Random().NextDouble() * (40000 - 20000) + 20000);
 

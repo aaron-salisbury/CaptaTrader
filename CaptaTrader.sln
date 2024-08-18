@@ -1,15 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31105.61
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaptaTrader", "CaptaTrader\CaptaTrader.csproj", "{E47396AF-1678-496D-9F50-B49486F578BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptaTrader", "CaptaTrader\CaptaTrader.csproj", "{E47396AF-1678-496D-9F50-B49486F578BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaptaTrader.Core", "CaptaTrader.Core\CaptaTrader.Core.csproj", "{65602581-4E84-4F35-AD10-D99230E902D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptaTrader.Core", "CaptaTrader.Core\CaptaTrader.Core.csproj", "{65602581-4E84-4F35-AD10-D99230E902D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaptaTrader.Domains", "CaptaTrader.Domains\CaptaTrader.Domains.csproj", "{CB6D1F01-A31F-4927-894C-D242234FCEC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptaTrader.Domains", "CaptaTrader.Domains\CaptaTrader.Domains.csproj", "{CB6D1F01-A31F-4927-894C-D242234FCEC8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaptaTrader.Services", "CaptaTrader.Services\CaptaTrader.Services.csproj", "{554F5E22-3FB3-44EF-AE7C-2BC437567A08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptaTrader.Services", "CaptaTrader.Services\CaptaTrader.Services.csproj", "{554F5E22-3FB3-44EF-AE7C-2BC437567A08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaptaTrader.Data", "CaptaTrader.Data\CaptaTrader.Data.csproj", "{91DCEE18-60C3-45AA-AEA6-1ED7AB446F11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaptaTrader.Presentation", "CaptaTrader.Presentation\CaptaTrader.Presentation.csproj", "{C417B275-F80E-48E0-8A5D-5BC58E93B5AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaptaTrader.Business", "CaptaTrader.Business\CaptaTrader.Business.csproj", "{59C741D9-80E2-47B4-96BB-55F02693CE31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +39,18 @@ Global
 		{554F5E22-3FB3-44EF-AE7C-2BC437567A08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{554F5E22-3FB3-44EF-AE7C-2BC437567A08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{554F5E22-3FB3-44EF-AE7C-2BC437567A08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91DCEE18-60C3-45AA-AEA6-1ED7AB446F11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91DCEE18-60C3-45AA-AEA6-1ED7AB446F11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91DCEE18-60C3-45AA-AEA6-1ED7AB446F11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91DCEE18-60C3-45AA-AEA6-1ED7AB446F11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C417B275-F80E-48E0-8A5D-5BC58E93B5AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C417B275-F80E-48E0-8A5D-5BC58E93B5AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C417B275-F80E-48E0-8A5D-5BC58E93B5AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C417B275-F80E-48E0-8A5D-5BC58E93B5AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59C741D9-80E2-47B4-96BB-55F02693CE31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59C741D9-80E2-47B4-96BB-55F02693CE31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59C741D9-80E2-47B4-96BB-55F02693CE31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59C741D9-80E2-47B4-96BB-55F02693CE31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

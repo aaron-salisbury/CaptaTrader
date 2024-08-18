@@ -44,23 +44,31 @@ namespace CaptaTrader.Services
             try
             {
                 string response = await WebRequests.GetCurlResponseAsync(curl, _logger);
-                NomicsCurrenciesSparkline currenciesSparkline = (await Json.ToObjectAsync<List<NomicsCurrenciesSparkline>>(response)).FirstOrDefault();
 
-                if (currenciesSparkline != null)
+                if (!string.IsNullOrEmpty(response))
                 {
-                    if (decimal.TryParse(currenciesSparkline.Prices.First(), out decimal startPrice) && decimal.TryParse(currenciesSparkline.Prices.Last(), out decimal endPrice))
+                    NomicsCurrenciesSparkline currenciesSparkline = (await Json.ToObjectAsync<List<NomicsCurrenciesSparkline>>(response)).FirstOrDefault();
+
+                    if (currenciesSparkline != null)
                     {
-                        priceInterval = new PriceInterval
+                        if (decimal.TryParse(currenciesSparkline.Prices.First(), out decimal startPrice) && decimal.TryParse(currenciesSparkline.Prices.Last(), out decimal endPrice))
                         {
-                            Symbol = currenciesSparkline.Currency,
-                            StartDate = currenciesSparkline.Timestamps.First(),
-                            EndDate = currenciesSparkline.Timestamps.Last(),
-                            StartPrice = startPrice,
-                            EndPrice = endPrice
-                        };
+                            priceInterval = new PriceInterval
+                            {
+                                Symbol = currenciesSparkline.Currency,
+                                StartDate = currenciesSparkline.Timestamps.First(),
+                                EndDate = currenciesSparkline.Timestamps.Last(),
+                                StartPrice = startPrice,
+                                EndPrice = endPrice
+                            };
+                        }
                     }
                 }
-            }
+                else
+                {
+                    _logger.LogError("Failed to update historical price data response.");
+                }
+        }
             catch (Exception e)
             {
                 _logger.LogError($"Failed to update historical price data: {e.Message}");

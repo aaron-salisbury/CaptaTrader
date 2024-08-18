@@ -51,6 +51,12 @@ namespace CaptaTrader.Services
                 {
                     WebCallResult<BinanceAccountInfo> result = client.General.GetAccountInfo();
 
+                    if (result.Error != null)
+                    {
+                        _logger.LogError($"Failed to get account balance: {result.Error.Message}");
+                        return null;
+                    }
+
                     return result.Data.Balances.Where(b => string.Equals(b.Asset, "USD")).FirstOrDefault().Free;
                 }
             }
@@ -68,6 +74,12 @@ namespace CaptaTrader.Services
                 using (BinanceClient client = new BinanceClient())
                 {
                     WebCallResult<BinanceAccountInfo> result = client.General.GetAccountInfo();
+
+                    if (result.Error != null)
+                    {
+                        _logger.LogError($"Failed to get asset balance of {symbol}: {result.Error.Message}");
+                        return null;
+                    }
 
                     return result.Data.Balances.Where(b => string.Equals(b.Asset, symbol)).FirstOrDefault().Total;
                 }
