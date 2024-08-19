@@ -41,6 +41,11 @@ namespace CaptaTrader.Business.Services
             UpdatePriceIntervalsAsync().Wait();
 
             await ScheduleJobsAsync();
+
+
+            //TODO: This is just a test:
+            decimal? spot = await _exchangeService.GetSpotPriceAsync("BTC", "USDT");
+            _logger.LogDebug($"BTC Spot: {spot}");
         }
 
         public async Task UpdatePriceIntervalsAsync()

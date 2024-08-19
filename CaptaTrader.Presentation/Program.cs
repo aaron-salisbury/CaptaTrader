@@ -29,6 +29,7 @@ namespace CaptaTrader.Presentation
             return Program.ReturnCode;
         }
 
+        //TODO: Maybe everything should have a ILoggerFactory instead? I need to learn about that.
         private static Microsoft.Extensions.Logging.ILogger CreateAppLogger()
         {
             Serilog.ILogger serilogLogger = new LoggerConfiguration()

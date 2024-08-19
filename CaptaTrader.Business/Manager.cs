@@ -27,7 +27,7 @@ namespace CaptaTrader.Business
         {
             if (Services == null)
             {
-                _logger.LogInformation("Initializing services.");
+                _logger.LogInformation("Initializing services...");
                 ConfigureServices(encryptPhrase);
                 if (Services == null)
                 {
@@ -38,7 +38,7 @@ namespace CaptaTrader.Business
 
             if (_tradingBot == null)
             {
-                _logger.LogInformation("Initializing bot.");
+                _logger.LogInformation("Initializing bot...");
                 _tradingBot = Services.GetRequiredService<ITradingService>();
                 if (_tradingBot == null)
                 {

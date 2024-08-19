@@ -6,7 +6,7 @@ namespace CaptaTrader.Business.Services
     {
         decimal? GetAccountBalance();
         decimal? GetAssetBalance(string symbol);
-        decimal? GetSpotPrice(string symbol);
+        Task<decimal?> GetSpotPriceAsync(string symbol, string quoteAsset);
         bool Buy(string symbol, decimal quantity, decimal price);
         bool Sell(string symbol, decimal quantity, decimal price);
     }
