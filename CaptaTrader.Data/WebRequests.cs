@@ -6,7 +6,7 @@ namespace CaptaTrader.Data
 {
     public static class WebRequests
     {
-        public static async Task<string?> SendHTTPJsonRequestAsync(string url, IHttpClientFactory httpClientFactory, ILogger logger, string? content = null, Dictionary<string, string>? requestHeaders = null, string httpMethod = "GET", string? userAgent = null)
+        public static async Task<string?> SendHTTPJsonRequestAsync(string url, IHttpClientFactory httpClientFactory, ILogger logger, string? jsonContent = null, Dictionary<string, string>? requestHeaders = null, string httpMethod = "GET", string? userAgent = null)
         {
             try
             {
@@ -27,21 +27,23 @@ namespace CaptaTrader.Data
                         }
                     }
 
-                    if (string.IsNullOrEmpty(content) && string.Equals(httpMethod, "GET", StringComparison.OrdinalIgnoreCase))
+                    if (string.IsNullOrEmpty(jsonContent) && string.Equals(httpMethod, "GET", StringComparison.OrdinalIgnoreCase))
                     {
-                        return await client.GetStringAsync(url);
+                        string response = await client.GetStringAsync(url);
+                        return response;
                     }
 
                     using (HttpRequestMessage request = new(new HttpMethod(httpMethod), url))
                     {
-                        if (!string.IsNullOrEmpty(content))
+                        if (!string.IsNullOrEmpty(jsonContent))
                         {
-                            request.Content = new StringContent(content);
+                            request.Content = new StringContent(jsonContent);
                             request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
                         }
 
-                        HttpResponseMessage response = await client.SendAsync(request);
-                        return await response.Content.ReadAsStringAsync();
+                        HttpResponseMessage httpResponse = await client.SendAsync(request);
+                        string response = await httpResponse.Content.ReadAsStringAsync();
+                        return response;
                     }
                 }
             }

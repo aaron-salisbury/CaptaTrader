@@ -8,19 +8,19 @@ namespace CaptaTrader.Business.DTOs
     {
         public string? Email { get; set; }
 
-        public string? NomicsAPIKeyEncrypted { get; set; }
+        public string? CoinApiAPIKeyEncrypted { get; set; }
         public string? BinanceAPIKeyEncrypted { get; set; }
         public string? BinanceSecretAPIKeyEncrypted { get; set; }
 
-        public async Task SetNomicsAPIKeyAsync(string input, string passPhrase)
+        public async Task SetCoinApiAPIKeyAsync(string input, string passPhrase)
         {
             if (string.IsNullOrEmpty(input))
             {
-                NomicsAPIKeyEncrypted = input;
+                CoinApiAPIKeyEncrypted = input;
             }
             else
             {
-                NomicsAPIKeyEncrypted = await input.EncryptSimpleAsync(passPhrase);
+                CoinApiAPIKeyEncrypted = await input.EncryptSimpleAsync(passPhrase);
             }
         }
 

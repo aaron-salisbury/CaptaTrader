@@ -24,8 +24,8 @@ namespace CaptaTrader.Presentation
         {
             [Display(Name = "Enter E-Mail")]
             EnterEmail,
-            [Display(Name = "Enter Nomics API Key")]
-            EnterNomicsAPIKey,
+            [Display(Name = "Enter CoinApi API Key")]
+            EnterCoinApiAPIKey,
             [Display(Name = "Enter Binance API Key")]
             EnterBinanceAPIKey,
             [Display(Name = "Enter Binance Secret Key")]
@@ -95,10 +95,10 @@ namespace CaptaTrader.Presentation
                     appData.Email = Console.ReadLine();
                     await PresentConfigurationsAsync(appData, passPhrase);
                     break;
-                case "Enter Nomics API Key":
-                    Console.Write("Enter Nomics API Key: ");
-                    string? nomicsAPIKey = Console.ReadLine();
-                    await appData.SetNomicsAPIKeyAsync(nomicsAPIKey ?? string.Empty, passPhrase);
+                case "Enter CoinApi API Key":
+                    Console.Write("Enter Alpha Vantage API Key: ");
+                    string? coinApiAPIKey = Console.ReadLine();
+                    await appData.SetCoinApiAPIKeyAsync(coinApiAPIKey ?? string.Empty, passPhrase);
                     await PresentConfigurationsAsync(appData, passPhrase);
                     break;
                 case "Enter Binance API Key":

@@ -34,7 +34,7 @@ namespace CaptaTrader.Business.Services
         {
             PriceInterval? priceInterval = null;
 
-            SecureString? securedAPIKey = _keyVaultService.GetValueForKey(nameof(AppData.NomicsAPIKeyEncrypted));
+            SecureString? securedAPIKey = _keyVaultService.GetValueForKey(nameof(AppData.CoinApiAPIKeyEncrypted));
             if (securedAPIKey == null)
             {
                 _logger.LogError("No Nomics API key available.");

@@ -56,7 +56,7 @@ namespace CaptaTrader.Business
                 appData: AppData,
                 passPhrase: passPhrase));
 
-            services.AddSingleton<ICryptoDataService, NomicsCryptoDataService>(); //TODO: Nomics no longer exists. Need to write a new ICryptoDataService.
+            services.AddSingleton<ICryptoDataService, CoinApiDataService>();
             services.AddSingleton<IExchangeService, BinanceExchangeService>();
             services.AddSingleton<ITradingService, BitcoinTradingService>();
 

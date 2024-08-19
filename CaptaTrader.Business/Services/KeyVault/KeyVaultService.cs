@@ -33,9 +33,9 @@ namespace CaptaTrader.Business.Services
         {
             Dictionary<string, SecureString> securedValuesByKeys = [];
 
-            if (!string.IsNullOrEmpty(appData.NomicsAPIKeyEncrypted))
+            if (!string.IsNullOrEmpty(appData.CoinApiAPIKeyEncrypted))
             {
-                securedValuesByKeys[nameof(AppData.NomicsAPIKeyEncrypted)] = await appData.NomicsAPIKeyEncrypted.DecryptSimpleAsync(passPhrase);
+                securedValuesByKeys[nameof(AppData.CoinApiAPIKeyEncrypted)] = await appData.CoinApiAPIKeyEncrypted.DecryptSimpleAsync(passPhrase);
             }
 
             if (!string.IsNullOrEmpty(appData.BinanceAPIKeyEncrypted))
