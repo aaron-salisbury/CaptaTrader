@@ -3,17 +3,18 @@ using CaptaTrader.Business.Services;
 using CaptaTrader.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Security;
 
 namespace CaptaTrader.Business
 {
     public class Manager
     {
         public AppData AppData { get; set; }
-        public ITradingService? TradingBot { get; set; }
 
         internal static IServiceProvider? Services { get; set; }
 
         private ILogger _logger;
+        public ITradingService? _tradingBot;
 
         public Manager(ILogger logger)
         {
@@ -22,29 +23,46 @@ namespace CaptaTrader.Business
             AppData = Load();
         }
 
-        public void LaunchBot(string passPhrase)
+        public void InitializeBot(SecureString encryptPhrase)
         {
-            _logger.LogInformation("Initializing services.");
-            ConfigureServices(passPhrase);
             if (Services == null)
             {
-                _logger.LogError("Failed to initialize services. Exiting.");
-                return;
+                _logger.LogInformation("Initializing services.");
+                ConfigureServices(encryptPhrase);
+                if (Services == null)
+                {
+                    _logger.LogError("Failed to initialize services. Exiting.");
+                    return;
+                }
             }
 
-            _logger.LogInformation("Initializing bot.");
-            TradingBot = Services.GetRequiredService<ITradingService>();
-            if (TradingBot == null)
+            if (_tradingBot == null)
             {
-                _logger.LogError("Failed to initialize bot. Exiting.");
-                return;
+                _logger.LogInformation("Initializing bot.");
+                _tradingBot = Services.GetRequiredService<ITradingService>();
+                if (_tradingBot == null)
+                {
+                    _logger.LogError("Failed to initialize bot. Exiting.");
+                    return;
+                }
+                _tradingBot.Initialize();
+                //TODO: Make fancier using spectre console. Maybe yield return messages.
+                _logger.LogInformation(_tradingBot.ToString());
             }
-            TradingBot.Initialize();
-            //TODO: Make fancier using spectre console.
-            _logger.LogInformation(TradingBot.ToString());
         }
 
-        private void ConfigureServices(string passPhrase)
+        public async Task SeekTradeAsync()
+        {
+            if (_tradingBot == null)
+            {
+                _logger.LogError("Bot must be initialized before seeking to trade.");
+            }
+
+            _logger.LogDebug("SeekTradeAsync()");
+            await Task.Delay(5000);
+        }
+
+        private void ConfigureServices(SecureString encryptPhrase)
         {
             ServiceCollection services = new();
 
@@ -54,7 +72,7 @@ namespace CaptaTrader.Business
             var valutService = services.AddSingleton<IKeyVaultService, KeyVaultService>(serviceProvider => new KeyVaultService(
                 logger: serviceProvider.GetRequiredService<ILogger>(),
                 appData: AppData,
-                passPhrase: passPhrase));
+                encryptPhrase: encryptPhrase));
 
             services.AddSingleton<ICryptoDataService, CoinApiDataService>();
             services.AddSingleton<IExchangeService, BinanceExchangeService>();

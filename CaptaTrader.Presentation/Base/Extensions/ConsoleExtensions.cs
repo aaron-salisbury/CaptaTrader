@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CaptaTrader.Business.Base.Extensions;
+using System;
 using System.Reflection;
+using System.Security;
 
 namespace CaptaTrader.Presentation.Base.Extensions
 {
@@ -33,11 +35,11 @@ namespace CaptaTrader.Presentation.Base.Extensions
         /// <summary>
         /// Default CLI masked password request.
         /// </summary>
-        public static string RequestPassword(string requestMessage = "Enter your password: ")
+        public static SecureString RequestPassword(string requestMessage = "Enter your password: ")
         {
             // https://stackoverflow.com/questions/3404421/password-masking-console-application
 
-            string passPhrase = string.Empty;
+            string password = string.Empty;
 
             Console.Write(requestMessage);
             ConsoleKey key;
@@ -47,22 +49,22 @@ namespace CaptaTrader.Presentation.Base.Extensions
                 var keyInfo = Console.ReadKey(intercept: true);
                 key = keyInfo.Key;
 
-                if (key == ConsoleKey.Backspace && passPhrase.Length > 0)
+                if (key == ConsoleKey.Backspace && password.Length > 0)
                 {
                     Console.Write("\b \b");
-                    passPhrase = passPhrase[0..^1];
+                    password = password[0..^1];
                 }
                 else if (!char.IsControl(keyInfo.KeyChar))
                 {
                     Console.Write("*");
-                    passPhrase += keyInfo.KeyChar;
+                    password += keyInfo.KeyChar;
                 }
             }
-            while (key != ConsoleKey.Enter || key == ConsoleKey.Enter && string.IsNullOrEmpty(passPhrase));
+            while (key != ConsoleKey.Enter || key == ConsoleKey.Enter && string.IsNullOrEmpty(password));
 
             Console.Write(Environment.NewLine);
 
-            return passPhrase;
+            return password.ToSecureString();
         }
     }
 }

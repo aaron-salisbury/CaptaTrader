@@ -1,5 +1,6 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Data.Attributes;
+using System.Security;
 
 namespace CaptaTrader.Business.DTOs
 {
@@ -12,7 +13,7 @@ namespace CaptaTrader.Business.DTOs
         public string? BinanceAPIKeyEncrypted { get; set; }
         public string? BinanceSecretAPIKeyEncrypted { get; set; }
 
-        public async Task SetCoinApiAPIKeyAsync(string input, string passPhrase)
+        public async Task SetCoinApiAPIKeyAsync(string input, SecureString encryptPhrase)
         {
             if (string.IsNullOrEmpty(input))
             {
@@ -20,11 +21,11 @@ namespace CaptaTrader.Business.DTOs
             }
             else
             {
-                CoinApiAPIKeyEncrypted = await input.EncryptSimpleAsync(passPhrase);
+                CoinApiAPIKeyEncrypted = await input.EncryptSimpleAsync(encryptPhrase);
             }
         }
 
-        public async Task SetBinanceAPIKeyAsync(string input, string passPhrase)
+        public async Task SetBinanceAPIKeyAsync(string input, SecureString encryptPhrase)
         {
             if (string.IsNullOrEmpty(input))
             {
@@ -32,11 +33,11 @@ namespace CaptaTrader.Business.DTOs
             }
             else
             {
-                BinanceAPIKeyEncrypted = await input.EncryptSimpleAsync(passPhrase);
+                BinanceAPIKeyEncrypted = await input.EncryptSimpleAsync(encryptPhrase);
             }
         }
 
-        public async Task SetBinanceSecretAPIKeyAsync(string input, string passPhrase)
+        public async Task SetBinanceSecretAPIKeyAsync(string input, SecureString encryptPhrase)
         {
             if (string.IsNullOrEmpty(input))
             {
@@ -44,7 +45,7 @@ namespace CaptaTrader.Business.DTOs
             }
             else
             {
-                BinanceSecretAPIKeyEncrypted = await input.EncryptSimpleAsync(passPhrase);
+                BinanceSecretAPIKeyEncrypted = await input.EncryptSimpleAsync(encryptPhrase);
             }
         }
     }

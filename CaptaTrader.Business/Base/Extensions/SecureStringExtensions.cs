@@ -3,7 +3,7 @@ using System.Security;
 
 namespace CaptaTrader.Business.Base.Extensions
 {
-    internal static class SecureStringExtensions
+    public static class SecureStringExtensions
     {
         /// <summary>
         /// Convert to plain string.

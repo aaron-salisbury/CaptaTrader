@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.DTOs;
+﻿using CaptaTrader.Business;
 using CaptaTrader.Presentation.Base;
 using Spectre.Console;
 using System;
@@ -34,94 +34,96 @@ namespace CaptaTrader.Presentation
             Return
         }
 
-        private Action _saveAction;
-        private Action<string> _launchBotAction;
+        private Manager _tradingManager;
 
-        internal Interactions(Action saveAction, Action<string> launchBotAction)
+        internal Interactions(Manager tradingManager)
         {
-            _saveAction = saveAction;
-            _launchBotAction = launchBotAction;
+            _tradingManager = tradingManager;
         }
 
-        internal async Task PresentMainMenuAsync(AppData appData, string passPhrase)
+        internal async Task<bool> PresentMainMenuAsync()
         {
             // https://spectreconsole.net/prompts/selection
 
-            List<string> mainMenuOptions = Enum.GetValues(typeof(MainMenuOptions))
-                .Cast<MainMenuOptions>()
-                .Select(mmo => mmo.GetAttribute<DisplayAttribute>()?.Name ?? mmo.ToString())
-                .ToList();
+            bool launchBot = false;
+
+            IEnumerable<MainMenuOptions> options = Enum.GetValues(typeof(MainMenuOptions)).Cast<MainMenuOptions>();
+            List<string> readableOptions = options.Select(mmo => mmo.GetDisplayName()).ToList();
 
             string choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("Main Menu")
                     .PageSize(10)
-                    .AddChoices(mainMenuOptions));
+                    .AddChoices(readableOptions));
 
-            switch (choice) //TODO: Use the enum that matches the display attribute.
+            MainMenuOptions selectedOption = options.Where(mmo => string.Equals(mmo.GetDisplayName(), choice)).FirstOrDefault();
+
+            switch (selectedOption)
             {
-                case "Enter Configurations":
-                    await PresentConfigurationsAsync(appData, passPhrase);
+                case MainMenuOptions.EnterConfigurations:
+                    await PresentConfigurationsAsync();
                     break;
-                case "Launch Bot":
-                    _launchBotAction.Invoke(passPhrase);
+                case MainMenuOptions.LaunchBot:
+                    launchBot = true;
                     //TODO: Bot options.
                     break;
-                case "Exit":
-                    return;
+                case MainMenuOptions.Exit:
+                    break;
                 default:
-                    await PresentMainMenuAsync(appData, passPhrase);
+                    await PresentMainMenuAsync();
                     break;
             }
+
+            return launchBot;
         }
 
-        internal async Task PresentConfigurationsAsync(AppData appData, string passPhrase)
+        internal async Task PresentConfigurationsAsync()
         {
-            List<string> configurationOptions = Enum.GetValues(typeof(ConfigurationOptions))
-                .Cast<ConfigurationOptions>()
-                .Select(mmo => mmo.GetAttribute<DisplayAttribute>()?.Name ?? mmo.ToString())
-                .ToList();
+            IEnumerable<ConfigurationOptions> options = Enum.GetValues(typeof(ConfigurationOptions)).Cast<ConfigurationOptions>();
+            List<string> readableOptions = options.Select(co => co.GetDisplayName()).ToList();
 
             string choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("Configurations")
                     .PageSize(10)
-                    .AddChoices(configurationOptions));
+                    .AddChoices(readableOptions));
 
-            switch (choice)
+            ConfigurationOptions selectedOption = options.Where(co => string.Equals(co.GetDisplayName(), choice)).FirstOrDefault();
+
+            switch (selectedOption)
             {
-                case "Enter E-Mail":
+                case ConfigurationOptions.EnterEmail:
                     Console.Write("Enter E-Mail: ");
-                    appData.Email = Console.ReadLine();
-                    await PresentConfigurationsAsync(appData, passPhrase);
+                    _tradingManager.AppData.Email = Console.ReadLine();
+                    await PresentConfigurationsAsync();
                     break;
-                case "Enter CoinApi API Key":
+                case ConfigurationOptions.EnterCoinApiAPIKey:
                     Console.Write("Enter Alpha Vantage API Key: ");
                     string? coinApiAPIKey = Console.ReadLine();
-                    await appData.SetCoinApiAPIKeyAsync(coinApiAPIKey ?? string.Empty, passPhrase);
-                    await PresentConfigurationsAsync(appData, passPhrase);
+                    await _tradingManager.AppData.SetCoinApiAPIKeyAsync(coinApiAPIKey ?? string.Empty, Program.EncryptPhrase);
+                    await PresentConfigurationsAsync();
                     break;
-                case "Enter Binance API Key":
+                case ConfigurationOptions.EnterBinanceAPIKey:
                     Console.Write("Enter Binance API Key: ");
                     string? binanceAPIKey = Console.ReadLine();
-                    await appData.SetBinanceAPIKeyAsync(binanceAPIKey ?? string.Empty, passPhrase);
-                    await PresentConfigurationsAsync(appData, passPhrase);
+                    await _tradingManager.AppData.SetBinanceAPIKeyAsync(binanceAPIKey ?? string.Empty, Program.EncryptPhrase);
+                    await PresentConfigurationsAsync();
                     break;
-                case "Enter Binance Secret Key":
+                case ConfigurationOptions.EnterBinanceSecretKey:
                     Console.Write("Enter Binance Secret Key: ");
                     string? binanceSecretAPIKey = Console.ReadLine(); //TODO: This should not show in console.
-                    await appData.SetBinanceSecretAPIKeyAsync(binanceSecretAPIKey ?? string.Empty, passPhrase);
-                    await PresentConfigurationsAsync(appData, passPhrase);
+                    await _tradingManager.AppData.SetBinanceSecretAPIKeyAsync(binanceSecretAPIKey ?? string.Empty, Program.EncryptPhrase);
+                    await PresentConfigurationsAsync();
                     break;
-                case "Save":
-                    _saveAction.Invoke();
-                    await PresentConfigurationsAsync(appData, passPhrase);
+                case ConfigurationOptions.Save:
+                    _tradingManager.Save();
+                    await PresentConfigurationsAsync();
                     break;
-                case "Return":
-                    await PresentMainMenuAsync(appData, passPhrase);
+                case ConfigurationOptions.Return:
+                    await PresentMainMenuAsync();
                     break;
                 default:
-                    await PresentConfigurationsAsync(appData, passPhrase);
+                    await PresentConfigurationsAsync();
                     break;
             }
         }

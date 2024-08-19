@@ -10,10 +10,10 @@ namespace CaptaTrader.Business.Services
         private readonly ILogger _logger;
         private readonly Dictionary<string, SecureString> _securedValuesByKeys;
 
-        public KeyVaultService(ILogger logger, AppData appData, string passPhrase)
+        public KeyVaultService(ILogger logger, AppData appData, SecureString encryptPhrase)
         {
             _logger = logger;
-            _securedValuesByKeys = Task.Run(() => BuildSecuredValuesByKeysAsync(appData, passPhrase)).Result;
+            _securedValuesByKeys = Task.Run(() => BuildSecuredValuesByKeysAsync(appData, encryptPhrase)).Result;
         }
 
         public SecureString? GetValueForKey(string key)
@@ -29,23 +29,23 @@ namespace CaptaTrader.Business.Services
             }
         }
 
-        private async Task<Dictionary<string, SecureString>> BuildSecuredValuesByKeysAsync(AppData appData, string passPhrase)
+        private async Task<Dictionary<string, SecureString>> BuildSecuredValuesByKeysAsync(AppData appData, SecureString encryptPhrase)
         {
             Dictionary<string, SecureString> securedValuesByKeys = [];
 
             if (!string.IsNullOrEmpty(appData.CoinApiAPIKeyEncrypted))
             {
-                securedValuesByKeys[nameof(AppData.CoinApiAPIKeyEncrypted)] = await appData.CoinApiAPIKeyEncrypted.DecryptSimpleAsync(passPhrase);
+                securedValuesByKeys[nameof(AppData.CoinApiAPIKeyEncrypted)] = await appData.CoinApiAPIKeyEncrypted.DecryptSimpleAsync(encryptPhrase);
             }
 
             if (!string.IsNullOrEmpty(appData.BinanceAPIKeyEncrypted))
             {
-                securedValuesByKeys[nameof(AppData.BinanceAPIKeyEncrypted)] = await appData.BinanceAPIKeyEncrypted.DecryptSimpleAsync(passPhrase);
+                securedValuesByKeys[nameof(AppData.BinanceAPIKeyEncrypted)] = await appData.BinanceAPIKeyEncrypted.DecryptSimpleAsync(encryptPhrase);
             }
 
             if (!string.IsNullOrEmpty(appData.BinanceSecretAPIKeyEncrypted))
             {
-                securedValuesByKeys[nameof(AppData.BinanceSecretAPIKeyEncrypted)] = await appData.BinanceSecretAPIKeyEncrypted.DecryptSimpleAsync(passPhrase);
+                securedValuesByKeys[nameof(AppData.BinanceSecretAPIKeyEncrypted)] = await appData.BinanceSecretAPIKeyEncrypted.DecryptSimpleAsync(encryptPhrase);
             }
 
             return securedValuesByKeys;
