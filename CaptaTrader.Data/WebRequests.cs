@@ -1,4 +1,6 @@
-﻿using CaptaTrader.Data.Base;
+﻿// Ignore Spelling: Json
+
+using CaptaTrader.Data.Base;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
 
@@ -6,11 +8,11 @@ namespace CaptaTrader.Data
 {
     public static class WebRequests
     {
-        public static async Task<string?> SendHTTPJsonRequestAsync(string url, IHttpClientFactory httpClientFactory, ILogger logger, string? jsonContent = null, Dictionary<string, string>? requestHeaders = null, string httpMethod = "GET", string? userAgent = null)
+        public static async Task<string?> SendHTTPJsonRequestAsync(string url, IHttpClientFactory httpClientFactory, ILogger logger, string? jsonContent = null, Dictionary<string, string>? requestHeaders = null, string httpMethod = "GET", string? userAgent = null, string? namedClient = null)
         {
             try
             {
-                using (HttpClient client = httpClientFactory.CreateClient())
+                using (HttpClient client = (namedClient == null ? httpClientFactory.CreateClient() : httpClientFactory.CreateClient(namedClient)))
                 {
                     client.DefaultRequestHeaders.Add("Accept", "application/json");
 

@@ -1,4 +1,6 @@
-﻿using CaptaTrader.Business.Base.Extensions;
+﻿// Ignore Spelling: Api
+
+using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Data;
@@ -40,10 +42,6 @@ namespace CaptaTrader.Business.Services
                 return priceInterval;
             }
 
-            //TODO: "We encourage you to use the HTTP request header Accept-Encoding: deflate, gzip for all requests.
-            //  This will indicate to us that we can deliver compressed data to you which on your side should be decompressed transparently.
-            //  By allowing data compression you are lowering bandwidth requirements by approximately 80%."
-
             try
             {
                 // https://docs.coinapi.io/market-data/rest-api/metadata/list-all-symbols
@@ -56,7 +54,8 @@ namespace CaptaTrader.Business.Services
                     url,
                     _httpClientFactory,
                     _logger,
-                    requestHeaders: new Dictionary<string, string>() { { "Authorization", securedAPIKey.ToPlainString() } });
+                    requestHeaders: new Dictionary<string, string>() { { "Authorization", securedAPIKey.ToPlainString() } },
+                    namedClient: Manager.COMPRESSION_CLIENT_NAME); // CoinApi requests that compression be used.
 
                 if (!string.IsNullOrEmpty(jsonResponse))
                 {

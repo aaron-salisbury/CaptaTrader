@@ -1,4 +1,6 @@
-﻿using CaptaTrader.Business.Base.Extensions;
+﻿// Ignore Spelling: Nomics Crypto
+
+using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Data;

@@ -69,7 +69,7 @@ namespace CaptaTrader.Business.Services
 
             while (true) //TODO: Replace true with some sort of class level cancellation token
             {
-                ExchangeTransaction buyTransaction = LookToBuy();
+                ExchangeTransaction? buyTransaction = LookToBuy();
                 if (buyTransaction != null)
                 {
                     Task.Run(() => WriteTransactionToFile(buyTransaction));
@@ -81,7 +81,7 @@ namespace CaptaTrader.Business.Services
                     yield return string.Empty;
                 }
 
-                ExchangeTransaction sellTransaction = LookToSell();
+                ExchangeTransaction? sellTransaction = LookToSell();
                 if (sellTransaction != null)
                 {
                     Task.Run(() => WriteTransactionToFile(sellTransaction));

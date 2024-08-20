@@ -3,12 +3,15 @@ using CaptaTrader.Business.Services;
 using CaptaTrader.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Net;
 using System.Security;
 
 namespace CaptaTrader.Business
 {
     public class Manager
     {
+        internal static readonly string COMPRESSION_CLIENT_NAME = "CompressionClient";
+
         public AppData AppData { get; set; }
 
         internal static IServiceProvider? Services { get; set; }
@@ -67,7 +70,16 @@ namespace CaptaTrader.Business
             ServiceCollection services = new();
 
             services.AddSingleton(typeof(ILogger), _logger);
-            services.AddHttpClient();
+
+            services.AddHttpClient(COMPRESSION_CLIENT_NAME, c =>
+            {
+                c.DefaultRequestHeaders.Add("Accept-Encoding", "deflate, gzip");
+
+            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                AllowAutoRedirect = false,
+                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+            });
 
             var valutService = services.AddSingleton<IKeyVaultService, KeyVaultService>(serviceProvider => new KeyVaultService(
                 logger: serviceProvider.GetRequiredService<ILogger>(),
