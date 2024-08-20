@@ -237,9 +237,9 @@ namespace CaptaTrader.Business.Services
                         await writer.WriteLineAsync(exchangeTransaction.ToString());
                     }
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    _logger.LogError($"Failed to write transaction to file: {e.Message}", exchangeTransaction);
+                    _logger.LogError(default, ex, "Failed to write transaction to file.");
                 }
             }
         }

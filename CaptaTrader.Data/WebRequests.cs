@@ -49,9 +49,9 @@ namespace CaptaTrader.Data
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                logger.LogError($"HTTP request failed: {e.Message}");
+                logger.LogError(default, ex, "HTTP request failed.");
                 return null;
             }
         }
@@ -104,9 +104,9 @@ namespace CaptaTrader.Data
                     return await client.GetAsync(url);
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                logger.LogError($"Web request failed: {e.Message}");
+                logger.LogError(default, ex, "Web request failed.");
                 return null;
             }
         }

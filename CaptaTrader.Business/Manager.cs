@@ -28,29 +28,36 @@ namespace CaptaTrader.Business
 
         public void InitializeBot(SecureString encryptPhrase)
         {
-            if (Services == null)
+            try
             {
-                _logger.LogInformation("Initializing services...");
-                ConfigureServices(encryptPhrase);
                 if (Services == null)
                 {
-                    _logger.LogError("Failed to initialize services. Exiting.");
-                    return;
+                    _logger.LogInformation("Initializing services...");
+                    ConfigureServices(encryptPhrase);
+                    if (Services == null)
+                    {
+                        _logger.LogError("Failed to initialize services. Exiting.");
+                        return;
+                    }
                 }
-            }
 
-            if (_tradingBot == null)
-            {
-                _logger.LogInformation("Initializing bot...");
-                _tradingBot = Services.GetRequiredService<ITradingService>();
                 if (_tradingBot == null)
                 {
-                    _logger.LogError("Failed to initialize bot. Exiting.");
-                    return;
+                    _logger.LogInformation("Initializing bot...");
+                    _tradingBot = Services.GetRequiredService<ITradingService>();
+                    if (_tradingBot == null)
+                    {
+                        _logger.LogError("Failed to initialize bot. Exiting.");
+                        return;
+                    }
+                    _tradingBot.Initialize();
+                    //TODO: Make fancier using spectre console. Maybe yield return messages.
+                    _logger.LogInformation(_tradingBot.ToString());
                 }
-                _tradingBot.Initialize();
-                //TODO: Make fancier using spectre console. Maybe yield return messages.
-                _logger.LogInformation(_tradingBot.ToString());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(default, ex, "Failed to initialize services.");
             }
         }
 

@@ -24,9 +24,9 @@ namespace CaptaTrader.Data
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                logger.LogError($"Failed to read from file system: {e.Message}");
+                logger.LogError(default, ex, "Failed to read from file system.");
             }
 
             return default;
@@ -50,9 +50,9 @@ namespace CaptaTrader.Data
                         }
                     }
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    logger.LogError($"Failed to write to file system: {e.Message}");
+                    logger.LogError(default, ex, "Failed to write to file system.");
                 }
             }
         }
@@ -73,9 +73,9 @@ namespace CaptaTrader.Data
                     isSuccessful = true;
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                logger.LogError($"Failed to update internal storage: {e.Message}");
+                logger.LogError(default, ex, "Failed to update internal storage.");
             }
 
             return isSuccessful;
@@ -92,9 +92,9 @@ namespace CaptaTrader.Data
                     File.Delete(filePath);
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                logger.LogError($"Failed to delete file: {e.Message}");
+                logger.LogError(default, ex, "Failed to delete file.");
             }
         }
 

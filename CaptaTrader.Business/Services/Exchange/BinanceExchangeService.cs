@@ -47,9 +47,9 @@ namespace CaptaTrader.Business.Services
             //        return result.Data.Balances.Where(b => string.Equals(b.Asset, "USD")).FirstOrDefault()?.Free;
             //    }
             //}
-            //catch (Exception e)
+            //catch (Exception ex)
             //{
-            //    _logger.LogError($"Failed to get account balance: {e.Message}");
+            //    _logger.LogError(default, ex, "Failed to get account balance.");
             //    return null;
             //}
 
@@ -73,9 +73,9 @@ namespace CaptaTrader.Business.Services
             //        return result.Data.Balances.Where(b => string.Equals(b.Asset, symbol)).FirstOrDefault()?.Total;
             //    }
             //}
-            //catch (Exception e)
+            //catch (Exception ex)
             //{
-            //    _logger.LogError($"Failed to get asset balance of {symbol}: {e.Message}");
+            //    _logger.LogError(default, ex, $"Failed to get asset balance of {symbol}.");
             //    return null;
             //}
 
@@ -98,9 +98,9 @@ namespace CaptaTrader.Business.Services
                     return price;
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                _logger.LogError($"Failed to get spot price of {symbol}: {e.Message}");
+                _logger.LogError(default, ex, $"Failed to get spot price of {symbol}.");
                 return null;
             }
         }
@@ -116,9 +116,9 @@ namespace CaptaTrader.Business.Services
             //        return result.Success;
             //    }
             //}
-            //catch (Exception e)
+            //catch (Exception ex)
             //{
-            //    _logger.LogError($"Failed to buy {quantity} of {symbol} at ${price}: {e.Message}");
+            //    _logger.LogError(default, ex, $"Failed to buy {quantity} of {symbol} at ${price}.");
             //    return false;
             //}
 
@@ -136,9 +136,9 @@ namespace CaptaTrader.Business.Services
             //        return result.Success;
             //    }
             //}
-            //catch (Exception e)
+            //catch (Exception ex)
             //{
-            //    _logger.LogError($"Failed to sell {quantity} of {symbol} at ${price}: {e.Message}");
+            //    _logger.LogError(default, ex, $"Failed to sell {quantity} of {symbol} at ${price}.");
             //    return false;
             //}
 
