@@ -34,12 +34,14 @@ namespace CaptaTrader.Business.Models
         private readonly ILogger _logger;
         private readonly ICryptoDataService _cryptoDataService;
         private readonly IExchangeService _exchangeService;
+        private readonly IScheduler _scheduler;
 
         public BitcoinTrader(ICryptoDataService cryptoDataService, IExchangeService exchangeService, ILogger logger)
         {
             _cryptoDataService = cryptoDataService;
             _exchangeService = exchangeService;
             _logger = logger;
+            _scheduler = Task.Run(() => new StdSchedulerFactory().GetScheduler()).Result;
         }
 
         public void Initialize()
@@ -132,12 +134,7 @@ namespace CaptaTrader.Business.Models
 
         private async Task ScheduleJobsAsync()
         {
-            StdSchedulerFactory factory = new();
-            IScheduler scheduler = await factory.GetScheduler();
-
-            await scheduler.Start();
-
-            scheduler.Context.Put(nameof(BitcoinTrader), this);
+            _scheduler.Context.Put(nameof(BitcoinTrader), this);
 
             IJobDetail bitcoinPriceIntervalsJob = JobBuilder.Create<BitcoinPriceIntervalsJob>()
                 .WithIdentity(nameof(BitcoinPriceIntervalsJob), nameof(BitcoinTrader))
@@ -151,7 +148,16 @@ namespace CaptaTrader.Business.Models
                     .RepeatForever())
                 .Build();
 
-            await scheduler.ScheduleJob(bitcoinPriceIntervalsJob, bitcoinPriceIntervalsTrigger);
+            await _scheduler.ScheduleJob(bitcoinPriceIntervalsJob, bitcoinPriceIntervalsTrigger);
+
+            await _scheduler.Start();
+        }
+
+        private async Task UnscheduleJobsAsync()
+        {
+            await _scheduler.Clear();
+
+            await _scheduler.Standby();
         }
 
         private void NotifyStatus()

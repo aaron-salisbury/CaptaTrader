@@ -1,5 +1,6 @@
 ﻿using CaptaTrader.Business;
 using CaptaTrader.Presentation.Base;
+using CaptaTrader.Presentation.Base.Extensions;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,8 @@ namespace CaptaTrader.Presentation
 {
     internal class Interactions
     {
+        private const string PROMPT_FORMAT = "{0}: ";
+
         private enum MainMenuOptions
         {
             [Display(Name = "Enter Configurations")]
@@ -43,7 +46,7 @@ namespace CaptaTrader.Presentation
 
         internal async Task<bool> PresentMainMenuAsync()
         {
-            // https://spectreconsole.net/prompts/selection
+            Program.SetupConsole();
 
             bool launchBot = false;
 
@@ -79,40 +82,42 @@ namespace CaptaTrader.Presentation
 
         internal async Task PresentConfigurationsAsync()
         {
+            Program.SetupConsole();
+
             IEnumerable<ConfigurationOptions> options = Enum.GetValues(typeof(ConfigurationOptions)).Cast<ConfigurationOptions>();
             List<string> readableOptions = options.Select(co => co.GetDisplayName()).ToList();
 
-            string choice = AnsiConsole.Prompt(
+            string readableChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("Configurations")
                     .PageSize(10)
                     .AddChoices(readableOptions));
 
-            ConfigurationOptions selectedOption = options.Where(co => string.Equals(co.GetDisplayName(), choice)).FirstOrDefault();
+            ConfigurationOptions selectedOption = options.Where(co => string.Equals(co.GetDisplayName(), readableChoice)).FirstOrDefault();
 
             switch (selectedOption)
             {
                 case ConfigurationOptions.EnterEmail:
-                    Console.Write("Enter E-Mail: ");
+                    AnsiConsole.Write(string.Format(PROMPT_FORMAT, readableChoice));
                     _tradingManager.AppData.Email = Console.ReadLine();
                     await PresentConfigurationsAsync();
                     break;
                 case ConfigurationOptions.EnterCoinApiAPIKey:
-                    Console.Write("Enter CoinApi API Key: ");
-                    string? coinApiAPIKey = Console.ReadLine();
-                    await _tradingManager.AppData.SetCoinApiAPIKeyAsync(coinApiAPIKey ?? string.Empty, Program.EncryptPhrase);
+                    await _tradingManager.AppData.SetCoinApiAPIKeyAsync(
+                        ConsoleExtensions.RequestPassword(string.Format(PROMPT_FORMAT, readableChoice)), 
+                        Program.EncryptPhrase);
                     await PresentConfigurationsAsync();
                     break;
                 case ConfigurationOptions.EnterBinanceAPIKey:
-                    Console.Write("Enter Binance API Key: ");
-                    string? binanceAPIKey = Console.ReadLine();
-                    await _tradingManager.AppData.SetBinanceAPIKeyAsync(binanceAPIKey ?? string.Empty, Program.EncryptPhrase);
+                    await _tradingManager.AppData.SetBinanceAPIKeyAsync(
+                        ConsoleExtensions.RequestPassword(string.Format(PROMPT_FORMAT, readableChoice)), 
+                        Program.EncryptPhrase);
                     await PresentConfigurationsAsync();
                     break;
                 case ConfigurationOptions.EnterBinanceSecretKey:
-                    Console.Write("Enter Binance Secret Key: ");
-                    string? binanceSecretAPIKey = Console.ReadLine(); //TODO: This should not show in console.
-                    await _tradingManager.AppData.SetBinanceSecretAPIKeyAsync(binanceSecretAPIKey ?? string.Empty, Program.EncryptPhrase);
+                    await _tradingManager.AppData.SetBinanceSecretAPIKeyAsync(
+                        ConsoleExtensions.RequestPassword(string.Format(PROMPT_FORMAT, readableChoice)), 
+                        Program.EncryptPhrase);
                     await PresentConfigurationsAsync();
                     break;
                 case ConfigurationOptions.Save:

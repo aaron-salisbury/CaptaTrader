@@ -1,6 +1,9 @@
-﻿using CaptaTrader.Business.Base.Extensions;
+﻿// Ignore Spelling: Binance Api App
+
+using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Data.Attributes;
 using System.Security;
+using System.Text.Json.Serialization;
 
 namespace CaptaTrader.Business.DTOs
 {
@@ -8,44 +11,36 @@ namespace CaptaTrader.Business.DTOs
     public class AppData
     {
         public string? Email { get; set; }
+        [JsonInclude] internal string? CoinApiAPIKeyEncrypted { get; private set; }
+        [JsonInclude] internal string? BinanceAPIKeyEncrypted { get; private set; }
+        [JsonInclude] internal string? BinanceSecretAPIKeyEncrypted { get; private set; }
 
-        public string? CoinApiAPIKeyEncrypted { get; set; }
-        public string? BinanceAPIKeyEncrypted { get; set; }
-        public string? BinanceSecretAPIKeyEncrypted { get; set; }
-
-        public async Task SetCoinApiAPIKeyAsync(string input, SecureString encryptPhrase)
+        public async Task SetCoinApiAPIKeyAsync(SecureString securedInput, SecureString encryptPhrase)
         {
-            if (string.IsNullOrEmpty(input))
-            {
-                CoinApiAPIKeyEncrypted = input;
-            }
-            else
-            {
-                CoinApiAPIKeyEncrypted = await input.EncryptSimpleAsync(encryptPhrase);
-            }
+            CoinApiAPIKeyEncrypted = await EncryptSecuredInputAsync(securedInput, encryptPhrase);
         }
 
-        public async Task SetBinanceAPIKeyAsync(string input, SecureString encryptPhrase)
+        public async Task SetBinanceAPIKeyAsync(SecureString securedInput, SecureString encryptPhrase)
         {
-            if (string.IsNullOrEmpty(input))
-            {
-                BinanceAPIKeyEncrypted = input;
-            }
-            else
-            {
-                BinanceAPIKeyEncrypted = await input.EncryptSimpleAsync(encryptPhrase);
-            }
+            BinanceAPIKeyEncrypted = await EncryptSecuredInputAsync(securedInput, encryptPhrase);
         }
 
-        public async Task SetBinanceSecretAPIKeyAsync(string input, SecureString encryptPhrase)
+        public async Task SetBinanceSecretAPIKeyAsync(SecureString securedInput, SecureString encryptPhrase)
         {
+            BinanceSecretAPIKeyEncrypted = await EncryptSecuredInputAsync(securedInput, encryptPhrase);
+        }
+
+        private static async Task<string> EncryptSecuredInputAsync(SecureString securedInput, SecureString encryptPhrase)
+        {
+            string input = securedInput.ToPlainString();
+
             if (string.IsNullOrEmpty(input))
             {
-                BinanceSecretAPIKeyEncrypted = input;
+                return input;
             }
             else
             {
-                BinanceSecretAPIKeyEncrypted = await input.EncryptSimpleAsync(encryptPhrase);
+                return await input.EncryptSimpleAsync(encryptPhrase);
             }
         }
     }

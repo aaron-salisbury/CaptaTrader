@@ -13,7 +13,7 @@ namespace CaptaTrader.Business.Services
         public KeyVaultService(ILogger logger, AppData appData, SecureString encryptPhrase)
         {
             _logger = logger;
-            _securedValuesByKeys = Task.Run(() => BuildSecuredValuesByKeysAsync(appData, encryptPhrase)).Result;
+            _securedValuesByKeys = Task.Run(() => BuildSecuredValuesByKeysAsync(appData, encryptPhrase)).Result; //TODO: This fails hard sometimes, I think when pass phrase is wrong.
         }
 
         public SecureString? GetValueForKey(string key)
