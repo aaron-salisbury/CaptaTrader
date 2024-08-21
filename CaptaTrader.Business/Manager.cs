@@ -61,7 +61,7 @@ namespace CaptaTrader.Business
             }
         }
 
-        public async Task SeekTradeAsync()
+        public async Task<bool> SeekTradeAsync()
         {
             if (_tradingBot == null)
             {
@@ -70,6 +70,7 @@ namespace CaptaTrader.Business
 
             _logger.LogDebug("SeekTradeAsync()");
             await Task.Delay(5000);
+            return true;
         }
 
         private void ConfigureServices(SecureString encryptPhrase)

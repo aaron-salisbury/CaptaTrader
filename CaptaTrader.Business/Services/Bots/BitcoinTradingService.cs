@@ -13,6 +13,7 @@ namespace CaptaTrader.Business.Services
     public class BitcoinTradingService : ITradingService
     {
         private const string BITCOIN_SYMBOL = "BTC";
+        private const string QUOTE_ASSET = "USDT";
         private const decimal TRADING_FEE_SPOT = 0.001M;
         private const decimal TRADING_FEE_INSTANT = 0.005M;
 
@@ -33,30 +34,52 @@ namespace CaptaTrader.Business.Services
             _logger = logger;
         }
 
-        public async Task Initialize()
+        public void Initialize()
         {
-            AccountBalance = _exchangeService.GetAccountBalance();
-            BitcoinBalance = _exchangeService.GetAssetBalance(BITCOIN_SYMBOL);
+            UpdateBalancesAsync().Wait();
 
             UpdatePriceIntervalsAsync().Wait();
 
-            await ScheduleJobsAsync();
+            //await ScheduleJobsAsync();
+        }
 
+        public async Task UpdateBalancesAsync()
+        {
+            IEnumerable<AccountBalances>? accountAssetBalances = await _exchangeService.GetAccountBalancesAsync(new List<string>() { QUOTE_ASSET, BITCOIN_SYMBOL });
 
-            //TODO: This is just a test:
-            decimal? spot = await _exchangeService.GetSpotPriceAsync("BTC", "USDT");
-            _logger.LogDebug($"BTC Spot: {spot}");
+            if (accountAssetBalances != null)
+            {
+                foreach (AccountBalances balances in accountAssetBalances)
+                {
+                    if (string.Equals(balances.Asset, QUOTE_ASSET))
+                    {
+                        AccountBalance = balances.Available;
+                    }
+                    else if (string.Equals(balances.Asset, BITCOIN_SYMBOL))
+                    {
+                        BitcoinBalance = balances.Available;
+                    }
+                }
+            }
         }
 
         public async Task UpdatePriceIntervalsAsync()
         {
+            IEnumerable<PriceInterval>? priceIntervals = await _cryptoDataService.GetOneMonthPriceIntervals();
+
             DateTime dateTimeTodayStart = DateTime.Now.Date;
+            if (priceIntervals != null)
+            {
+                PriceIntervalDay = priceIntervals.Where(pi => pi.StartDate.Date == dateTimeTodayStart).FirstOrDefault();
 
-            PriceIntervalMonth = await _cryptoDataService.GetPricesOverInterval(BITCOIN_SYMBOL, dateTimeTodayStart.AddMonths(-1), dateTimeTodayStart);
+                if (PriceIntervalDay == null)
+                {
+                    dateTimeTodayStart.AddDays(-1);
+                    PriceIntervalDay = priceIntervals.Where(pi => pi.StartDate.Date == dateTimeTodayStart).FirstOrDefault();
+                }
 
-            await Task.Delay(TimeSpan.FromSeconds(_cryptoDataService.GetMinimumSecondsBetweenCalls()));
-
-            PriceIntervalDay = await _cryptoDataService.GetPricesOverInterval(BITCOIN_SYMBOL, dateTimeTodayStart.AddDays(-1), dateTimeTodayStart);
+                PriceIntervalMonth = priceIntervals.Where(pi => pi.StartDate.Date == dateTimeTodayStart.AddMonths(-1)).FirstOrDefault();
+            }
         }
 
         public IEnumerable<string> Activate()
@@ -130,6 +153,9 @@ namespace CaptaTrader.Business.Services
                 //TODO: Get best price of BTC. Also factor in the quanity may be less than I could buy.
                 Thread.Sleep(1000);
                 decimal priceBitcoin = new decimal(new Random().NextDouble() * (40000 - 20000) + 20000);
+                //TODO: This is just a test:
+                //decimal? priceBitcoin = await _exchangeService.GetSpotPriceAsync(BITCOIN_SYMBOL, QUOTE_ASSET);
+                //_logger.LogDebug($"BTC Spot: {priceBitcoin}");
 
                 if (priceBitcoin > 0M)//TODO: Pick a good time to buy.
                 {

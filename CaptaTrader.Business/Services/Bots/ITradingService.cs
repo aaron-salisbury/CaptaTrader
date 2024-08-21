@@ -4,7 +4,7 @@ namespace CaptaTrader.Business.Services
 {
     public interface ITradingService
     {
-        Task Initialize();
+        void Initialize();
 
         Task UpdatePriceIntervalsAsync();
 

@@ -74,7 +74,11 @@ namespace CaptaTrader.Presentation
                     }
                 }
 
-                await tradingManager.SeekTradeAsync();
+                if(!await tradingManager.SeekTradeAsync())
+                {
+                    Console.WriteLine("Shutting down bot as process ended in error.");
+                    break;
+                }
             }
         }
     }

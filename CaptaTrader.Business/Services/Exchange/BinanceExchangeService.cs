@@ -3,10 +3,13 @@
 using Binance.Net;
 using Binance.Net.Clients;
 using Binance.Net.Objects.Models.Spot;
+using Binance.Net.Objects.Models.Spot.Brokerage.SubAccountData;
 using Binance.Net.Objects.Options;
 using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.DTOs;
+using CaptaTrader.Business.Models;
 using CryptoExchange.Net.Authentication;
+using CryptoExchange.Net.CommonObjects;
 using CryptoExchange.Net.Objects;
 using Microsoft.Extensions.Logging;
 using System.Security;
@@ -30,56 +33,37 @@ namespace CaptaTrader.Business.Services
             _apiCredentials = SetApiCredentials(keyVaultService);
         }
 
-        public decimal? GetAccountBalance()
+        public async Task<IEnumerable<AccountBalances>?> GetAccountBalancesAsync(IEnumerable<string> assets)
         {
-            //try
-            //{
-            //    using (BinanceClient client = new())
-            //    {
-            //        WebCallResult<BinanceAccountInfo> result = client.General.GetAccountInfo();
+            try
+            {
+                using (HttpClient httpClient = _httpClientFactory.CreateClient())
+                using (BinanceRestClient restClient = CreateDefaultRestClient(httpClient))
+                {
+                    WebCallResult<BinanceAccountInfo> result = await restClient.SpotApi.Account.GetAccountInfoAsync();
 
-            //        if (result.Error != null)
-            //        {
-            //            _logger.LogError($"Failed to get account balance: {result.Error.Message}");
-            //            return null;
-            //        }
+                    if (result.Error != null)
+                    {
+                        _logger.LogError($"Failed to get account balance: {result.Error.Message}");
+                        return null;
+                    }
 
-            //        return result.Data.Balances.Where(b => string.Equals(b.Asset, "USD")).FirstOrDefault()?.Free;
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    _logger.LogError(default, ex, "Failed to get account balance.");
-            //    return null;
-            //}
-
-            return 0.0M;
-        }
-
-        public decimal? GetAssetBalance(string symbol)
-        {
-            //try
-            //{
-            //    using (BinanceClient client = new())
-            //    {
-            //        WebCallResult<BinanceAccountInfo> result = client.General.GetAccountInfo();
-
-            //        if (result.Error != null)
-            //        {
-            //            _logger.LogError($"Failed to get asset balance of {symbol}: {result.Error.Message}");
-            //            return null;
-            //        }
-
-            //        return result.Data.Balances.Where(b => string.Equals(b.Asset, symbol)).FirstOrDefault()?.Total;
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    _logger.LogError(default, ex, $"Failed to get asset balance of {symbol}.");
-            //    return null;
-            //}
-
-            return 0.0M;
+                    return result.Data.Balances
+                        .Where(b => assets.Contains(b.Asset))
+                        .Select(b => new AccountBalances()
+                        {
+                            Asset = b.Asset,
+                            Available = b.Available,
+                            Locked = b.Locked,
+                            Total = b.Total
+                        });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(default, ex, "Failed to get account balance.");
+                return null;
+            }
         }
 
         public async Task<decimal?> GetSpotPriceAsync(string symbol, string quoteAsset)
@@ -91,9 +75,6 @@ namespace CaptaTrader.Business.Services
                 {
                     WebCallResult<BinanceBookPrice> result = await restClient.SpotApi.ExchangeData.GetBookPriceAsync($"{symbol}{quoteAsset}");
                     decimal price = result.Data.BestAskPrice;
-
-                    //var tickerResult = await restClient.SpotApi.ExchangeData.GetTickerAsync("ETHUSDT");
-                    //var lastPrice = tickerResult.Data.LastPrice;
 
                     return price;
                 }
