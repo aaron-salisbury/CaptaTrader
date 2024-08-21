@@ -9,11 +9,7 @@ namespace CaptaTrader.Business.Jobs
         {
             BitcoinTrader bitcoinTradingBot = (BitcoinTrader)context.Scheduler.Context.Get(nameof(BitcoinTrader));
 
-            //await bitcoinTradingBot.AttemptToInitiateTradeAsync();
-
-            //TODO: TESTING - Pretend to AttemptToInitiateTradeAsync().
-            Console.WriteLine("Pretending to attempt a trade...");
-            await Task.Delay(5000);
+            await bitcoinTradingBot.AttemptToInitiateTradeAsync();
         }
     }
 }

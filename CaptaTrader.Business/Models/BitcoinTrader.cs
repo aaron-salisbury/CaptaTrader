@@ -49,8 +49,6 @@ namespace CaptaTrader.Business.Models
             {
                 await ScheduleJobsAsync();
 
-                UpdateStatus();
-
                 initialized = true;
             }
 
@@ -60,26 +58,6 @@ namespace CaptaTrader.Business.Models
         public async Task ShutdownAsync()
         {
             await UnscheduleJobsAsync();
-        }
-
-        public void UpdateStatus()
-        {
-            _notifyAction.Invoke(new Notification()
-            {
-                Title = "Bot Status",
-                NotificationType = NotificationTypes.Table,
-                CellContentsByColumnNames = new Dictionary<string, string>()
-                {
-                    { "Account Balance", AccountBalance?.ToString() ?? string.Empty },
-                    { "Bitcoin Balance", BitcoinBalance?.ToString() ?? string.Empty },
-                    { "Bitcoin Last Month", PriceIntervalMonth != null
-                        ? $"{PriceIntervalMonth?.Direction} {PriceIntervalMonth?.Change}%"
-                        : string.Empty },
-                    { "Bitcoin Last Day", PriceIntervalDay != null
-                    ? $"{PriceIntervalDay?.Direction} {PriceIntervalDay?.Change}%"
-                    : string.Empty }
-                }
-            });
         }
 
         public async Task<bool> UpdateBalancesAsync()
@@ -143,11 +121,34 @@ namespace CaptaTrader.Business.Models
         {
             //TODO: Answer whether I should I sell, buy, or hold?
 
-            //TODO: 
+            //TODO: TESTING
+            await Task.Delay(5000);
+            TradeTransaction fakeTransaction = CreateMockTradeTransaction();
+            NotifyOfTransaction(fakeTransaction);
 
             //await UpdateBalancesAsync();
 
             return true;
+        }
+
+        private void NotifyOfTransaction(TradeTransaction transaction)
+        {
+            _notifyAction.Invoke(new Notification()
+            {
+                NotificationType = NotificationTypes.Transaction,
+                TransactionValuesByColumns = new Dictionary<string, string>()
+                {
+                    { nameof(TradeTransaction.TimeStamp), transaction.TimeStamp.ToString() },
+                    { nameof(TradeTransaction.TransactionType), transaction.TransactionType.ToString() },
+                    { nameof(TradeTransaction.Quantity), transaction.Quantity.ToString() },
+                    { nameof(TradeTransaction.Price), transaction.Price.ToString() },
+                    { nameof(TradeTransaction.Total), transaction.Price.ToString() },
+                    { nameof(TradeTransaction.AvailableUSD), transaction.AvailableUSD.ToString() },
+                    { nameof(TradeTransaction.LockedUSD), transaction.LockedUSD.ToString() },
+                    { nameof(TradeTransaction.AvailableBTC), transaction.AvailableBTC.ToString() },
+                    { nameof(TradeTransaction.LockedBTC), transaction.LockedBTC.ToString() }
+                }
+            });
         }
 
         private async Task ScheduleJobsAsync()
@@ -192,6 +193,35 @@ namespace CaptaTrader.Business.Models
             await _scheduler.Clear();
             await _scheduler.Standby();
         }
+
+        private static TradeTransaction CreateMockTradeTransaction()
+        {
+            Random random = new();
+
+            TradeTransaction.TransactionTypes transactionType = random.Next(2) == 1
+                ? TradeTransaction.TransactionTypes.Buy
+                : TradeTransaction.TransactionTypes.Sell;
+
+            decimal quantity = random.NextDecimal(0.001M, 0.01M).PrecisionTruncate(3);
+            decimal price = random.NextDecimal(55000.00M, 60000.00M).PrecisionTruncate(2);
+            decimal availableUSD = random.NextDecimal(100000.0M, 200000.0M).PrecisionTruncate(2);
+            decimal availableBTC = random.NextDecimal(1.0M, 2.0M).PrecisionTruncate(2);
+            decimal total = quantity * price;
+
+            return new TradeTransaction()
+            {
+                TimeStamp = DateTime.Now,
+                TransactionType = transactionType,
+                Quantity = quantity,
+                Price = price,
+                Total = total,
+                AvailableUSD = availableUSD,
+                LockedUSD = 0.0M,
+                AvailableBTC = availableBTC,
+                LockedBTC = 0.0M
+            };
+        }
+
 
 
 

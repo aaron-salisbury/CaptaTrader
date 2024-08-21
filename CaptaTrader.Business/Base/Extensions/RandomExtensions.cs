@@ -1,0 +1,19 @@
+﻿using System;
+
+namespace CaptaTrader.Business.Base.Extensions
+{
+    public static class RandomExtensions
+    {
+        /// <summary>
+        /// Returns a random decimal (with decimal-place precision of a double), optionally that is within a specified range.
+        /// </summary>
+        public static decimal NextDecimal(this Random random, decimal minValue = decimal.MinValue, decimal maxValue = decimal.MaxValue)
+        {
+            // Partially from https://stackoverflow.com/a/28860710
+
+            decimal randomDecimal = new(random.NextDouble());
+
+            return maxValue * randomDecimal + minValue * (1 - randomDecimal);
+        }
+    }
+}

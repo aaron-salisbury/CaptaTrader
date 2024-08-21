@@ -7,12 +7,11 @@ namespace CaptaTrader.Business.Models
         public enum NotificationTypes
         {
             Message,
-            Table
+            Transaction
         }
 
         public NotificationTypes NotificationType { get; set; }
-        public string? Title { get; set; }
         public string? Message { get; set; }
-        public Dictionary<string, string>? CellContentsByColumnNames { get; set; }
+        public Dictionary<string, string>? TransactionValuesByColumns { get; set; }
     }
 }
