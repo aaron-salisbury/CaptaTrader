@@ -1,4 +1,7 @@
-﻿using CaptaTrader.Business.DTOs;
+﻿// Ignore Spelling: Bitcoin App
+
+using CaptaTrader.Business.Base;
+using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
 using CaptaTrader.Data;
@@ -9,12 +12,19 @@ using System.Security;
 
 namespace CaptaTrader.Business
 {
-    public class Manager
+    public class Manager : ObservableModel
     {
         internal static readonly string COMPRESSION_CLIENT_NAME = "CompressionClient";
 
         public AppData AppData { get; set; }
         public BitcoinTrader? BitcoinTrader { get; set; }
+
+        private Notification? _lastNotification;
+        public Notification? LastNotification
+        {
+            get => _lastNotification;
+            set => SetProperty(ref _lastNotification, value);
+        }
 
         internal static IServiceProvider? Services { get; set; }
 
@@ -27,43 +37,45 @@ namespace CaptaTrader.Business
             AppData = Load();
         }
 
-        public IEnumerable<string?> InitializeBot(SecureString encryptPhrase)
+        public bool InitializeBot(SecureString encryptPhrase)
         {
-            if (Services == null)
-            {
-                yield return "Initializing services...";
-                ConfigureServices(encryptPhrase);
-                if (Services == null)
-                {
-                    _logger.LogError("Failed to initialize services. Exiting.");
-                    yield return null;
-                }
-            }
+            Notify("Initializing services...");
+            Services = ConfigureServices(encryptPhrase).BuildServiceProvider();
 
-            if (Services != null && BitcoinTrader == null)
+            Notify("Initializing bot...");
+            BitcoinTrader = new BitcoinTrader(
+                Services.GetRequiredService<ICryptoDataService>(),
+                Services.GetRequiredService<IExchangeService>(),
+                _logger,
+                Notify);
+
+            return BitcoinTrader.InitializeAsync().Result;
+        }
+
+        public void ShutdownBot()
+        {
+            if (BitcoinTrader != null)
             {
-                yield return "Initializing bot...";
-                BitcoinTrader = new BitcoinTrader(
-                    Services.GetRequiredService<ICryptoDataService>(),
-                    Services.GetRequiredService<IExchangeService>(),
-                    _logger);
-                BitcoinTrader.Initialize();
+                Notify("Shutting down bot...");
+                Task.Run(async () => await BitcoinTrader.ShutdownAsync());
             }
         }
 
-        public async Task<bool> SeekTradeAsync()
+        internal void Notify(Notification notification)
         {
-            if (BitcoinTrader == null)
-            {
-                _logger.LogError("Bot must be initialized before seeking to trade.");
-            }
-
-            _logger.LogDebug("SeekTradeAsync()");
-            await Task.Delay(5000);
-            return true;
+            LastNotification = notification;
         }
 
-        private void ConfigureServices(SecureString encryptPhrase)
+        internal void Notify(string message)
+        {
+            Notify(new Notification()
+            {
+                NotificationType = Notification.NotificationTypes.Message,
+                Message = message
+            });
+        }
+
+        private ServiceCollection ConfigureServices(SecureString encryptPhrase)
         {
             ServiceCollection services = new();
 
@@ -87,13 +99,12 @@ namespace CaptaTrader.Business
             services.AddSingleton<ICryptoDataService, CoinApiDataService>();
             services.AddSingleton<IExchangeService, BinanceExchangeService>();
 
-            Services = services.BuildServiceProvider();
+            return services;
         }
 
         private AppData Load()
         {
-            return Task.Run(() => CRUD.ReadDataAsync<AppData>(_logger)).Result 
-                ?? new AppData();
+            return Task.Run(() => CRUD.ReadDataAsync<AppData>(_logger)).Result ?? new AppData();
         }
 
         public void Save()

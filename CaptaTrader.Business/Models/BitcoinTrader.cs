@@ -1,6 +1,5 @@
 ﻿// Ignore Spelling: Bitcoin crypto
 
-using CaptaTrader.Business.Base;
 using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Jobs;
 using CaptaTrader.Business.Services;
@@ -11,12 +10,13 @@ using static CaptaTrader.Business.Models.Notification;
 
 namespace CaptaTrader.Business.Models
 {
-    public class BitcoinTrader : ObservableModel
+    public class BitcoinTrader
     {
         private const string BITCOIN_SYMBOL = "BTC";
         private const string QUOTE_ASSET = "USDT";
         private const decimal TRADING_FEE_SPOT = 0.001M;
         private const decimal TRADING_FEE_INSTANT = 0.005M;
+        private const int MIN_SECONDS_BETWEEN_TRADES = 60;
 
         public PriceInterval? PriceIntervalMonth { get; set; }
         public PriceInterval? PriceIntervalDay { get; set; }
@@ -24,39 +24,67 @@ namespace CaptaTrader.Business.Models
         public decimal? BitcoinBalance { get; set; }
         public decimal AveragePricePaid { get; set; } = 1.0M; //TODO: This is wrong, need to initialize this with what is real, where I am the balances.
 
-        private Notification? _lastNotification;
-        public Notification? LastNotification
-        {
-            get => _lastNotification;
-            set => SetProperty(ref _lastNotification, value);
-        }
-
         private readonly ILogger _logger;
         private readonly ICryptoDataService _cryptoDataService;
         private readonly IExchangeService _exchangeService;
+        private readonly Action<Notification> _notifyAction;
         private readonly IScheduler _scheduler;
 
-        public BitcoinTrader(ICryptoDataService cryptoDataService, IExchangeService exchangeService, ILogger logger)
+        public BitcoinTrader(ICryptoDataService cryptoDataService, IExchangeService exchangeService, ILogger logger, Action<Notification> notifyAction)
         {
             _cryptoDataService = cryptoDataService;
             _exchangeService = exchangeService;
             _logger = logger;
+            _notifyAction = notifyAction;
+
             _scheduler = Task.Run(() => new StdSchedulerFactory().GetScheduler()).Result;
+            _scheduler.Context.Put(nameof(BitcoinTrader), this);
         }
 
-        public void Initialize()
+        public async Task<bool> InitializeAsync()
         {
-            UpdateBalancesAsync().Wait();
+            bool initialized = false;
 
-            UpdatePriceIntervalsAsync().Wait();
+            if (UpdateBalancesAsync().Result && UpdatePriceIntervalsAsync().Result)
+            {
+                await ScheduleJobsAsync();
 
-            //await ScheduleJobsAsync();
+                UpdateStatus();
 
-            NotifyStatus();
+                initialized = true;
+            }
+
+            return initialized;
         }
 
-        public async Task UpdateBalancesAsync()
+        public async Task ShutdownAsync()
         {
+            await UnscheduleJobsAsync();
+        }
+
+        public void UpdateStatus()
+        {
+            _notifyAction.Invoke(new Notification()
+            {
+                Title = "Bot Status",
+                NotificationType = NotificationTypes.Table,
+                CellContentsByColumnNames = new Dictionary<string, string>()
+                {
+                    { "Account Balance", AccountBalance?.ToString() ?? string.Empty },
+                    { "Bitcoin Balance", BitcoinBalance?.ToString() ?? string.Empty },
+                    { "Bitcoin Last Month", PriceIntervalMonth != null
+                        ? $"{PriceIntervalMonth?.Direction} {PriceIntervalMonth?.Change}%"
+                        : string.Empty },
+                    { "Bitcoin Last Day", PriceIntervalDay != null
+                    ? $"{PriceIntervalDay?.Direction} {PriceIntervalDay?.Change}%"
+                    : string.Empty }
+                }
+            });
+        }
+
+        public async Task<bool> UpdateBalancesAsync()
+        {
+            bool successful = false;
             IEnumerable<AccountBalances>? accountAssetBalances = await _exchangeService.GetAccountBalancesAsync(new List<string>() { QUOTE_ASSET, BITCOIN_SYMBOL });
 
             if (accountAssetBalances != null)
@@ -72,15 +100,20 @@ namespace CaptaTrader.Business.Models
                         BitcoinBalance = balances.Available;
                     }
                 }
+
+                successful = true;
             }
+
+            return successful;
         }
 
-        public async Task UpdatePriceIntervalsAsync()
+        public async Task<bool> UpdatePriceIntervalsAsync()
         {
-            IEnumerable<PriceInterval>? priceIntervals = await _cryptoDataService.GetOneMonthPriceIntervals();
+            bool successful = false;
+            IEnumerable<PriceInterval>? priceIntervals = await _cryptoDataService.GetLastThirtyDaysOfPriceIntervals();
 
             DateTime dateTimeTodayStart = DateTime.Now.Date;
-            if (priceIntervals != null)
+            if (priceIntervals != null && priceIntervals.Any())
             {
                 PriceIntervalDay = priceIntervals.Where(pi => pi.StartDate.Date == dateTimeTodayStart).FirstOrDefault();
 
@@ -90,9 +123,78 @@ namespace CaptaTrader.Business.Models
                     PriceIntervalDay = priceIntervals.Where(pi => pi.StartDate.Date == dateTimeTodayStart).FirstOrDefault();
                 }
 
-                PriceIntervalMonth = priceIntervals.Where(pi => pi.StartDate.Date == dateTimeTodayStart.AddMonths(-1)).FirstOrDefault();
+                PriceInterval oldest = priceIntervals.Last();
+                PriceIntervalMonth = new PriceInterval()
+                {
+                    Symbol = BITCOIN_SYMBOL,
+                    StartDate = oldest.StartDate,
+                    EndDate = PriceIntervalDay.EndDate,
+                    StartPrice = Convert.ToDecimal(oldest.StartPrice),
+                    EndPrice = Convert.ToDecimal(PriceIntervalDay.EndPrice)
+                };
+
+                successful = true;
             }
+
+            return successful;
         }
+
+        public async Task<bool> AttemptToInitiateTradeAsync()
+        {
+            //TODO: Answer whether I should I sell, buy, or hold?
+
+            //TODO: 
+
+            //await UpdateBalancesAsync();
+
+            return true;
+        }
+
+        private async Task ScheduleJobsAsync()
+        {
+            #region BitcoinPriceIntervalsJob
+            IJobDetail bitcoinPriceIntervalsJob = JobBuilder.Create<BitcoinPriceIntervalsJob>()
+                .WithIdentity(nameof(BitcoinPriceIntervalsJob), nameof(BitcoinTrader))
+                .Build();
+
+            ITrigger bitcoinPriceIntervalsTrigger = TriggerBuilder.Create()
+                .WithIdentity($"{nameof(BitcoinPriceIntervalsJob)}Trigger", nameof(BitcoinTrader))
+                .StartAt(new DateTimeOffset(DateTime.Now.Date.AddDays(1)))
+                .WithSimpleSchedule(x => x
+                    .WithIntervalInHours(24)
+                    .RepeatForever())
+                .Build();
+
+            await _scheduler.ScheduleJob(bitcoinPriceIntervalsJob, bitcoinPriceIntervalsTrigger);
+            #endregion
+
+            #region AttemptToInitiateTradeJob
+            IJobDetail attemptToInitiateTradeJob = JobBuilder.Create<AttemptToInitiateTradeJob>()
+                .WithIdentity(nameof(AttemptToInitiateTradeJob), nameof(BitcoinTrader))
+                .Build();
+
+            ITrigger attemptToInitiateTradeTrigger = TriggerBuilder.Create()
+                .WithIdentity($"{nameof(AttemptToInitiateTradeJob)}Trigger", nameof(BitcoinTrader))
+                .StartAt(new DateTimeOffset(DateTime.Now.AddSeconds(MIN_SECONDS_BETWEEN_TRADES)))
+                .WithSimpleSchedule(x => x
+                    .WithIntervalInSeconds(MIN_SECONDS_BETWEEN_TRADES)
+                    .RepeatForever())
+                .Build();
+
+            await _scheduler.ScheduleJob(attemptToInitiateTradeJob, attemptToInitiateTradeTrigger);
+            #endregion
+
+            await _scheduler.Start();
+        }
+
+        private async Task UnscheduleJobsAsync()
+        {
+            await _scheduler.Clear();
+            await _scheduler.Standby();
+        }
+
+
+
 
         public IEnumerable<string> Activate()
         {
@@ -130,54 +232,6 @@ namespace CaptaTrader.Business.Models
                     yield return string.Empty;
                 }
             }
-        }
-
-        private async Task ScheduleJobsAsync()
-        {
-            _scheduler.Context.Put(nameof(BitcoinTrader), this);
-
-            IJobDetail bitcoinPriceIntervalsJob = JobBuilder.Create<BitcoinPriceIntervalsJob>()
-                .WithIdentity(nameof(BitcoinPriceIntervalsJob), nameof(BitcoinTrader))
-                .Build();
-
-            ITrigger bitcoinPriceIntervalsTrigger = TriggerBuilder.Create()
-                .WithIdentity($"{nameof(BitcoinPriceIntervalsJob)}Trigger", nameof(BitcoinTrader))
-                .StartAt(new DateTimeOffset(DateTime.Now.Date.AddDays(1)))
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInHours(24)
-                    .RepeatForever())
-                .Build();
-
-            await _scheduler.ScheduleJob(bitcoinPriceIntervalsJob, bitcoinPriceIntervalsTrigger);
-
-            await _scheduler.Start();
-        }
-
-        private async Task UnscheduleJobsAsync()
-        {
-            await _scheduler.Clear();
-
-            await _scheduler.Standby();
-        }
-
-        private void NotifyStatus()
-        {
-            LastNotification = new Notification()
-            {
-                Title = "Bot Status",
-                NotificationType = NotificationTypes.Table,
-                CellContentsByColumnNames = new Dictionary<string, string>()
-                {
-                    { "Account Balance", AccountBalance?.ToString() ?? string.Empty },
-                    { "Bitcoin Balance", BitcoinBalance?.ToString() ?? string.Empty },
-                    { "Bitcoin Last Month", PriceIntervalMonth != null
-                        ? $"{PriceIntervalMonth?.Direction} {PriceIntervalMonth?.Change}%"
-                        : string.Empty },
-                    { "Bitcoin Last Day", PriceIntervalDay != null
-                    ? $"{PriceIntervalDay?.Direction} {PriceIntervalDay?.Change}%"
-                    : string.Empty }
-                }
-            };
         }
 
         //TODO: Instead of figuring cost/sale in real money, need to get cost AND fee into real money.
@@ -307,27 +361,5 @@ namespace CaptaTrader.Business.Models
                 }
             }
         }
-
-        //public override string ToString()
-        //{
-        //    StringBuilder builder = new();
-        //    builder.AppendLine("*** Bitcoin Trading Bot Status ***");
-        //    builder.AppendLine($"   Account Balance: {AccountBalance}");
-        //    builder.AppendLine($"   Bitcoin Balance: {BitcoinBalance}");
-
-        //    if (PriceIntervalMonth != null && PriceIntervalDay != null)
-        //    {
-        //        builder.AppendLine($"   Bitcoin Last Month: {PriceIntervalMonth.Direction} {PriceIntervalMonth.Change}%");
-        //        builder.AppendLine($"   Bitcoin Last Day: {PriceIntervalDay.Direction} {PriceIntervalDay.Change}%");
-        //    }
-        //    else
-        //    {
-        //        builder.AppendLine($"   No price interval data.");
-        //    }
-
-        //    builder.Append(Environment.NewLine);
-
-        //    return builder.ToString();
-        //}
     }
 }

@@ -5,7 +5,9 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Spectre.Console;
 using System;
+using System.Linq;
 using System.Security;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation
@@ -17,6 +19,7 @@ namespace CaptaTrader.Presentation
 
         public static async Task<int> Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
             SetupConsole();
 
             EncryptPhrase = ConsoleExtensions.RequestPassword("Enter your pass phrase for API encryption: ");
@@ -24,9 +27,11 @@ namespace CaptaTrader.Presentation
             //TODO: Verify pass phrase is correct.
 
             Manager tradingManager = new(CreateAppLogger());
+            tradingManager.PropertyChanged += TradingManager_OnPropertyChanged;
 
             await LaunchMainMenuAsync(tradingManager);
 
+            tradingManager.PropertyChanged -= TradingManager_OnPropertyChanged;
             return ReturnCode;
         }
 
@@ -67,42 +72,33 @@ namespace CaptaTrader.Presentation
 
         private static void ActivateMainProcess(Manager tradingManager)
         {
-            //TODO: Would rather have this method return a pass or fail state
-            //  and have its status message write another way.
-            foreach (string? updateMessage in tradingManager.InitializeBot(EncryptPhrase))
+            if (tradingManager.InitializeBot(EncryptPhrase))
             {
-                if (updateMessage != null)
-                {
-                    AnsiConsole.WriteLine(updateMessage);
-                }
-            }
+                AnsiConsole.Status()
+                    .Spinner(Spinner.Known.Point)
+                    .Start($"Bot is active, press any key to shutdown...{Environment.NewLine}", _ => Console.ReadKey());
 
-            //TODO: LastNotification should maybe be on the manager itself, Exceptions too
-            if (tradingManager.BitcoinTrader != null)
-            {
-                tradingManager.BitcoinTrader.PropertyChanged += TradingBot_OnPropertyChanged;
-                //TODO: remove upon application close?
+                tradingManager.ShutdownBot();
             }
-
-            AnsiConsole.Status()
-                .Spinner(Spinner.Known.Dots)
-                .Start("Bot is active, press any key to shutdown...", _ => Console.ReadKey());
         }
 
-        private static void TradingBot_OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private static void TradingManager_OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            //TODO: This isn't getting hit.
-            if (e.PropertyName == nameof(BitcoinTrader.LastNotification) && sender is BitcoinTrader bot && bot.LastNotification != null)
+            if (e.PropertyName == nameof(Manager.LastNotification) && sender is Manager manager && manager.LastNotification != null)
             {
-                // https://spectreconsole.net/live/live-display
-
-                if (bot.LastNotification.NotificationType == Notification.NotificationTypes.Message && bot.LastNotification.Message != null)
+                if (manager.LastNotification.NotificationType == Notification.NotificationTypes.Message && manager.LastNotification.Message != null)
                 {
-                    //TODO: title and message
+                    AnsiConsole.WriteLine(manager.LastNotification.Message);
                 }
-                else if (bot.LastNotification.NotificationType == Notification.NotificationTypes.Table && bot.LastNotification.CellContentsByColumnNames != null)
+                else if (manager.LastNotification.NotificationType == Notification.NotificationTypes.Table && manager.LastNotification.CellContentsByColumnNames != null)
                 {
-                    //TODO: title and table
+                    Table table = new()
+                    {
+                        Title = new TableTitle(manager.LastNotification.Title ?? e.PropertyName)
+                    };
+                    table.AddColumns(manager.LastNotification.CellContentsByColumnNames.Keys.ToArray());
+                    table.AddRow(manager.LastNotification.CellContentsByColumnNames.Values.ToArray());
+                    AnsiConsole.Write(table);
                 }
             }
         }
