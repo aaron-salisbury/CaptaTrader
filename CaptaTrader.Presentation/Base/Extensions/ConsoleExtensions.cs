@@ -59,6 +59,8 @@ namespace CaptaTrader.Presentation.Base.Extensions
                     Console.Write("*");
                     password += keyInfo.KeyChar;
                 }
+
+                password = password.Trim();
             }
             while (key != ConsoleKey.Enter || key == ConsoleKey.Enter && string.IsNullOrEmpty(password));
 

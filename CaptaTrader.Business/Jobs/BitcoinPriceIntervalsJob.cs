@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.Services;
+﻿using CaptaTrader.Business.Models;
 using Quartz;
 
 namespace CaptaTrader.Business.Jobs
@@ -7,7 +7,7 @@ namespace CaptaTrader.Business.Jobs
     {
         public async Task Execute(IJobExecutionContext context)
         {
-            BitcoinTradingService bitcoinTradingBot = (BitcoinTradingService)context.Scheduler.Context.Get(nameof(BitcoinTradingService));
+            BitcoinTrader bitcoinTradingBot = (BitcoinTrader)context.Scheduler.Context.Get(nameof(BitcoinTrader));
 
             await bitcoinTradingBot.UpdatePriceIntervalsAsync();
         }

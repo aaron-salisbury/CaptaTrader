@@ -1,4 +1,5 @@
 ﻿using CaptaTrader.Business;
+using CaptaTrader.Business.Models;
 using CaptaTrader.Presentation.Base.Extensions;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -52,11 +53,39 @@ namespace CaptaTrader.Presentation
 
             if (beginTrading)
             {
-                tradingManager.InitializeBot(EncryptPhrase);
+                foreach (string? updateMessage in tradingManager.InitializeBot(EncryptPhrase))
+                {
+                    if (updateMessage != null)
+                    {
+                        Console.WriteLine(updateMessage);
+                    }
+                }
+
+                if (tradingManager.BitcoinTrader !=  null)
+                {
+                    tradingManager.BitcoinTrader.PropertyChanged += TradingBot_OnPropertyChanged;
+                    //TODO: remove upon application close?
+                }
 
                 await RunApplicationLoopAsync(tradingManager);
 
                 await LaunchMainMenuAsync(tradingManager);
+            }
+        }
+
+        private static void TradingBot_OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            //TODO: This isn't getting hit.
+            if (e.PropertyName == nameof(BitcoinTrader.LastNotification) && sender is BitcoinTrader bot && bot.LastNotification != null)
+            {
+                if (bot.LastNotification.NotificationType == Notification.NotificationTypes.Message && bot.LastNotification.Message != null)
+                {
+                    //TODO: title and message
+                }
+                else if (bot.LastNotification.NotificationType == Notification.NotificationTypes.Table && bot.LastNotification.CellContentsByColumnNames != null)
+                {
+                    //TODO: title and table
+                }
             }
         }
 

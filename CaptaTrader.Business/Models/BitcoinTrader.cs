@@ -1,16 +1,17 @@
 ﻿// Ignore Spelling: Bitcoin crypto
 
+using CaptaTrader.Business.Base;
 using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Jobs;
-using CaptaTrader.Business.Models;
+using CaptaTrader.Business.Services;
 using Microsoft.Extensions.Logging;
 using Quartz;
 using Quartz.Impl;
-using System.Text;
+using static CaptaTrader.Business.Models.Notification;
 
-namespace CaptaTrader.Business.Services
+namespace CaptaTrader.Business.Models
 {
-    public class BitcoinTradingService : ITradingService
+    public class BitcoinTrader : ObservableModel
     {
         private const string BITCOIN_SYMBOL = "BTC";
         private const string QUOTE_ASSET = "USDT";
@@ -23,11 +24,18 @@ namespace CaptaTrader.Business.Services
         public decimal? BitcoinBalance { get; set; }
         public decimal AveragePricePaid { get; set; } = 1.0M; //TODO: This is wrong, need to initialize this with what is real, where I am the balances.
 
+        private Notification? _lastNotification;
+        public Notification? LastNotification
+        {
+            get => _lastNotification;
+            set => SetProperty(ref _lastNotification, value);
+        }
+
         private readonly ILogger _logger;
         private readonly ICryptoDataService _cryptoDataService;
         private readonly IExchangeService _exchangeService;
 
-        public BitcoinTradingService(ICryptoDataService cryptoDataService, IExchangeService exchangeService, ILogger logger)
+        public BitcoinTrader(ICryptoDataService cryptoDataService, IExchangeService exchangeService, ILogger logger)
         {
             _cryptoDataService = cryptoDataService;
             _exchangeService = exchangeService;
@@ -41,6 +49,8 @@ namespace CaptaTrader.Business.Services
             UpdatePriceIntervalsAsync().Wait();
 
             //await ScheduleJobsAsync();
+
+            NotifyStatus();
         }
 
         public async Task UpdateBalancesAsync()
@@ -84,6 +94,8 @@ namespace CaptaTrader.Business.Services
 
         public IEnumerable<string> Activate()
         {
+            //TODO: Instead of yield returning strings, take advantage of Notification
+
             yield return "Bot is active.";
             yield return string.Empty;
 
@@ -125,14 +137,14 @@ namespace CaptaTrader.Business.Services
 
             await scheduler.Start();
 
-            scheduler.Context.Put(nameof(BitcoinTradingService), this);
+            scheduler.Context.Put(nameof(BitcoinTrader), this);
 
             IJobDetail bitcoinPriceIntervalsJob = JobBuilder.Create<BitcoinPriceIntervalsJob>()
-                .WithIdentity(nameof(BitcoinPriceIntervalsJob), nameof(BitcoinTradingService))
+                .WithIdentity(nameof(BitcoinPriceIntervalsJob), nameof(BitcoinTrader))
                 .Build();
 
             ITrigger bitcoinPriceIntervalsTrigger = TriggerBuilder.Create()
-                .WithIdentity($"{nameof(BitcoinPriceIntervalsJob)}Trigger", nameof(BitcoinTradingService))
+                .WithIdentity($"{nameof(BitcoinPriceIntervalsJob)}Trigger", nameof(BitcoinTrader))
                 .StartAt(new DateTimeOffset(DateTime.Now.Date.AddDays(1)))
                 .WithSimpleSchedule(x => x
                     .WithIntervalInHours(24)
@@ -140,6 +152,26 @@ namespace CaptaTrader.Business.Services
                 .Build();
 
             await scheduler.ScheduleJob(bitcoinPriceIntervalsJob, bitcoinPriceIntervalsTrigger);
+        }
+
+        private void NotifyStatus()
+        {
+            LastNotification = new Notification()
+            {
+                Title = "Bot Status",
+                NotificationType = NotificationTypes.Table,
+                CellContentsByColumnNames = new Dictionary<string, string>()
+                {
+                    { "Account Balance", AccountBalance?.ToString() ?? string.Empty },
+                    { "Bitcoin Balance", BitcoinBalance?.ToString() ?? string.Empty },
+                    { "Bitcoin Last Month", PriceIntervalMonth != null
+                        ? $"{PriceIntervalMonth?.Direction} {PriceIntervalMonth?.Change}%"
+                        : string.Empty },
+                    { "Bitcoin Last Day", PriceIntervalDay != null
+                    ? $"{PriceIntervalDay?.Direction} {PriceIntervalDay?.Change}%"
+                    : string.Empty }
+                }
+            };
         }
 
         //TODO: Instead of figuring cost/sale in real money, need to get cost AND fee into real money.
@@ -270,26 +302,26 @@ namespace CaptaTrader.Business.Services
             }
         }
 
-        public override string ToString()
-        {
-            StringBuilder builder = new();
-            builder.AppendLine("*** Bitcoin Trading Bot Status ***");
-            builder.AppendLine($"   Account Balance: {AccountBalance}");
-            builder.AppendLine($"   Bitcoin Balance: {BitcoinBalance}");
+        //public override string ToString()
+        //{
+        //    StringBuilder builder = new();
+        //    builder.AppendLine("*** Bitcoin Trading Bot Status ***");
+        //    builder.AppendLine($"   Account Balance: {AccountBalance}");
+        //    builder.AppendLine($"   Bitcoin Balance: {BitcoinBalance}");
 
-            if (PriceIntervalMonth != null && PriceIntervalDay != null)
-            {
-                builder.AppendLine($"   Bitcoin Last Month: {PriceIntervalMonth.Direction} {PriceIntervalMonth.Change}%");
-                builder.AppendLine($"   Bitcoin Last Day: {PriceIntervalDay.Direction} {PriceIntervalDay.Change}%");
-            }
-            else
-            {
-                builder.AppendLine($"   No price interval data.");
-            }
+        //    if (PriceIntervalMonth != null && PriceIntervalDay != null)
+        //    {
+        //        builder.AppendLine($"   Bitcoin Last Month: {PriceIntervalMonth.Direction} {PriceIntervalMonth.Change}%");
+        //        builder.AppendLine($"   Bitcoin Last Day: {PriceIntervalDay.Direction} {PriceIntervalDay.Change}%");
+        //    }
+        //    else
+        //    {
+        //        builder.AppendLine($"   No price interval data.");
+        //    }
 
-            builder.Append(Environment.NewLine);
+        //    builder.Append(Environment.NewLine);
 
-            return builder.ToString();
-        }
+        //    return builder.ToString();
+        //}
     }
 }

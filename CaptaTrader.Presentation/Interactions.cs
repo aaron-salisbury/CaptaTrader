@@ -98,7 +98,7 @@ namespace CaptaTrader.Presentation
                     await PresentConfigurationsAsync();
                     break;
                 case ConfigurationOptions.EnterCoinApiAPIKey:
-                    Console.Write("Enter Alpha Vantage API Key: ");
+                    Console.Write("Enter CoinApi API Key: ");
                     string? coinApiAPIKey = Console.ReadLine();
                     await _tradingManager.AppData.SetCoinApiAPIKeyAsync(coinApiAPIKey ?? string.Empty, Program.EncryptPhrase);
                     await PresentConfigurationsAsync();

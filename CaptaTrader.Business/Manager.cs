@@ -1,4 +1,5 @@
 ﻿using CaptaTrader.Business.DTOs;
+using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
 using CaptaTrader.Data;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,11 +14,11 @@ namespace CaptaTrader.Business
         internal static readonly string COMPRESSION_CLIENT_NAME = "CompressionClient";
 
         public AppData AppData { get; set; }
+        public BitcoinTrader? BitcoinTrader { get; set; }
 
         internal static IServiceProvider? Services { get; set; }
 
         private ILogger _logger;
-        public ITradingService? _tradingBot;
 
         public Manager(ILogger logger)
         {
@@ -26,44 +27,33 @@ namespace CaptaTrader.Business
             AppData = Load();
         }
 
-        public void InitializeBot(SecureString encryptPhrase)
+        public IEnumerable<string?> InitializeBot(SecureString encryptPhrase)
         {
-            try
+            if (Services == null)
             {
+                yield return "Initializing services...";
+                ConfigureServices(encryptPhrase);
                 if (Services == null)
                 {
-                    _logger.LogInformation("Initializing services...");
-                    ConfigureServices(encryptPhrase);
-                    if (Services == null)
-                    {
-                        _logger.LogError("Failed to initialize services. Exiting.");
-                        return;
-                    }
-                }
-
-                if (_tradingBot == null)
-                {
-                    _logger.LogInformation("Initializing bot...");
-                    _tradingBot = Services.GetRequiredService<ITradingService>();
-                    if (_tradingBot == null)
-                    {
-                        _logger.LogError("Failed to initialize bot. Exiting.");
-                        return;
-                    }
-                    _tradingBot.Initialize();
-                    //TODO: Make fancier using spectre console. Maybe yield return messages.
-                    _logger.LogInformation(_tradingBot.ToString());
+                    _logger.LogError("Failed to initialize services. Exiting.");
+                    yield return null;
                 }
             }
-            catch (Exception ex)
+
+            if (Services != null && BitcoinTrader == null)
             {
-                _logger.LogError(default, ex, "Failed to initialize services.");
+                yield return "Initializing bot...";
+                BitcoinTrader = new BitcoinTrader(
+                    Services.GetRequiredService<ICryptoDataService>(),
+                    Services.GetRequiredService<IExchangeService>(),
+                    _logger);
+                BitcoinTrader.Initialize();
             }
         }
 
         public async Task<bool> SeekTradeAsync()
         {
-            if (_tradingBot == null)
+            if (BitcoinTrader == null)
             {
                 _logger.LogError("Bot must be initialized before seeking to trade.");
             }
@@ -96,7 +86,6 @@ namespace CaptaTrader.Business
 
             services.AddSingleton<ICryptoDataService, CoinApiDataService>();
             services.AddSingleton<IExchangeService, BinanceExchangeService>();
-            services.AddSingleton<ITradingService, BitcoinTradingService>();
 
             Services = services.BuildServiceProvider();
         }

@@ -70,7 +70,7 @@ namespace CaptaTrader.Business.Services
                 }
                 else
                 {
-                    _logger.LogError("Failed to update historical price data response.");
+                    _logger.LogError("Failed to retrieve historical price data.");
                 }
             }
             catch (Exception ex)
