@@ -16,8 +16,8 @@ namespace CaptaTrader.Business
     {
         internal static readonly string COMPRESSION_CLIENT_NAME = "CompressionClient";
 
+        public bool UseMockData { get; private set; }
         public AppData AppData { get; set; }
-        public BitcoinTrader? BitcoinTrader { get; set; }
 
         private Notification? _lastNotification;
         public Notification? LastNotification
@@ -29,11 +29,13 @@ namespace CaptaTrader.Business
         internal static IServiceProvider? Services { get; set; }
 
         private ILogger _logger;
+        private IBotTraderService? _botTrader;
 
-        public Manager(ILogger logger)
+        public Manager(ILogger logger, bool useMockData = false)
         {
             _logger = logger;
 
+            UseMockData = useMockData;
             AppData = Load();
         }
 
@@ -43,21 +45,16 @@ namespace CaptaTrader.Business
             Services = ConfigureServices(encryptPhrase).BuildServiceProvider();
 
             Notify("Initializing bot...");
-            BitcoinTrader = new BitcoinTrader(
-                Services.GetRequiredService<ICryptoDataService>(),
-                Services.GetRequiredService<IExchangeService>(),
-                _logger,
-                Notify);
-
-            return BitcoinTrader.InitializeAsync().Result;
+            _botTrader = Services.GetRequiredService<IBotTraderService>();
+            return _botTrader.InitializeAsync().Result;
         }
 
         public void ShutdownBot()
         {
-            if (BitcoinTrader != null)
+            if (_botTrader != null)
             {
                 Notify("Shutting down bot...");
-                Task.Run(async () => await BitcoinTrader.ShutdownAsync());
+                Task.Run(async () => await _botTrader.ShutdownAsync());
             }
         }
 
@@ -91,13 +88,31 @@ namespace CaptaTrader.Business
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
             });
 
-            var valutService = services.AddSingleton<IKeyVaultService, KeyVaultService>(serviceProvider => new KeyVaultService(
+            services.AddSingleton<IKeyVaultService, KeyVaultService>(serviceProvider => new KeyVaultService(
                 logger: serviceProvider.GetRequiredService<ILogger>(),
                 appData: AppData,
                 encryptPhrase: encryptPhrase));
 
-            services.AddSingleton<ICryptoDataService, CoinApiDataService>();
-            services.AddSingleton<IExchangeService, BinanceExchangeService>();
+            if (UseMockData)
+            {
+                services.AddSingleton<ICryptoDataService, MockDataService>();
+                services.AddSingleton<IExchangeService, MockExchangeService>();
+                services.AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>();
+            }
+            else
+            {
+                services.AddSingleton<ICryptoDataService, CoinApiDataService>();
+                services.AddSingleton<IExchangeService, BinanceExchangeService>();
+                //TODO: Obviously will need a real analyzer.
+                services.AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>();
+            }
+
+            services.AddSingleton<IBotTraderService, BitcoinBotTraderService>(serviceProvider => new BitcoinBotTraderService(
+                cryptoDataService: serviceProvider.GetRequiredService<ICryptoDataService>(),
+                exchangeService: serviceProvider.GetRequiredService<IExchangeService>(),
+                tradeAnalyzerService: serviceProvider.GetRequiredService<ITradeAnalyzerService>(),
+                logger: serviceProvider.GetRequiredService<ILogger>(),
+                notifyAction: Notify));
 
             return services;
         }

@@ -16,7 +16,7 @@ namespace CaptaTrader.Presentation
     {
         internal int ReturnCode = 0;
         internal SecureString EncryptPhrase = new();
-        internal Manager TradingManager { get; private set; } = new(Program.CreateAppLogger());
+        internal Manager TradingManager { get; private set; } = new(Program.CreateAppLogger(), useMockData: true);
 
         private string _appVersion = ConsoleExtensions.GetAppVersion();
         private Dictionary<string, string>? latestTransaction = null;
@@ -48,7 +48,9 @@ namespace CaptaTrader.Presentation
         {
             Interactions interactions = new(this);
 
-            if (await interactions.PresentMainMenuAsync())
+            await interactions.PresentMainMenuAsync();
+            
+            if (interactions.SelectedLaunchApp)
             {
                 ActivateMainProcess();
 
@@ -97,6 +99,8 @@ namespace CaptaTrader.Presentation
                             latestTransaction = null;
                         }
                     }
+
+                    Console.ReadKey(false);
                 });
         }
 

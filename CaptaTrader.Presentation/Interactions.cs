@@ -36,6 +36,8 @@ namespace CaptaTrader.Presentation
             Return
         }
 
+        public bool SelectedLaunchApp { get; set; } = false;
+
         private MainApp _mainApp;
 
         internal Interactions(MainApp mainApp)
@@ -43,11 +45,9 @@ namespace CaptaTrader.Presentation
             _mainApp = mainApp;
         }
 
-        internal async Task<bool> PresentMainMenuAsync()
+        internal async Task PresentMainMenuAsync()
         {
             _mainApp.SetupConsole();
-
-            bool launchBot = false;
 
             IEnumerable<MainMenuOptions> options = Enum.GetValues(typeof(MainMenuOptions)).Cast<MainMenuOptions>();
             List<string> readableOptions = options.Select(mmo => mmo.GetDisplayName()).ToList();
@@ -66,7 +66,7 @@ namespace CaptaTrader.Presentation
                     await PresentConfigurationsAsync();
                     break;
                 case MainMenuOptions.LaunchBot:
-                    launchBot = true;
+                    SelectedLaunchApp = true;
                     //TODO: Bot options.
                     break;
                 case MainMenuOptions.Exit:
@@ -75,8 +75,6 @@ namespace CaptaTrader.Presentation
                     await PresentMainMenuAsync();
                     break;
             }
-
-            return launchBot;
         }
 
         internal async Task PresentConfigurationsAsync()
