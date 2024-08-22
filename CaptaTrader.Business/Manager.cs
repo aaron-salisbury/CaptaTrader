@@ -1,14 +1,17 @@
 ﻿// Ignore Spelling: Bitcoin App
 
 using CaptaTrader.Business.Base;
-using CaptaTrader.Business.DTOs;
+using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
 using CaptaTrader.Data;
+using CaptaTrader.Data.Base;
+using CaptaTrader.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Security;
+using System.Text;
 
 namespace CaptaTrader.Business
 {
@@ -17,7 +20,8 @@ namespace CaptaTrader.Business
         internal static readonly string COMPRESSION_CLIENT_NAME = "CompressionClient";
 
         public bool UseMockData { get; private set; }
-        public AppData AppData { get; set; }
+        public IServiceProvider Services { get; private set; }
+        public User? User { get; private set; }
 
         private Notification? _lastNotification;
         public Notification? LastNotification
@@ -26,26 +30,42 @@ namespace CaptaTrader.Business
             set => SetProperty(ref _lastNotification, value);
         }
 
-        internal static IServiceProvider? Services { get; set; }
-
-        private ILogger _logger;
+        private DbAccess _dbAccess;
         private IBotTraderService? _botTrader;
 
         public Manager(ILogger logger, bool useMockData = false)
         {
-            _logger = logger;
+            Services = ConfigureServices(logger).BuildServiceProvider();
+
+            _dbAccess = Services.GetRequiredService<DbAccess>();
+            User = _dbAccess.DbContext.Users.FirstOrDefault();
 
             UseMockData = useMockData;
-            AppData = Load();
         }
 
-        public bool InitializeBot(SecureString encryptPhrase)
-        {
-            Notify("Initializing services...");
-            Services = ConfigureServices(encryptPhrase).BuildServiceProvider();
+        public bool UserExists() => _dbAccess.DbContext.Users.Any();
 
+        public async Task CreateUserAsync(SecureString password)
+        {
+            User = Data.Base.Authorization.CreateAuthorizedUser(Encoding.ASCII.GetBytes(password.ToPlainString()));
+
+            await _dbAccess.DbContext.Users.AddAsync(User);
+            await _dbAccess.DbContext.SaveChangesAsync();
+        }
+
+        public bool VerifyUser(SecureString password)
+        {
+            byte[] passwordBytes = Encoding.ASCII.GetBytes(password.ToPlainString());
+
+            return User != null && Data.Base.Authorization.Login(User, passwordBytes);
+        }
+
+        public bool InitializeBot()
+        {
             Notify("Initializing bot...");
+
             _botTrader = Services.GetRequiredService<IBotTraderService>();
+
             return _botTrader.InitializeAsync().Result;
         }
 
@@ -72,11 +92,13 @@ namespace CaptaTrader.Business
             });
         }
 
-        private ServiceCollection ConfigureServices(SecureString encryptPhrase)
+        private ServiceCollection ConfigureServices(ILogger logger)
         {
             ServiceCollection services = new();
 
-            services.AddSingleton(typeof(ILogger), _logger);
+            services.AddDatabaseAccess();
+
+            services.AddSingleton(typeof(ILogger), logger);
 
             services.AddHttpClient(COMPRESSION_CLIENT_NAME, c =>
             {
@@ -88,18 +110,13 @@ namespace CaptaTrader.Business
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
             });
 
-            services.AddSingleton<IKeyVaultService, KeyVaultService>(serviceProvider => new KeyVaultService(
-                logger: serviceProvider.GetRequiredService<ILogger>(),
-                appData: AppData,
-                encryptPhrase: encryptPhrase));
-
             if (UseMockData)
             {
                 services.AddSingleton<ICryptoDataService, MockDataService>();
                 services.AddSingleton<IExchangeService, MockExchangeService>();
                 services.AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>();
             }
-            else
+            else //TODO: CoinApi and Binance need keys passed in, but what if the first user hasn't been created yet?
             {
                 services.AddSingleton<ICryptoDataService, CoinApiDataService>();
                 services.AddSingleton<IExchangeService, BinanceExchangeService>();
@@ -117,14 +134,9 @@ namespace CaptaTrader.Business
             return services;
         }
 
-        private AppData Load()
-        {
-            return Task.Run(() => CRUD.ReadDataAsync<AppData>(_logger)).Result ?? new AppData();
-        }
-
         public void Save()
         {
-            Task.Run(() => CRUD.UpdateDataAsync(AppData, _logger));
+            Task.Run(() => _dbAccess.DbContext.SaveChangesAsync());
         }
     }
 }

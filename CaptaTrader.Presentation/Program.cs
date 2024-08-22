@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
 using System.Text;
@@ -12,20 +13,39 @@ namespace CaptaTrader.Presentation
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            return await new MainApp().RunAsync();
+            ServiceProvider serviceProvider = ConfigureServices().BuildServiceProvider();
+
+            try
+            {
+                return await serviceProvider.GetRequiredService<Application>().RunAsync();
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Fatal(ex, "Application terminated unexpectedly.");
+                return 1;
+            }
+            finally
+            {
+                Serilog.Log.CloseAndFlush();
+            }
         }
 
-        //TODO: Maybe everything should have a ILoggerFactory instead? I need to learn about that.
-        internal static Microsoft.Extensions.Logging.ILogger CreateAppLogger()
+        private static IServiceCollection ConfigureServices()
         {
-            Serilog.ILogger serilogLogger = new LoggerConfiguration()
+            IServiceCollection services = new ServiceCollection();
+
+            Serilog.Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Console()
-            .CreateLogger();
+                .CreateLogger();
 
-            return new LoggerFactory()
-                .AddSerilog(serilogLogger)
-                .CreateLogger("Logger");
+            services.AddSingleton(typeof(Microsoft.Extensions.Logging.ILogger), new LoggerFactory()
+                .AddSerilog(Serilog.Log.Logger)
+                .CreateLogger("Logger"));
+
+            services.AddTransient<Application>();
+
+            return services;
         }
     }
 }

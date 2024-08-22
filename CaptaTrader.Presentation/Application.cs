@@ -2,6 +2,7 @@
 using CaptaTrader.Business.Models;
 using CaptaTrader.Presentation.Base;
 using CaptaTrader.Presentation.Base.Extensions;
+using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -12,29 +13,42 @@ using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation
 {
-    public class MainApp
+    public class Application
     {
-        internal int ReturnCode = 0;
-        internal SecureString EncryptPhrase = new();
-        internal Manager TradingManager { get; private set; } = new(Program.CreateAppLogger(), useMockData: true);
+        internal int ExitCode { get; set; } = 0;
+        internal Manager TradingManager { get; private set; }
 
         private string _appVersion = ConsoleExtensions.GetAppVersion();
         private Dictionary<string, string>? latestTransaction = null;
 
-        public async Task<int> RunAsync()
+        public Application(ILogger logger)
         {
             SetupConsole();
 
-            EncryptPhrase = ConsoleExtensions.RequestPassword("Enter your pass phrase for API encryption: ");
-
-            //TODO: Verify pass phrase is correct.
-
+            TradingManager = new(logger, useMockData: true);
             TradingManager.PropertyChanged += TradingManager_OnPropertyChanged;
 
+            if (TradingManager.UserExists())
+            {
+                bool verified = false;
+                while (!verified)
+                {
+                    SecureString pass = ConsoleExtensions.RequestPassword();
+                    verified = TradingManager.VerifyUser(pass);
+                }
+            }
+            else
+            {
+                AnsiConsole.WriteLine("NEW USER");
+                Task.Run(() => TradingManager.CreateUserAsync(ConsoleExtensions.RequestPassword("Enter your new password: ")));
+            }
+        }
+
+        public async Task<int> RunAsync()
+        {
             await LaunchMainMenuAsync();
 
-            TradingManager.PropertyChanged -= TradingManager_OnPropertyChanged;
-            return ReturnCode;
+            return ExitCode;
         }
 
         internal void SetupConsole()
@@ -46,7 +60,7 @@ namespace CaptaTrader.Presentation
 
         private async Task LaunchMainMenuAsync()
         {
-            Interactions interactions = new(this);
+            Menus interactions = new(this);
 
             await interactions.PresentMainMenuAsync();
             
@@ -60,7 +74,7 @@ namespace CaptaTrader.Presentation
 
         private void ActivateMainProcess()
         {
-            if (TradingManager.InitializeBot(EncryptPhrase))
+            if (TradingManager.InitializeBot())
             {
                 AnsiConsole.MarkupLine("Bot is [lime]active[/], press any key to shutdown...");
                 ListenForTransactions();
@@ -71,8 +85,6 @@ namespace CaptaTrader.Presentation
 
         private void ListenForTransactions()
         {
-            //TODO: Right now after rows extend past the border of the console, things break after you scroll back up.
-
             Table transactionTable = new()
             { 
                 Title = new TableTitle("Transactions"),
@@ -94,7 +106,7 @@ namespace CaptaTrader.Presentation
                     {
                         if (latestTransaction != null)
                         {
-                            transactionTable.InsertRow(0, latestTransaction.Values.ToArray());
+                            transactionTable.AddRow(latestTransaction.Values.ToArray());
                             ldc.Refresh();
                             latestTransaction = null;
                         }

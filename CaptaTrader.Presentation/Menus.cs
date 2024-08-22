@@ -1,4 +1,5 @@
-﻿using CaptaTrader.Presentation.Base;
+﻿using CaptaTrader.Business.Base.Extensions;
+using CaptaTrader.Presentation.Base;
 using CaptaTrader.Presentation.Base.Extensions;
 using Spectre.Console;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation
 {
-    internal class Interactions
+    internal class Menus
     {
         private const string PROMPT_FORMAT = "{0}: ";
 
@@ -38,9 +39,9 @@ namespace CaptaTrader.Presentation
 
         public bool SelectedLaunchApp { get; set; } = false;
 
-        private MainApp _mainApp;
+        private Application _mainApp;
 
-        internal Interactions(MainApp mainApp)
+        internal Menus(Application mainApp)
         {
             _mainApp = mainApp;
         }
@@ -96,25 +97,37 @@ namespace CaptaTrader.Presentation
             {
                 case ConfigurationOptions.EnterEmail:
                     AnsiConsole.Write(string.Format(PROMPT_FORMAT, readableChoice));
-                    _mainApp.TradingManager.AppData.Email = Console.ReadLine();
+                    if (_mainApp.TradingManager.User != null)
+                    {
+                        _mainApp.TradingManager.User.Email = Console.ReadLine();
+                    }
                     await PresentConfigurationsAsync();
                     break;
                 case ConfigurationOptions.EnterCoinApiAPIKey:
-                    await _mainApp.TradingManager.AppData.SetCoinApiAPIKeyAsync(
-                        ConsoleExtensions.RequestPassword(string.Format(PROMPT_FORMAT, readableChoice)),
-                        _mainApp.EncryptPhrase);
+                    if (_mainApp.TradingManager.User != null)
+                    {
+                        _mainApp.TradingManager.User.CoinAPIKey = ConsoleExtensions
+                            .RequestPassword(string.Format(PROMPT_FORMAT, readableChoice))
+                            .ToPlainString();
+                    }
                     await PresentConfigurationsAsync();
                     break;
                 case ConfigurationOptions.EnterBinanceAPIKey:
-                    await _mainApp.TradingManager.AppData.SetBinanceAPIKeyAsync(
-                        ConsoleExtensions.RequestPassword(string.Format(PROMPT_FORMAT, readableChoice)),
-                        _mainApp.EncryptPhrase);
+                    if (_mainApp.TradingManager.User != null)
+                    {
+                        _mainApp.TradingManager.User.BinanceKey = ConsoleExtensions
+                            .RequestPassword(string.Format(PROMPT_FORMAT, readableChoice))
+                            .ToPlainString();
+                    }
                     await PresentConfigurationsAsync();
                     break;
                 case ConfigurationOptions.EnterBinanceSecretKey:
-                    await _mainApp.TradingManager.AppData.SetBinanceSecretAPIKeyAsync(
-                        ConsoleExtensions.RequestPassword(string.Format(PROMPT_FORMAT, readableChoice)),
-                        _mainApp.EncryptPhrase);
+                    if (_mainApp.TradingManager.User != null)
+                    {
+                        _mainApp.TradingManager.User.BinanceSecretKey = ConsoleExtensions
+                            .RequestPassword(string.Format(PROMPT_FORMAT, readableChoice))
+                            .ToPlainString();
+                    }
                     await PresentConfigurationsAsync();
                     break;
                 case ConfigurationOptions.Save:

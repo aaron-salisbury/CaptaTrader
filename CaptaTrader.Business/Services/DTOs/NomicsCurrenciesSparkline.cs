@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CaptaTrader.Business.DTOs
+namespace CaptaTrader.Business.Services.DTOs
 {
     [Serializable]
     public class NomicsCurrenciesSparkline

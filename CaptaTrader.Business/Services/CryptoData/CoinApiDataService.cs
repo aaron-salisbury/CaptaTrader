@@ -1,8 +1,8 @@
 ﻿// Ignore Spelling: Api
 
 using CaptaTrader.Business.Base.Extensions;
-using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Models;
+using CaptaTrader.Business.Services.DTOs;
 using CaptaTrader.Data;
 using Microsoft.Extensions.Logging;
 using System.Security;
@@ -21,25 +21,18 @@ namespace CaptaTrader.Business.Services
 
         private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IKeyVaultService _keyVaultService;
+        private readonly SecureString _securedAPIKey;
 
-        public CoinApiDataService(ILogger logger, IHttpClientFactory httpClientFactory, IKeyVaultService keyVaultService)
+        public CoinApiDataService(ILogger logger, IHttpClientFactory httpClientFactory, SecureString securedAPIKey)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
-            _keyVaultService = keyVaultService;
+            _securedAPIKey = securedAPIKey;
         }
 
         public async Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals()
         {
             List<PriceInterval> priceIntervals = [];
-
-            SecureString? securedAPIKey = _keyVaultService.GetValueForKey(nameof(AppData.CoinApiAPIKeyEncrypted));
-            if (securedAPIKey == null)
-            {
-                _logger.LogError("No CoinAPI API key available.");
-                return priceIntervals;
-            }
 
             try
             {
@@ -49,7 +42,7 @@ namespace CaptaTrader.Business.Services
                     url,
                     _httpClientFactory,
                     _logger,
-                    requestHeaders: new Dictionary<string, string>() { { "Authorization", securedAPIKey.ToPlainString() } },
+                    requestHeaders: new Dictionary<string, string>() { { "Authorization", _securedAPIKey.ToPlainString() } },
                     namedClient: Manager.COMPRESSION_CLIENT_NAME); // CoinApi requests that compression be used.
 
                 if (!string.IsNullOrEmpty(jsonResponse))

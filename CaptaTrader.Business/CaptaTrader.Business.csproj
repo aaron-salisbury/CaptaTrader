@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CaptaTrader.Data\CaptaTrader.Data.csproj" />
+    <ProjectReference Include="..\CaptaTrader.Models\CaptaTrader.Models.csproj" />
   </ItemGroup>
 
 </Project>

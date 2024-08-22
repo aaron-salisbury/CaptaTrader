@@ -164,7 +164,7 @@ namespace CaptaTrader.Data
             }
         }
 
-        private static string GetAppDirectoryPath()
+        internal static string GetAppDirectoryPath()
         {
             string appPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             string? assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;

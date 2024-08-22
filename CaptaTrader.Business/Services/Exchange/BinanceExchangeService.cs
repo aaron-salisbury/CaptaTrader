@@ -3,13 +3,10 @@
 using Binance.Net;
 using Binance.Net.Clients;
 using Binance.Net.Objects.Models.Spot;
-using Binance.Net.Objects.Models.Spot.Brokerage.SubAccountData;
 using Binance.Net.Objects.Options;
 using CaptaTrader.Business.Base.Extensions;
-using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Models;
 using CryptoExchange.Net.Authentication;
-using CryptoExchange.Net.CommonObjects;
 using CryptoExchange.Net.Objects;
 using Microsoft.Extensions.Logging;
 using System.Security;
@@ -25,12 +22,12 @@ namespace CaptaTrader.Business.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ApiCredentials _apiCredentials;
 
-        public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, IKeyVaultService keyVaultService)
+        public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, SecureString key, SecureString secretKey)
         {
             _logger = logger;
             _loggerFactory = loggerFactory;
             _httpClientFactory = httpClientFactory;
-            _apiCredentials = SetApiCredentials(keyVaultService);
+            _apiCredentials = new ApiCredentials(key.ToPlainString(), secretKey.ToPlainString());
         }
 
         public async Task<IEnumerable<AccountBalances>?> GetAccountBalancesAsync(IEnumerable<string> assets)
@@ -136,30 +133,6 @@ namespace CaptaTrader.Business.Services
             restClient.SetApiCredentials(_apiCredentials);
 
             return restClient;
-        }
-
-        private ApiCredentials SetApiCredentials(IKeyVaultService keyVaultService)
-        {
-            SecureString? securedAPIKey = keyVaultService.GetValueForKey(nameof(AppData.BinanceAPIKeyEncrypted));
-            if (securedAPIKey == null)
-            {
-                _logger.LogError("No Binance API key available.");
-            }
-            else
-            {
-                SecureString? securedSecretAPIKey = keyVaultService.GetValueForKey(nameof(AppData.BinanceSecretAPIKeyEncrypted));
-                if (securedSecretAPIKey == null)
-                {
-                    _logger.LogError("No Binance Secret API key available.");
-                }
-                else
-                {
-                    return new(securedAPIKey.ToPlainString(), securedSecretAPIKey.ToPlainString());
-                }
-            }
-
-            //TODO: Handle this properly.
-            throw new Exception("Binance credentials are required.");
         }
     }
 }

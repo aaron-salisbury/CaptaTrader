@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace CaptaTrader.Business.DTOs
+namespace CaptaTrader.Business.Services.DTOs
 {
     [Serializable]
     public class CoinApiOhlcv
