@@ -35,9 +35,9 @@ namespace CaptaTrader.Presentation
         private static (ServiceProvider, Application) LoadResources()
         {
             return AnsiConsole.Status()
-                .Spinner(Spinner.Known.Point)
-                .SpinnerStyle(new Style(foreground: Color.Gold3))
-                .Start<(ServiceProvider, Application)>("[gold3]Loading[/]", _ =>
+                .Spinner(Spinner.Known.SimpleDotsScrolling)
+                .SpinnerStyle(new Style(foreground: Color.Olive))
+                .Start<(ServiceProvider, Application)>("[olive]Loading[/]", _ =>
                 {
                     ServiceProvider serviceProvider = ConfigureServices();
                     Application application = serviceProvider.GetRequiredService<Application>();

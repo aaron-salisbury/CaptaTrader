@@ -1,7 +1,6 @@
 ﻿using CaptaTrader.Business;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Models;
-using CaptaTrader.Presentation.Base.Extensions;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using System;
@@ -15,7 +14,6 @@ namespace CaptaTrader.Presentation
         internal int ExitCode { get; set; } = 0;
         internal Manager TradingManager { get; private set; }
 
-        private readonly string _appVersion = ConsoleExtensions.GetAppVersion();
         private readonly Menus _menus;
         private readonly string[] _tradeTransactionColumns = TradeTransaction.GetColumnNames();
         private string[]? _latestTradeTransaction = null;
@@ -40,7 +38,7 @@ namespace CaptaTrader.Presentation
         internal void ClearConsole()
         {
             AnsiConsole.Clear();
-            AnsiConsole.Write(new Panel($"Capta Trader v{_appVersion}") { Border = BoxBorder.Rounded });
+            AnsiConsole.Write(new FigletText("Capta Trader").Color(Color.Green));
             AnsiConsole.Write(Environment.NewLine);
         }
 
@@ -91,7 +89,7 @@ namespace CaptaTrader.Presentation
             Table transactionTable = new()
             { 
                 Title = new TableTitle("Transactions"),
-                Border = TableBorder.Square,
+                Border = TableBorder.AsciiDoubleHead,
                 ShowRowSeparators = true
             };
 

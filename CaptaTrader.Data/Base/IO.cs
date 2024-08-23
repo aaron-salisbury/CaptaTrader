@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace CaptaTrader.Data.Base
 {
-    internal class IO
+    public static class IO
     {
         private static readonly InternalStorage _internalStorage = Task.Run(() => Json.ReadInternalStorageAsync()).Result;
 
@@ -77,7 +77,7 @@ namespace CaptaTrader.Data.Base
             }
         }
 
-        internal static string GetAppDirectoryPath()
+        public static string GetAppDirectoryPath()
         {
             string appPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             string? assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;

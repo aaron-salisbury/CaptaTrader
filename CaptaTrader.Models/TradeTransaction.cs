@@ -18,7 +18,7 @@ namespace CaptaTrader.Models
         public long TradeTransactionId { get; set; }
 
         [DisplayName("Time Stamp")]
-        public DateTime TimeStamp { get; set; }
+        public required DateTime TimeStamp { get; set; }
 
         [DisplayName("Type")]
         public TransactionTypes TransactionType { get; set; }
