@@ -4,7 +4,6 @@ using Serilog;
 using Spectre.Console;
 using System;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation
