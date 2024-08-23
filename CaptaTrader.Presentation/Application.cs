@@ -21,28 +21,17 @@ namespace CaptaTrader.Presentation
         private Menus _menus;
         private Dictionary<string, string>? latestTransaction = null;
 
-        public Application(ILogger logger)
+        public Application(ILogger logger, bool useMockData)
         {
-            TradingManager = new(logger, useMockData: true);
-            TradingManager.PropertyChanged += TradingManager_OnPropertyChanged;
+            TradingManager = new(logger, useMockData);
+            TradingManager.PropertyChanged += TradingManager_PropertyChanged;
 
-            _menus = new(this);
+            _menus = new Menus(this);
         }
 
         public async Task<int> RunAsync()
         {
-            bool verified = false;
-            while (!verified)
-            {
-                ClearConsole();
-
-                verified = _menus.PresentLogin();
-                if (!verified)
-                {
-                    AnsiConsole.MarkupLine("[red]Bad user.[/] Press any key to return...");
-                    Console.ReadKey(false);
-                }
-            }
+            LaunchLoginMenu();
 
             await LaunchMainMenuAsync();
 
@@ -54,6 +43,24 @@ namespace CaptaTrader.Presentation
             AnsiConsole.Clear();
             AnsiConsole.Write(new Panel($"Capta Trader v{_appVersion}") { Border = BoxBorder.Rounded });
             AnsiConsole.Write(Environment.NewLine);
+        }
+
+        private void LaunchLoginMenu()
+        {
+            bool verified = false;
+
+            while (!verified)
+            {
+                ClearConsole();
+
+                verified = _menus.PresentLogin();
+
+                if (!verified)
+                {
+                    AnsiConsole.MarkupLine("[red]Bad user.[/] Press any key to return...");
+                    Console.ReadKey(false);
+                }
+            }
         }
 
         private async Task LaunchMainMenuAsync()
@@ -112,17 +119,20 @@ namespace CaptaTrader.Presentation
                 });
         }
 
-        private void TradingManager_OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void TradingManager_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(Manager.LastNotification) && sender is Manager manager && manager.LastNotification != null)
+            if (sender is Manager manager)
             {
-                if (manager.LastNotification.NotificationType == Notification.NotificationTypes.Message && manager.LastNotification.Message != null)
+                if (string.Equals(e.PropertyName, nameof(Manager.LastNotification)) && manager.LastNotification != null)
                 {
-                    AnsiConsole.WriteLine(manager.LastNotification.Message);
-                }
-                else if (manager.LastNotification.NotificationType == Notification.NotificationTypes.Transaction && manager.LastNotification.TransactionValuesByColumns != null)
-                {
-                    latestTransaction = manager.LastNotification.TransactionValuesByColumns;
+                    if (manager.LastNotification.NotificationType == Notification.NotificationTypes.Message && manager.LastNotification.Message != null)
+                    {
+                        AnsiConsole.WriteLine(manager.LastNotification.Message);
+                    }
+                    else if (manager.LastNotification.NotificationType == Notification.NotificationTypes.Transaction && manager.LastNotification.TransactionValuesByColumns != null)
+                    {
+                        latestTransaction = manager.LastNotification.TransactionValuesByColumns;
+                    }
                 }
             }
         }

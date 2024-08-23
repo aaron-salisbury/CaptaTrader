@@ -1,4 +1,6 @@
-﻿using CaptaTrader.Business.Services;
+﻿// Ignore Spelling: Unschedule
+
+using CaptaTrader.Business.Services;
 using Quartz;
 using Quartz.Impl;
 using static CaptaTrader.Business.Models.Notification;

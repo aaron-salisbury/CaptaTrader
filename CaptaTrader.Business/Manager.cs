@@ -31,14 +31,14 @@ namespace CaptaTrader.Business
         private ApplicationDbContext _dbContext;
         private IBotTraderService? _botTrader;
 
-        public Manager(ILogger logger, bool useMockData = false)
+        public Manager(ILogger logger, bool useMockData)
         {
+            UseMockData = useMockData;
+
             Services = ConfigureServices(logger).BuildServiceProvider();
 
             _dbContext = Services.GetRequiredService<ApplicationDbContext>();
             User = _dbContext.Users.FirstOrDefault();
-
-            UseMockData = useMockData;
         }
 
         public async Task<bool> CreateUserAsync(string userName, SecureString password)

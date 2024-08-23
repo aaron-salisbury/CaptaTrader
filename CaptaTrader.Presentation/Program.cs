@@ -58,7 +58,9 @@ namespace CaptaTrader.Presentation
                 .AddSerilog(Serilog.Log.Logger)
                 .CreateLogger("Logger"));
 
-            services.AddTransient<Application>();
+            services.AddTransient<Application, Application>(serviceProvider => new Application(
+                logger: serviceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger>(),
+                useMockData: true));
 
             return services.BuildServiceProvider();
         }
