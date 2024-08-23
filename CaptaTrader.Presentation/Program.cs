@@ -4,6 +4,7 @@ using Serilog;
 using Spectre.Console;
 using System;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation
@@ -35,11 +36,13 @@ namespace CaptaTrader.Presentation
         {
             return AnsiConsole.Status()
                 .Spinner(Spinner.Known.Point)
-                .SpinnerStyle(new Style(foreground: Color.DodgerBlue2))
-                .Start<(ServiceProvider, Application)>("Loading", _ =>
+                .SpinnerStyle(new Style(foreground: Color.Gold3))
+                .Start<(ServiceProvider, Application)>("[gold3]Loading[/]", _ =>
                 {
                     ServiceProvider serviceProvider = ConfigureServices();
-                    return (serviceProvider, serviceProvider.GetRequiredService<Application>());
+                    Application application = serviceProvider.GetRequiredService<Application>();
+
+                    return (serviceProvider, application);
                 });
         }
 
