@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Security;
 using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation
@@ -19,39 +18,38 @@ namespace CaptaTrader.Presentation
         internal Manager TradingManager { get; private set; }
 
         private string _appVersion = ConsoleExtensions.GetAppVersion();
+        private Menus _menus;
         private Dictionary<string, string>? latestTransaction = null;
 
         public Application(ILogger logger)
         {
-            SetupConsole();
-
             TradingManager = new(logger, useMockData: true);
             TradingManager.PropertyChanged += TradingManager_OnPropertyChanged;
 
-            if (TradingManager.UserExists())
-            {
-                bool verified = false;
-                while (!verified)
-                {
-                    SecureString pass = ConsoleExtensions.RequestPassword();
-                    verified = TradingManager.VerifyUser(pass);
-                }
-            }
-            else
-            {
-                AnsiConsole.WriteLine("NEW USER");
-                Task.Run(() => TradingManager.CreateUserAsync(ConsoleExtensions.RequestPassword("Enter your new password: ")));
-            }
+            _menus = new(this);
         }
 
         public async Task<int> RunAsync()
         {
+            bool verified = false;
+            while (!verified)
+            {
+                ClearConsole();
+
+                verified = _menus.PresentLogin();
+                if (!verified)
+                {
+                    AnsiConsole.MarkupLine("[red]Bad user.[/] Press any key to return...");
+                    Console.ReadKey(false);
+                }
+            }
+
             await LaunchMainMenuAsync();
 
             return ExitCode;
         }
 
-        internal void SetupConsole()
+        internal void ClearConsole()
         {
             AnsiConsole.Clear();
             AnsiConsole.Write(new Panel($"Capta Trader v{_appVersion}") { Border = BoxBorder.Rounded });
@@ -60,11 +58,9 @@ namespace CaptaTrader.Presentation
 
         private async Task LaunchMainMenuAsync()
         {
-            Menus interactions = new(this);
-
-            await interactions.PresentMainMenuAsync();
+            await _menus.PresentMainMenuAsync();
             
-            if (interactions.SelectedLaunchApp)
+            if (_menus.SelectedLaunchApp)
             {
                 ActivateMainProcess();
 

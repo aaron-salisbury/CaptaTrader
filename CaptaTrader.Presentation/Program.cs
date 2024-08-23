@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Spectre.Console;
 using System;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,11 +14,11 @@ namespace CaptaTrader.Presentation
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            ServiceProvider serviceProvider = ConfigureServices().BuildServiceProvider();
+            (ServiceProvider pserviceProvider, Application application) = LoadResources();
 
             try
             {
-                return await serviceProvider.GetRequiredService<Application>().RunAsync();
+                return await application.RunAsync();
             }
             catch (Exception ex)
             {
@@ -28,6 +29,17 @@ namespace CaptaTrader.Presentation
             {
                 Serilog.Log.CloseAndFlush();
             }
+        }
+
+        private static (ServiceProvider, Application) LoadResources()
+        {
+            return AnsiConsole.Status()
+                .Spinner(Spinner.Known.Point)
+                .Start<(ServiceProvider, Application)>("Loading", _ =>
+                {
+                    ServiceProvider serviceProvider = ConfigureServices().BuildServiceProvider();
+                    return (serviceProvider, serviceProvider.GetRequiredService<Application>());
+                });
         }
 
         private static IServiceCollection ConfigureServices()

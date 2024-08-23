@@ -4,12 +4,10 @@ using Binance.Net;
 using Binance.Net.Clients;
 using Binance.Net.Objects.Models.Spot;
 using Binance.Net.Objects.Options;
-using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Models;
 using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Objects;
 using Microsoft.Extensions.Logging;
-using System.Security;
 
 namespace CaptaTrader.Business.Services
 {
@@ -20,14 +18,14 @@ namespace CaptaTrader.Business.Services
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ApiCredentials _apiCredentials;
+        private readonly Func<(string? key, string? secret)> _getKeysFunction;
 
-        public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, SecureString key, SecureString secretKey)
+        public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, Func<(string? key, string? secret)> getKeysFunction)
         {
             _logger = logger;
             _loggerFactory = loggerFactory;
             _httpClientFactory = httpClientFactory;
-            _apiCredentials = new ApiCredentials(key.ToPlainString(), secretKey.ToPlainString());
+            _getKeysFunction = getKeysFunction;
         }
 
         public async Task<IEnumerable<AccountBalances>?> GetAccountBalancesAsync(IEnumerable<string> assets)
@@ -130,7 +128,11 @@ namespace CaptaTrader.Business.Services
                 _loggerFactory,
                 (BinanceRestOptions options) => options.Environment = BinanceEnvironment.Us); // https://dev.binance.vision/t/error-restricted-location-according-b-eligibility/13838/2
 
-            restClient.SetApiCredentials(_apiCredentials);
+            (string? key, string? secret) = _getKeysFunction();
+            if (key != null && secret != null)
+            {
+                restClient.SetApiCredentials(new ApiCredentials(key, secret));
+            }
 
             return restClient;
         }

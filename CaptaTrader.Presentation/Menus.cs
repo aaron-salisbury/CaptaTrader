@@ -14,6 +14,13 @@ namespace CaptaTrader.Presentation
     {
         private const string PROMPT_FORMAT = "{0}: ";
 
+        private enum LoginOptions
+        {
+            Login,
+            [Display(Name = "Create New User")]
+            CreateNewUser
+        }
+
         private enum MainMenuOptions
         {
             [Display(Name = "Enter Configurations")]
@@ -46,9 +53,39 @@ namespace CaptaTrader.Presentation
             _mainApp = mainApp;
         }
 
+        internal bool PresentLogin()
+        {
+            IEnumerable<LoginOptions> options = Enum.GetValues(typeof(LoginOptions)).Cast<LoginOptions>();
+            List<string> readableOptions = options.Select(mmo => mmo.GetDisplayName()).ToList();
+
+            string choice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Login")
+                    .PageSize(10)
+                    .AddChoices(readableOptions));
+
+            LoginOptions selectedOption = options.Where(lo => string.Equals(lo.GetDisplayName(), choice)).FirstOrDefault();
+
+            switch (selectedOption)
+            {
+                case LoginOptions.Login:
+                    AnsiConsole.Write(string.Format(PROMPT_FORMAT, "Username"));
+                    string? username = Console.ReadLine();
+                    string pass = ConsoleExtensions.RequestPassword(string.Format(PROMPT_FORMAT, "Password"));
+                    return username != null && _mainApp.TradingManager.VerifyUser(username, pass.ToSecureString());
+                case LoginOptions.CreateNewUser:
+                    AnsiConsole.Write(string.Format(PROMPT_FORMAT, "New Username"));
+                    string? newUsername = Console.ReadLine();
+                    string newPass = ConsoleExtensions.RequestPassword(string.Format(PROMPT_FORMAT, "New Password"));
+                    return Task.Run(() => _mainApp.TradingManager.CreateUserAsync(newUsername, newPass.ToSecureString())).Result;
+                default:
+                    return PresentLogin();
+            }
+        }
+
         internal async Task PresentMainMenuAsync()
         {
-            _mainApp.SetupConsole();
+            _mainApp.ClearConsole();
 
             IEnumerable<MainMenuOptions> options = Enum.GetValues(typeof(MainMenuOptions)).Cast<MainMenuOptions>();
             List<string> readableOptions = options.Select(mmo => mmo.GetDisplayName()).ToList();
@@ -80,7 +117,7 @@ namespace CaptaTrader.Presentation
 
         internal async Task PresentConfigurationsAsync()
         {
-            _mainApp.SetupConsole();
+            _mainApp.ClearConsole();
 
             IEnumerable<ConfigurationOptions> options = Enum.GetValues(typeof(ConfigurationOptions)).Cast<ConfigurationOptions>();
             List<string> readableOptions = options.Select(co => co.GetDisplayName()).ToList();
@@ -107,8 +144,7 @@ namespace CaptaTrader.Presentation
                     if (_mainApp.TradingManager.User != null)
                     {
                         _mainApp.TradingManager.User.CoinAPIKey = ConsoleExtensions
-                            .RequestPassword(string.Format(PROMPT_FORMAT, readableChoice))
-                            .ToPlainString();
+                            .RequestPassword(string.Format(PROMPT_FORMAT, readableChoice));
                     }
                     await PresentConfigurationsAsync();
                     break;
@@ -116,8 +152,7 @@ namespace CaptaTrader.Presentation
                     if (_mainApp.TradingManager.User != null)
                     {
                         _mainApp.TradingManager.User.BinanceKey = ConsoleExtensions
-                            .RequestPassword(string.Format(PROMPT_FORMAT, readableChoice))
-                            .ToPlainString();
+                            .RequestPassword(string.Format(PROMPT_FORMAT, readableChoice));
                     }
                     await PresentConfigurationsAsync();
                     break;
@@ -125,8 +160,7 @@ namespace CaptaTrader.Presentation
                     if (_mainApp.TradingManager.User != null)
                     {
                         _mainApp.TradingManager.User.BinanceSecretKey = ConsoleExtensions
-                            .RequestPassword(string.Format(PROMPT_FORMAT, readableChoice))
-                            .ToPlainString();
+                            .RequestPassword(string.Format(PROMPT_FORMAT, readableChoice));
                     }
                     await PresentConfigurationsAsync();
                     break;

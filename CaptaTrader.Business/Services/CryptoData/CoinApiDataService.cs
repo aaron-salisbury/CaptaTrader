@@ -1,11 +1,9 @@
 ﻿// Ignore Spelling: Api
 
-using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services.DTOs;
 using CaptaTrader.Data;
 using Microsoft.Extensions.Logging;
-using System.Security;
 using System.Text.Json;
 
 namespace CaptaTrader.Business.Services
@@ -21,18 +19,25 @@ namespace CaptaTrader.Business.Services
 
         private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly SecureString _securedAPIKey;
+        private readonly Func<string?> _getKeyFunction;
 
-        public CoinApiDataService(ILogger logger, IHttpClientFactory httpClientFactory, SecureString securedAPIKey)
+        public CoinApiDataService(ILogger logger, IHttpClientFactory httpClientFactory, Func<string?> getKeyFunction)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
-            _securedAPIKey = securedAPIKey;
+            _getKeyFunction = getKeyFunction;   
         }
 
         public async Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals()
         {
             List<PriceInterval> priceIntervals = [];
+
+            string? key = _getKeyFunction();
+            if (key == null)
+            {
+                _logger.LogError("CoinAPI key unavailable..");
+                return null;
+            }
 
             try
             {
@@ -42,7 +47,7 @@ namespace CaptaTrader.Business.Services
                     url,
                     _httpClientFactory,
                     _logger,
-                    requestHeaders: new Dictionary<string, string>() { { "Authorization", _securedAPIKey.ToPlainString() } },
+                    requestHeaders: new Dictionary<string, string>() { { "Authorization", key } },
                     namedClient: Manager.COMPRESSION_CLIENT_NAME); // CoinApi requests that compression be used.
 
                 if (!string.IsNullOrEmpty(jsonResponse))

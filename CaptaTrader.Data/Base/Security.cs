@@ -1,28 +1,33 @@
-﻿using CaptaTrader.Models;
+﻿using CaptaTrader.Data.Base.Extensions;
+using CaptaTrader.Models;
+using System.Security;
 using System.Security.Cryptography;
 
 namespace CaptaTrader.Data.Base
 {
     // https://www.mking.net/blog/password-security-best-practices-with-examples-in-csharp
 
-    public static class Authorization
+    public static class Security
     {
         private const int SHA_BYTE_LENGTH = 32;
         private const int NEW_USER_WORK_FACTOR = 10000;
 
-        public static bool Login(User user, byte[] password)
+        public static bool Login(AppCredentials credentials, SecureString password)
         {
-            return user.LoginHash == GenerateHash(password, user.LoginSalt, user.LoginWorkFactor);
+            return credentials.LoginHash.EqualsByteArray(GenerateHash(
+                password.ToBytes(),
+                credentials.LoginSalt,
+                credentials.LoginWorkFactor));
         }
 
-        public static User CreateAuthorizedUser(byte[] password)
+        public static AppCredentials CreateAppCredentials(SecureString password)
         {
             byte[] loginSalt = GenerateSalt();
 
-            return new User()
+            return new AppCredentials()
             {
                 LoginSalt = loginSalt,
-                LoginHash = GenerateHash(password, loginSalt, NEW_USER_WORK_FACTOR),
+                LoginHash = GenerateHash(password.ToBytes(), loginSalt, NEW_USER_WORK_FACTOR),
                 LoginWorkFactor = NEW_USER_WORK_FACTOR
             };
         }
