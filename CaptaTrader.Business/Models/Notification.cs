@@ -12,6 +12,6 @@ namespace CaptaTrader.Business.Models
 
         public NotificationTypes NotificationType { get; set; }
         public string? Message { get; set; }
-        public Dictionary<string, string>? TransactionValuesByColumns { get; set; }
+        public string[]? TradeTransactionRowData { get; set; }
     }
 }

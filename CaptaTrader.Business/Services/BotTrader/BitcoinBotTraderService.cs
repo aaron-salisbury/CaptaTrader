@@ -2,6 +2,7 @@
 
 using CaptaTrader.Business.Jobs;
 using CaptaTrader.Business.Models;
+using CaptaTrader.Models;
 using Microsoft.Extensions.Logging;
 using Quartz;
 

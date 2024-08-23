@@ -1,6 +1,7 @@
 ﻿// Ignore Spelling: Unschedule
 
 using CaptaTrader.Business.Services;
+using CaptaTrader.Models;
 using Quartz;
 using Quartz.Impl;
 using static CaptaTrader.Business.Models.Notification;
@@ -31,18 +32,7 @@ namespace CaptaTrader.Business.Models
             _notifyAction.Invoke(new Notification()
             {
                 NotificationType = NotificationTypes.Transaction,
-                TransactionValuesByColumns = new Dictionary<string, string>()
-                {
-                    { nameof(TradeTransaction.TimeStamp), transaction.TimeStamp.ToString() },
-                    { nameof(TradeTransaction.TransactionType), transaction.TransactionType.ToString() },
-                    { nameof(TradeTransaction.Quantity), transaction.Quantity.ToString() },
-                    { nameof(TradeTransaction.Price), transaction.Price.ToString() },
-                    { nameof(TradeTransaction.Total), transaction.Price.ToString() },
-                    { nameof(TradeTransaction.AvailableUSD), transaction.AvailableUSD.ToString() },
-                    { nameof(TradeTransaction.LockedUSD), transaction.LockedUSD.ToString() },
-                    { nameof(TradeTransaction.AvailableBTC), transaction.AvailableBTC.ToString() },
-                    { nameof(TradeTransaction.LockedBTC), transaction.LockedBTC.ToString() }
-                }
+                TradeTransactionRowData = transaction.AsDataRow()
             });
         }
 

@@ -1,13 +1,11 @@
 ﻿using CaptaTrader.Business;
 using CaptaTrader.Business.Models;
-using CaptaTrader.Presentation.Base;
+using CaptaTrader.Models;
 using CaptaTrader.Presentation.Base.Extensions;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation
@@ -17,9 +15,10 @@ namespace CaptaTrader.Presentation
         internal int ExitCode { get; set; } = 0;
         internal Manager TradingManager { get; private set; }
 
-        private string _appVersion = ConsoleExtensions.GetAppVersion();
-        private Menus _menus;
-        private Dictionary<string, string>? latestTransaction = null;
+        private readonly string _appVersion = ConsoleExtensions.GetAppVersion();
+        private readonly Menus _menus;
+        private readonly string[] _tradeTransactionColumns = TradeTransaction.GetColumnNames();
+        private string[]? _latestTradeTransaction = null;
 
         public Application(ILogger logger, bool useMockData)
         {
@@ -95,11 +94,9 @@ namespace CaptaTrader.Presentation
                 ShowRowSeparators = true
             };
 
-            //TODO: This isn't working, plus it should only be called once
-            //  and it should live on TradeTransaction and be shared with where Notifications get made using the columns.
-            foreach (System.Reflection.PropertyInfo property in typeof(TradeTransaction).GetProperties())
+            foreach (string columnName in _tradeTransactionColumns)
             {
-                transactionTable.AddColumn(property.Attributes.GetAttribute<DisplayNameAttribute>()?.DisplayName ?? property.Name);
+                transactionTable.AddColumn(columnName);
             }
 
             AnsiConsole.Live(transactionTable)
@@ -107,11 +104,11 @@ namespace CaptaTrader.Presentation
                 {
                     while (!Console.KeyAvailable)
                     {
-                        if (latestTransaction != null)
+                        if (_latestTradeTransaction != null)
                         {
-                            transactionTable.AddRow(latestTransaction.Values.ToArray());
+                            transactionTable.AddRow(_latestTradeTransaction);
                             ldc.Refresh();
-                            latestTransaction = null;
+                            _latestTradeTransaction = null;
                         }
                     }
 
@@ -129,9 +126,9 @@ namespace CaptaTrader.Presentation
                     {
                         AnsiConsole.WriteLine(manager.LastNotification.Message);
                     }
-                    else if (manager.LastNotification.NotificationType == Notification.NotificationTypes.Transaction && manager.LastNotification.TransactionValuesByColumns != null)
+                    else if (manager.LastNotification.NotificationType == Notification.NotificationTypes.Transaction && manager.LastNotification.TradeTransactionRowData != null)
                     {
-                        latestTransaction = manager.LastNotification.TransactionValuesByColumns;
+                        _latestTradeTransaction = manager.LastNotification.TradeTransactionRowData;
                     }
                 }
             }
