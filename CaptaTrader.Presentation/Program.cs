@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
 using Spectre.Console;
 using System;
 using System.Text;
@@ -51,7 +52,7 @@ namespace CaptaTrader.Presentation
 
             Serilog.Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.Console()
+                .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Warning)
                 .CreateLogger();
 
             services.AddSingleton(typeof(Microsoft.Extensions.Logging.ILogger), new LoggerFactory()

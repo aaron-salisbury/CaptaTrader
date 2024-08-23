@@ -78,6 +78,7 @@ namespace CaptaTrader.Presentation
         {
             if (TradingManager.InitializeBot())
             {
+                ClearConsole();
                 AnsiConsole.MarkupLine("Bot is [lime]active[/], press any key to shutdown...");
                 ListenForTransactions();
 

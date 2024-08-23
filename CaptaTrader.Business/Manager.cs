@@ -17,7 +17,6 @@ namespace CaptaTrader.Business
     {
         internal static readonly string COMPRESSION_CLIENT_NAME = "CompressionClient";
 
-        public bool UseMockData { get; private set; }
         public IServiceProvider Services { get; private set; }
         public User? User { get; private set; }
 
@@ -33,12 +32,9 @@ namespace CaptaTrader.Business
 
         public Manager(ILogger logger, bool useMockData)
         {
-            UseMockData = useMockData;
-
-            Services = ConfigureServices(logger).BuildServiceProvider();
+            Services = ConfigureServices(logger, useMockData).BuildServiceProvider();
 
             _dbContext = Services.GetRequiredService<ApplicationDbContext>();
-            User = _dbContext.Users.FirstOrDefault();
         }
 
         public async Task<bool> CreateUserAsync(string userName, SecureString password)
@@ -125,7 +121,7 @@ namespace CaptaTrader.Business
                 .GetRequiredService<AppCredentialsDbContext>();
         }
 
-        private ServiceCollection ConfigureServices(ILogger logger)
+        private ServiceCollection ConfigureServices(ILogger logger, bool useMockData)
         {
             ServiceCollection services = new();
 
@@ -143,7 +139,7 @@ namespace CaptaTrader.Business
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
             });
 
-            if (UseMockData)
+            if (useMockData)
             {
                 services.AddSingleton<ICryptoDataService, MockDataService>();
                 services.AddSingleton<IExchangeService, MockExchangeService>();
@@ -178,7 +174,7 @@ namespace CaptaTrader.Business
 
         public void Save()
         {
-            int numEntriesWritten = Task.Run(() => _dbContext.SaveChangesAsync()).Result;
+            Task.Run(() => _dbContext.SaveChangesAsync());
         }
     }
 }
