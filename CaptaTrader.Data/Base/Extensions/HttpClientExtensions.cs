@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CaptaTrader.Data.Base
+namespace CaptaTrader.Data.Base.Extensions
 {
     internal static class HttpClientExtensions
     {

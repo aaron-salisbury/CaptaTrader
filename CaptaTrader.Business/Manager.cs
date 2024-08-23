@@ -4,7 +4,7 @@ using CaptaTrader.Business.Base;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
 using CaptaTrader.Data.Base.Extensions;
-using CaptaTrader.Data.Database;
+using CaptaTrader.Data.DataAccess;
 using CaptaTrader.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -41,14 +41,14 @@ namespace CaptaTrader.Business
             UseMockData = useMockData;
         }
 
-        public async Task<bool> CreateUserAsync(string username, SecureString password)
+        public async Task<bool> CreateUserAsync(string userName, SecureString password)
         {
-            if (string.IsNullOrEmpty(username) || _dbContext.Users.Any(u => string.Equals(username, u.Username)))
+            if (string.IsNullOrEmpty(userName) || _dbContext.Users.Any(u => string.Equals(userName, u.UserName)))
             {
                 return false;
             }
 
-            User newUser = new() { Username = username };
+            User newUser = new() { UserName = userName };
             _dbContext.Users.Add(newUser);
             Save();
 
@@ -64,9 +64,9 @@ namespace CaptaTrader.Business
             return true;
         }
 
-        public bool VerifyUser(string username, SecureString password)
+        public bool VerifyUser(string userName, SecureString password)
         {
-            User? user = _dbContext.Users.Where(u => string.Equals(username, u.Username)).FirstOrDefault();
+            User? user = _dbContext.Users.Where(u => string.Equals(userName, u.UserName)).FirstOrDefault();
             if (user == null)
             {
                 return false;

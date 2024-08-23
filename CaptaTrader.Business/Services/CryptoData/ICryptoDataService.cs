@@ -1,4 +1,6 @@
-﻿using CaptaTrader.Business.Models;
+﻿// Ignore Spelling: Crypto
+
+using CaptaTrader.Business.Models;
 
 namespace CaptaTrader.Business.Services
 {

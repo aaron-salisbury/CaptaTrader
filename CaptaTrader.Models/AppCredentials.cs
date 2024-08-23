@@ -2,6 +2,7 @@
 
 namespace CaptaTrader.Models
 {
+    [Serializable]
     public class AppCredentials
     {
         [Key]

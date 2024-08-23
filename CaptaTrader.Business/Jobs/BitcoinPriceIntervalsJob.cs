@@ -1,4 +1,6 @@
-﻿using CaptaTrader.Business.Services;
+﻿// Ignore Spelling: Bitcoin
+
+using CaptaTrader.Business.Services;
 using Quartz;
 
 namespace CaptaTrader.Business.Jobs

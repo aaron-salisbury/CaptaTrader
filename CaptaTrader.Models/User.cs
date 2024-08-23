@@ -1,12 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// Ignore Spelling: Binance
+
+using System.ComponentModel.DataAnnotations;
 
 namespace CaptaTrader.Models
 {
+    [Serializable]
     public class User
     {
         [Key]
         public long UserId { get; set; }
-        public required string Username { get; set; }
+        public required string UserName { get; set; }
         public string? Email { get; set; }
         public string? CoinAPIKey { get; set; }
         public string? BinanceKey { get; set; }

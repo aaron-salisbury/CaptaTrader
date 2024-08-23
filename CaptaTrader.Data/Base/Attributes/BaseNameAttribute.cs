@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CaptaTrader.Data.Attributes
+namespace CaptaTrader.Data.Base.Attributes
 {
     /// <summary>
     /// Specify what the filename (without extension) should be, in the event this application element gets written to a file.

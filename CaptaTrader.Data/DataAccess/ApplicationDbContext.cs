@@ -1,7 +1,8 @@
-﻿using CaptaTrader.Models;
+﻿using CaptaTrader.Data.Base;
+using CaptaTrader.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace CaptaTrader.Data.Database
+namespace CaptaTrader.Data.DataAccess
 {
     public class ApplicationDbContext : DbContext
     {
@@ -11,7 +12,7 @@ namespace CaptaTrader.Data.Database
 
         public ApplicationDbContext()
         {
-            string appFolderPath = CRUD.GetAppDirectoryPath();
+            string appFolderPath = IO.GetAppDirectoryPath();
             string appName = new DirectoryInfo(appFolderPath).Name;
 
             DbPath = Path.Join(appFolderPath, $"{appName}.db");

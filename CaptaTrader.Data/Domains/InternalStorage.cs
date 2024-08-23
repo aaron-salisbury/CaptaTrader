@@ -5,6 +5,6 @@ namespace CaptaTrader.Data.Domains
     [Serializable]
     internal class InternalStorage
     {
-        public string UserStorageDirectory { get; set; } = null!;
+        public required string UserStorageDirectory { get; set; }
     }
 }
