@@ -1,6 +1,5 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Presentation.Base;
-using CaptaTrader.Presentation.Base.Extensions;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -69,15 +68,13 @@ namespace CaptaTrader.Presentation
             switch (selectedOption)
             {
                 case LoginOptions.Login:
-                    AnsiConsole.Write(string.Format(PROMPT_FORMAT, "Username"));
-                    string? username = Console.ReadLine();
-                    string pass = ConsoleExtensions.RequestPassword(string.Format(PROMPT_FORMAT, "Password"));
-                    return username != null && _mainApp.TradingManager.VerifyUser(username, pass.ToSecureString());
+                    string userName = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, "Username"))).Trim();
+                    string pass = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, "Password")).Secret()).Trim();
+                    return !string.IsNullOrEmpty(userName) && _mainApp.TradingManager.VerifyUser(userName, pass.ToSecureString());
                 case LoginOptions.CreateNewUser:
-                    AnsiConsole.Write(string.Format(PROMPT_FORMAT, "New Username"));
-                    string? newUsername = Console.ReadLine();
-                    string newPass = ConsoleExtensions.RequestPassword(string.Format(PROMPT_FORMAT, "New Password"));
-                    return Task.Run(() => _mainApp.TradingManager.CreateUserAsync(newUsername, newPass.ToSecureString())).Result;
+                    string newUserName = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, "New Username"))).Trim();
+                    string newPass = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, "New Password")).Secret()).Trim();
+                    return Task.Run(() => _mainApp.TradingManager.CreateUserAsync(newUserName, newPass.ToSecureString())).Result;
                 default:
                     return PresentLogin();
             }
@@ -119,6 +116,12 @@ namespace CaptaTrader.Presentation
         {
             _mainApp.ClearConsole();
 
+            if (_mainApp.TradingManager.User == null)
+            {
+                Serilog.Log.Error("No user available to configure.");
+                return; // Bubble up and close app. User shouldn't be able to get to configurations w/out first logging in.
+            }
+
             IEnumerable<ConfigurationOptions> options = Enum.GetValues(typeof(ConfigurationOptions)).Cast<ConfigurationOptions>();
             List<string> readableOptions = options.Select(co => co.GetDisplayName()).ToList();
 
@@ -133,35 +136,19 @@ namespace CaptaTrader.Presentation
             switch (selectedOption)
             {
                 case ConfigurationOptions.EnterEmail:
-                    AnsiConsole.Write(string.Format(PROMPT_FORMAT, readableChoice));
-                    if (_mainApp.TradingManager.User != null)
-                    {
-                        _mainApp.TradingManager.User.Email = Console.ReadLine();
-                    }
+                    _mainApp.TradingManager.User.Email = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, readableChoice))).Trim();
                     await PresentConfigurationsAsync();
                     break;
                 case ConfigurationOptions.EnterCoinApiAPIKey:
-                    if (_mainApp.TradingManager.User != null)
-                    {
-                        _mainApp.TradingManager.User.CoinAPIKey = ConsoleExtensions
-                            .RequestPassword(string.Format(PROMPT_FORMAT, readableChoice));
-                    }
+                    _mainApp.TradingManager.User.CoinAPIKey = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, readableChoice)).Secret()).Trim();
                     await PresentConfigurationsAsync();
                     break;
                 case ConfigurationOptions.EnterBinanceAPIKey:
-                    if (_mainApp.TradingManager.User != null)
-                    {
-                        _mainApp.TradingManager.User.BinanceKey = ConsoleExtensions
-                            .RequestPassword(string.Format(PROMPT_FORMAT, readableChoice));
-                    }
+                    _mainApp.TradingManager.User.BinanceKey = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, readableChoice)).Secret()).Trim();
                     await PresentConfigurationsAsync();
                     break;
                 case ConfigurationOptions.EnterBinanceSecretKey:
-                    if (_mainApp.TradingManager.User != null)
-                    {
-                        _mainApp.TradingManager.User.BinanceSecretKey = ConsoleExtensions
-                            .RequestPassword(string.Format(PROMPT_FORMAT, readableChoice));
-                    }
+                    _mainApp.TradingManager.User.BinanceSecretKey = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, readableChoice)).Secret()).Trim();
                     await PresentConfigurationsAsync();
                     break;
                 case ConfigurationOptions.Save:
