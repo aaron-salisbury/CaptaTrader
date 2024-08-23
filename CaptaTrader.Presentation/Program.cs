@@ -35,14 +35,15 @@ namespace CaptaTrader.Presentation
         {
             return AnsiConsole.Status()
                 .Spinner(Spinner.Known.Point)
+                .SpinnerStyle(new Style(foreground: Color.DodgerBlue2))
                 .Start<(ServiceProvider, Application)>("Loading", _ =>
                 {
-                    ServiceProvider serviceProvider = ConfigureServices().BuildServiceProvider();
+                    ServiceProvider serviceProvider = ConfigureServices();
                     return (serviceProvider, serviceProvider.GetRequiredService<Application>());
                 });
         }
 
-        private static IServiceCollection ConfigureServices()
+        private static ServiceProvider ConfigureServices()
         {
             IServiceCollection services = new ServiceCollection();
 
@@ -57,7 +58,7 @@ namespace CaptaTrader.Presentation
 
             services.AddTransient<Application>();
 
-            return services;
+            return services.BuildServiceProvider();
         }
     }
 }
