@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using System;
+using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation.CLI
 {

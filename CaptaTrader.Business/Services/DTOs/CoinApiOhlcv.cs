@@ -1,6 +1,4 @@
-﻿// Ignore Spelling: Ohlcv Api
-
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace CaptaTrader.Business.Services.DTOs
 {

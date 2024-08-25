@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
+using System;
 
 namespace CaptaTrader.Presentation.CLI.Infrastructure
 {

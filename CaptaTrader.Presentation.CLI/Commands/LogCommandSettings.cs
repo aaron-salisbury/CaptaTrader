@@ -1,5 +1,7 @@
 ﻿using Serilog.Events;
 using Spectre.Console.Cli;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 
@@ -10,7 +12,9 @@ namespace CaptaTrader.Presentation.CLI.Commands
         [CommandOption("-l|--loglevel")]
         [Description("Minimum level for logging")]
         [TypeConverter(typeof(VerbosityConverter))]
-        [DefaultValue(LogEventLevel.Information)]
+        //[DefaultValue(LogEventLevel.Information)]
+        //TODO: TEMP*****************
+        [DefaultValue(LogEventLevel.Debug)]
         public LogEventLevel LogLevel { get; set; }
     }
 }

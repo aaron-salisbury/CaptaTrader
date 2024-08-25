@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Spectre.Console.Cli;
 using System.ComponentModel;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation.CLI.Commands
 {

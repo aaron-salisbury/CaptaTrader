@@ -3,8 +3,11 @@ using CaptaTrader.Business.Models;
 using CaptaTrader.Models;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
+using System;
 using System.ComponentModel;
 using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation.CLI
 {

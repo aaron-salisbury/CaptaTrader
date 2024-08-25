@@ -1,6 +1,4 @@
-﻿// Ignore Spelling: Api
-
-using CaptaTrader.Business.Models;
+﻿using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services.DTOs;
 using CaptaTrader.Data;
 using Microsoft.Extensions.Logging;

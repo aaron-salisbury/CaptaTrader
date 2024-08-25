@@ -1,6 +1,4 @@
-﻿// Ignore Spelling: Json
-
-using CaptaTrader.Data.Base;
+﻿using CaptaTrader.Data.Base;
 using CaptaTrader.Data.Base.Attributes;
 using CaptaTrader.Data.Domains;
 using Microsoft.Extensions.Logging;

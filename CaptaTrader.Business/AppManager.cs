@@ -1,6 +1,4 @@
-﻿// Ignore Spelling: Bitcoin App
-
-using CaptaTrader.Business.Base;
+﻿using CaptaTrader.Business.Base;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
 using CaptaTrader.Data.Base.Extensions;
@@ -126,10 +124,15 @@ namespace CaptaTrader.Business
         {
             ServiceCollection services = new();
 
+            logger.LogDebug("Beginning to configure services for business application...");
+
+            logger.LogDebug("... Data access service");
             services.AddDataAccess();
 
+            logger.LogDebug("... Logger service");
             services.AddSingleton(typeof(ILogger), logger);
 
+            logger.LogDebug("... Http service");
             services.AddHttpClient(COMPRESSION_CLIENT_NAME, c =>
                 { 
                     c.DefaultRequestHeaders.Add("Accept-Encoding", "deflate, gzip"); 
@@ -139,6 +142,8 @@ namespace CaptaTrader.Business
                     AllowAutoRedirect = false,
                     AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
                 });
+
+            logger.LogDebug("... External API services");
 
             if (useMockData)
             {
@@ -162,6 +167,8 @@ namespace CaptaTrader.Business
                 //TODO: Obviously will need a real analyzer.
                 services.AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>();
             }
+
+            logger.LogDebug("... Bot service");
 
             services.AddSingleton<IBotTraderService, BitcoinBotTraderService>(serviceProvider => new BitcoinBotTraderService(
                 cryptoDataService: serviceProvider.GetRequiredService<ICryptoDataService>(),

@@ -1,6 +1,4 @@
-﻿// Ignore Spelling: Api
-
-using CaptaTrader.Business.Base.Extensions;
+﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Models;
 
 namespace CaptaTrader.Business.Services

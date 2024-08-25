@@ -1,4 +1,5 @@
 using Spectre.Console.Cli;
+using System;
 
 namespace CaptaTrader.Presentation.CLI.Infrastructure
 {

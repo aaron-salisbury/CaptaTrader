@@ -1,6 +1,4 @@
-﻿// Ignore Spelling: Binance
-
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CaptaTrader.Models
 {
