@@ -1,12 +1,18 @@
-﻿using Spectre.Console;
+﻿using Microsoft.Extensions.Logging;
 using Spectre.Console.Cli;
-using Spectre.Console.Cli.Help;
 using System.ComponentModel;
 
 namespace CaptaTrader.Presentation.CLI.Commands
 {
-    internal sealed class MainCommand : Command<MainCommand.Settings>
+    internal sealed class MainCommand : AsyncCommand<MainCommand.Settings>
     {
+        private readonly ILogger _logger;
+
+        public MainCommand(ILogger logger)
+        {
+            _logger = logger;
+        }
+
         public class Settings : LogCommandSettings
         {
             // https://spectreconsole.net/cli/settings
@@ -17,14 +23,16 @@ namespace CaptaTrader.Presentation.CLI.Commands
             public bool? MockData { get; set; }
         }
 
-        public override int Execute(CommandContext context, Settings settings)
+        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
         {
-            AnsiConsole.WriteLine($"Log Level: {settings.LogLevel}");
-            AnsiConsole.WriteLine($"Mock Data: {settings.MockData}");
+            //TODO: TEMP*****************
+            settings.MockData = true;
 
-            //TODO:
+            Serilog.Log.Debug($"Log Level: {settings.LogLevel}");
+            Serilog.Log.Debug($"Mock Data: {settings.MockData}");
+            Serilog.Log.Debug($"App Directory: {Data.Base.IO.GetAppDirectoryPath()}");
 
-            return 0;
+            return await new Application(_logger, settings.MockData ?? false).RunAsync();
         }
     }
 }

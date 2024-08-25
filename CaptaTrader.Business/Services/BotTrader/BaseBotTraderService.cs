@@ -32,7 +32,7 @@ namespace CaptaTrader.Business.Models
             _notifyAction.Invoke(new Notification()
             {
                 NotificationType = NotificationTypes.Transaction,
-                TradeTransactionRowData = transaction.AsDataRow()
+                TradeTransaction = transaction
             });
         }
 

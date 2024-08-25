@@ -1,9 +1,7 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace CaptaTrader.Presentation.Base
+namespace CaptaTrader.Presentation.CLI.Base
 {
     public static class EnumExtensions
     {

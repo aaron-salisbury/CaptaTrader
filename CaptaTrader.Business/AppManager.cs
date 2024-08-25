@@ -13,7 +13,7 @@ using System.Security;
 
 namespace CaptaTrader.Business
 {
-    public class Manager : ObservableModel
+    public class AppManager : ObservableModel
     {
         internal static readonly string COMPRESSION_CLIENT_NAME = "CompressionClient";
 
@@ -30,7 +30,7 @@ namespace CaptaTrader.Business
         private ApplicationDbContext _dbContext;
         private IBotTraderService? _botTrader;
 
-        public Manager(ILogger logger, bool useMockData)
+        public AppManager(ILogger logger, bool useMockData)
         {
             Services = ConfigureServices(logger, useMockData).BuildServiceProvider();
 
@@ -86,6 +86,7 @@ namespace CaptaTrader.Business
 
             _botTrader = Services.GetRequiredService<IBotTraderService>();
 
+            //TODO: Verify service API keys are good and can receive from those services.
             return _botTrader.InitializeAsync().Result;
         }
 
@@ -94,7 +95,7 @@ namespace CaptaTrader.Business
             if (_botTrader != null)
             {
                 Notify("Shutting down bot...");
-                Task.Run(async () => await _botTrader.ShutdownAsync());
+                Task.Run(async () => await _botTrader.ShutdownAsync()).Wait();
             }
         }
 
@@ -130,14 +131,14 @@ namespace CaptaTrader.Business
             services.AddSingleton(typeof(ILogger), logger);
 
             services.AddHttpClient(COMPRESSION_CLIENT_NAME, c =>
-            {
-                c.DefaultRequestHeaders.Add("Accept-Encoding", "deflate, gzip");
-
-            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            {
-                AllowAutoRedirect = false,
-                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
-            });
+                { 
+                    c.DefaultRequestHeaders.Add("Accept-Encoding", "deflate, gzip"); 
+                })
+                .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+                {
+                    AllowAutoRedirect = false,
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
 
             if (useMockData)
             {

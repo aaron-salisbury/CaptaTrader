@@ -48,7 +48,7 @@ namespace CaptaTrader.Business.Services
                     _httpClientFactory,
                     _logger,
                     requestHeaders: new Dictionary<string, string>() { { "Authorization", key } },
-                    namedClient: Manager.COMPRESSION_CLIENT_NAME); // CoinApi requests that compression be used.
+                    namedClient: AppManager.COMPRESSION_CLIENT_NAME); // CoinApi requests that compression be used.
 
                 if (!string.IsNullOrEmpty(jsonResponse))
                 {

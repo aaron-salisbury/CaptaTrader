@@ -5,8 +5,6 @@ VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptaTrader.Data", "CaptaTrader.Data\CaptaTrader.Data.csproj", "{91DCEE18-60C3-45AA-AEA6-1ED7AB446F11}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptaTrader.Presentation", "CaptaTrader.Presentation\CaptaTrader.Presentation.csproj", "{C417B275-F80E-48E0-8A5D-5BC58E93B5AB}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptaTrader.Business", "CaptaTrader.Business\CaptaTrader.Business.csproj", "{59C741D9-80E2-47B4-96BB-55F02693CE31}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptaTrader.Models", "CaptaTrader.Models\CaptaTrader.Models.csproj", "{44422E84-49A6-454D-BDDB-EC30E855A69F}"
@@ -23,10 +21,6 @@ Global
 		{91DCEE18-60C3-45AA-AEA6-1ED7AB446F11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91DCEE18-60C3-45AA-AEA6-1ED7AB446F11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91DCEE18-60C3-45AA-AEA6-1ED7AB446F11}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C417B275-F80E-48E0-8A5D-5BC58E93B5AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C417B275-F80E-48E0-8A5D-5BC58E93B5AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C417B275-F80E-48E0-8A5D-5BC58E93B5AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C417B275-F80E-48E0-8A5D-5BC58E93B5AB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{59C741D9-80E2-47B4-96BB-55F02693CE31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{59C741D9-80E2-47B4-96BB-55F02693CE31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59C741D9-80E2-47B4-96BB-55F02693CE31}.Release|Any CPU.ActiveCfg = Release|Any CPU
