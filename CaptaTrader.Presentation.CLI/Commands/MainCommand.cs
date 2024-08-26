@@ -45,7 +45,7 @@ namespace CaptaTrader.Presentation.CLI.Commands
             stringBuilder.AppendLine($"    App Directory: {appFolderPath}");
             logger.LogDebug(stringBuilder.ToString());
 
-            return await new Application(_loggerProvider.CreateLogger(appName), settings.MockData.Value).RunAsync();
+            return await new Application(logger, settings.MockData.Value).RunAsync();
         }
     }
 }
