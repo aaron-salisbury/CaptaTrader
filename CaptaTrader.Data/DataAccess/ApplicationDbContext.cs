@@ -6,6 +6,7 @@ namespace CaptaTrader.Data.DataAccess
 {
     public class ApplicationDbContext : DbContext
     {
+        public DbSet<AppCredentials> AppCredentials { get; set; }
         public DbSet<User> Users { get; set; }
 
         public string DbPath { get; } //TODO: Connection strings should not be stored in the code for production applications.

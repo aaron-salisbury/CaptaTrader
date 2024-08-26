@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation.CLI
 {
@@ -68,7 +67,7 @@ namespace CaptaTrader.Presentation.CLI
                 case LoginOptions.CreateNewUser:
                     string newUserName = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, "New Username"))).Trim();
                     string newPass = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, "New Password")).Secret()).Trim();
-                    return Task.Run(() => appManager.CreateUserAsync(newUserName, newPass.ToSecureString())).Result;
+                    return appManager.CreateUser(newUserName, newPass.ToSecureString());
             }
 
             return false;
@@ -148,7 +147,7 @@ namespace CaptaTrader.Presentation.CLI
                     PresentConfigurationsAsync(appManager);
                     break;
                 case ConfigurationOptions.Save:
-                    appManager.Save();
+                    appManager.SaveUser();
                     PresentMainMenuAsync(appManager);
                     break;
                 case ConfigurationOptions.Return:

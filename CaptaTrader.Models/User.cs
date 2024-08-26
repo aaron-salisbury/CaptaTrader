@@ -6,7 +6,7 @@ namespace CaptaTrader.Models
     public class User
     {
         [Key]
-        public long UserId { get; set; }
+        public int UserId { get; set; }
         public required string UserName { get; set; }
         public string? Email { get; set; }
         public string? CoinAPIKey { get; set; }

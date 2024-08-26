@@ -6,7 +6,7 @@ namespace CaptaTrader.Models
     public class AppCredentials
     {
         [Key]
-        public long AppCredentialsId { get; set; }
+        public int AppCredentialsId { get; set; }
         public long UserId { get; set; }
         public required byte[] LoginSalt { get; set; }
         public required byte[] LoginHash { get; set; }

@@ -1,28 +1,19 @@
-﻿using CaptaTrader.Data.DataAccess;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CaptaTrader.Data.Base.Extensions
 {
     public static class IServiceCollectionExtensions
     {
-        public static IServiceCollection AddCredentialsAccess(this IServiceCollection services)
+        public static IServiceCollection AddDataAccess<T>(this IServiceCollection services) where T : DbContext
         {
-            AppCredentialsDbContext dbContext = new();
+            if (Activator.CreateInstance(typeof(T)) is T dbContext)
+            {
+                Directory.CreateDirectory(IO.GetAppDirectoryPath());
+                dbContext.Database.EnsureCreated();
 
-            dbContext.Database.EnsureCreated();
-
-            services.AddSingleton(typeof(AppCredentialsDbContext), dbContext);
-
-            return services;
-        }
-
-        public static IServiceCollection AddDataAccess(this IServiceCollection services)
-        {
-            ApplicationDbContext dbContext = new();
-
-            dbContext.Database.EnsureCreated();
-
-            services.AddSingleton(typeof(ApplicationDbContext), dbContext);
+                services.AddSingleton(dbContext);
+            }
 
             return services;
         }
