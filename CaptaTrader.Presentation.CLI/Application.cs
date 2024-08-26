@@ -1,12 +1,14 @@
 ﻿using CaptaTrader.Business;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Models;
+using CaptaTrader.Presentation.CLI.Base.Extensions;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using System;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation.CLI
@@ -17,6 +19,7 @@ namespace CaptaTrader.Presentation.CLI
 
         private AppManager _appManager;
         private readonly string[] _tradeTransactionColumns = TradeTransaction.GetColumnNames();
+        private static readonly FigletFont _titleFont = SetTitleFont();
 
         public Application(ILogger logger, bool useMockData)
         {
@@ -35,10 +38,16 @@ namespace CaptaTrader.Presentation.CLI
             return ExitCode;
         }
 
+        private static FigletFont SetTitleFont()
+        {
+            string? font = Assembly.GetExecutingAssembly().ReadResource("Ogre.flf");
+            return font != null ? FigletFont.Parse(font) : FigletFont.Default;
+        }
+
         internal static void ClearConsole()
         {
             AnsiConsole.Clear();
-            AnsiConsole.Write(new FigletText("Capta Trader").Color(Color.Green));
+            AnsiConsole.Write(new FigletText(_titleFont, "Capta Trader").Color(Color.Green));
             AnsiConsole.Write(Environment.NewLine);
         }
 
@@ -53,7 +62,7 @@ namespace CaptaTrader.Presentation.CLI
                 if (!verified)
                 {
                     AnsiConsole.MarkupLine("[red]Bad user.[/] Press any key to return...");
-                    Console.ReadKey(false);
+                    Console.ReadKey();
                 }
             }
         }
@@ -75,10 +84,9 @@ namespace CaptaTrader.Presentation.CLI
             if (_appManager.InitializeBot())
             {
                 ClearConsole();
-                AnsiConsole.MarkupLine("Bot is [lime]active[/], press any key to shutdown..." + Environment.NewLine);
 
-                while (!Console.KeyAvailable) { }
-                Console.ReadKey(false);
+                AnsiConsole.MarkupLine("Bot is [lime]active[/], press any key to shutdown..." + Environment.NewLine);
+                Console.ReadKey();
 
                 _appManager.ShutdownBot();
             }
