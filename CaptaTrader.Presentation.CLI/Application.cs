@@ -105,9 +105,10 @@ namespace CaptaTrader.Presentation.CLI
                 transactionGrid.AddRow(columnHeaders);
                 transactionGrid.AddRow(tradeTransaction.AsDataRow().ToArray());
 
+                string headerColor = tradeTransaction.TransactionType == TradeTransaction.TransactionTypes.Sell ? "green" : "purple";
                 Panel transactionPanel = new(transactionGrid)
                 {
-                    Header = new PanelHeader($"{tradeTransaction.TransactionType} Transaction"),
+                    Header = new PanelHeader($"[{headerColor}]{tradeTransaction.TransactionType} Order[/]"),
                     Border = BoxBorder.Ascii,
                     Expand = false
                 };
