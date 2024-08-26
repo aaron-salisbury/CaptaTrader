@@ -81,7 +81,6 @@ namespace CaptaTrader.Business
 
             _botTrader = Services.GetRequiredService<IBotTraderService>();
 
-            //TODO: Verify service API keys are good and can receive from those services.
             return _botTrader.InitializeAsync().Result;
         }
 

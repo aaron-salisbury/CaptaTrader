@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Spectre.Console.Cli;
+using System;
 using System.ComponentModel;
-using System.Threading;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation.CLI.Commands
@@ -27,14 +28,18 @@ namespace CaptaTrader.Presentation.CLI.Commands
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
         {
-            //TODO: TEMP*****************
+            settings.MockData ??= false;
+
+            //TODO: Temporary for development.
             settings.MockData = true;
 
-            Serilog.Log.Debug($"Log Level: {settings.LogLevel}");
-            Serilog.Log.Debug($"Mock Data: {settings.MockData}");
-            Serilog.Log.Debug($"App Directory: {Data.Base.IO.GetAppDirectoryPath()}");
+            StringBuilder stringBuilder = new("LAUNCHING MAIN APPLICATION" + Environment.NewLine);
+            stringBuilder.AppendLine($" Log Level: {settings.LogLevel}");
+            stringBuilder.AppendLine($" Mock Data: {settings.MockData}");
+            stringBuilder.AppendLine($" App Directory: {Data.Base.IO.GetAppDirectoryPath()}");
+            Serilog.Log.Debug(stringBuilder.ToString());
 
-            return await new Application(_logger, settings.MockData ?? false).RunAsync();
+            return await new Application(_logger, settings.MockData.Value).RunAsync();
         }
     }
 }

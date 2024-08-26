@@ -97,7 +97,7 @@ namespace CaptaTrader.Presentation.CLI
                     break;
                 case MainMenuOptions.LaunchBot:
                     selectedLaunchApp = true;
-                    //TODO: Bot options?
+                    //TODO: Are there bot options that could be configured?
                     break;
                 case MainMenuOptions.Exit:
                     selectedLaunchApp = false;
