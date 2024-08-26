@@ -10,7 +10,7 @@ namespace CaptaTrader.Business.Services
     internal class CoinApiDataService : ICryptoDataService
     {
         private const string ENDPOINT = "https://rest.coinapi.io/";
-        private const string QUERY_FORMAT_OHLCV_LATEST = "v1/ohlcv/{0}_SPOT_{1}_{2}/latest?period_id=1DAY&limit=30"; // {0} = Exchange ID, {1} = Base Asset, {2} = Quote Asset         //TODO: Default limit is 100, maybe that could be useful?
+        private const string QUERY_FORMAT_OHLCV_LATEST = "v1/ohlcv/{0}_SPOT_{1}_{2}/latest?period_id=1DAY&limit=30"; // {0} = Exchange ID, {1} = Base Asset, {2} = Quote Asset
         private const string EXCHANGE_ID = "BINANCE";
         private const string BASE_ASSET = "BTC";
         private const string QUOTE_ASSET = "USDT";

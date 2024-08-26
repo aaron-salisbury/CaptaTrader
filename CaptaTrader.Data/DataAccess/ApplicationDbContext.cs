@@ -9,17 +9,13 @@ namespace CaptaTrader.Data.DataAccess
         public DbSet<AppCredentials> AppCredentials { get; set; }
         public DbSet<User> Users { get; set; }
 
-        public string DbPath { get; } //TODO: Connection strings should not be stored in the code for production applications.
-
-        public ApplicationDbContext()
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             string appFolderPath = IO.GetAppDirectoryPath();
             string appName = new DirectoryInfo(appFolderPath).Name;
+            string dbPath = Path.Join(appFolderPath, $"{appName}.db");
 
-            DbPath = Path.Join(appFolderPath, $"{appName}.db");
+            options.UseSqlite($"Data Source={dbPath}");
         }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseSqlite($"Data Source={DbPath}");
     }
 }
