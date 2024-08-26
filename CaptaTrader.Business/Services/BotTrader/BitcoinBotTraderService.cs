@@ -14,11 +14,11 @@ namespace CaptaTrader.Business.Services
         private const decimal TRADING_FEE_INSTANT = 0.005M;
 
         private readonly ILogger _logger;
-        private readonly ICryptoDataService _cryptoDataService;
+        private readonly IMarketDataService _cryptoDataService;
         private readonly IExchangeService _exchangeService;
         private readonly ITradeAnalyzerService _tradeAnalyzerService;
 
-        public BitcoinBotTraderService(ICryptoDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, Action<Notification> notifyAction) : base(notifyAction)
+        public BitcoinBotTraderService(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, Action<Notification> notifyAction) : base(notifyAction)
         {
             _cryptoDataService = cryptoDataService;
             _exchangeService = exchangeService;
@@ -73,7 +73,7 @@ namespace CaptaTrader.Business.Services
         public override async Task<bool> UpdatePriceIntervalsAsync()
         {
             bool successful = false;
-            IEnumerable<PriceInterval>? priceIntervals = await _cryptoDataService.GetLastThirtyDaysOfPriceIntervals();
+            IEnumerable<PriceInterval>? priceIntervals = await _cryptoDataService.GetLastThirtyDaysOfPriceIntervals(_exchangeService.GetExchangeID(), BITCOIN_SYMBOL);
 
             DateTime dateTimeTodayStart = DateTime.Now.Date;
             if (priceIntervals != null && priceIntervals.Any())

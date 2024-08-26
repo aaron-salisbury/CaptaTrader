@@ -6,8 +6,20 @@ namespace CaptaTrader.Business.Services
     internal class MockExchangeService : IExchangeService
     {
         private readonly Random _random = new();
-        private decimal usdBalance = 250000.00M;
-        private decimal btcBalance = 0.025M;
+
+        private Dictionary<string, AccountBalances> _balancesByAssets = new()
+        { 
+            { "USDT", new AccountBalances()
+                {
+                    Asset = "USDT",
+                    Available = 250000.00M,
+                    Locked = 0.0M,
+                    Total = 250000.00M
+                }
+            } 
+        };
+
+        public string GetExchangeID() => "MockExchange";
 
         public async Task<IEnumerable<AccountBalances>?> GetAccountBalancesAsync(IEnumerable<string> assets)
         {
@@ -15,23 +27,30 @@ namespace CaptaTrader.Business.Services
 
             await Task.Run(() =>
             {
-                accountBalances = new List<AccountBalances>()
+                foreach (string asset in assets)
                 {
-                    new AccountBalances()
+                    string uppercaseAsset = asset.ToUpper();
+                    AccountBalances balancesForAsset;
+
+                    if (_balancesByAssets.TryGetValue(uppercaseAsset, out AccountBalances? accountBalanceForAsset))
                     {
-                        Asset = "USD",
-                        Available = usdBalance,
-                        Locked = 0.0M,
-                        Total = usdBalance
-                    },
-                    new AccountBalances()
-                    {
-                        Asset = "BTC",
-                        Available = btcBalance,
-                        Locked = 0.0M,
-                        Total = btcBalance
+                        balancesForAsset = accountBalanceForAsset;
                     }
-                };
+                    else
+                    {
+                        decimal balance = _random.NextDecimal(0.001M, 0.02M).PrecisionTruncate(3);
+                        balancesForAsset = new AccountBalances()
+                        {
+                            Asset = uppercaseAsset,
+                            Available = balance,
+                            Locked = 0.0M,
+                            Total = balance
+                        };
+                        _balancesByAssets[uppercaseAsset] = balancesForAsset;
+                    }
+
+                    accountBalances.Add(balancesForAsset);
+                }
             });
 
             return accountBalances;
@@ -47,11 +66,12 @@ namespace CaptaTrader.Business.Services
         public bool Buy(string symbol, decimal quantity, decimal price)
         {
             decimal totalPrice = quantity * price;
+            AccountBalances usd = _balancesByAssets["USDT"];
 
-            if (usdBalance >= totalPrice)
+            if (usd.Available >= totalPrice && _balancesByAssets.TryGetValue(symbol.ToUpper(), out AccountBalances? asset))
             {
-                usdBalance -= totalPrice;
-                btcBalance += quantity;
+                usd.Available -= totalPrice;
+                asset.Available += quantity;
 
                 return true;
             }
@@ -62,11 +82,12 @@ namespace CaptaTrader.Business.Services
         public bool Sell(string symbol, decimal quantity, decimal price)
         {
             decimal totalPrice = quantity * price;
+            AccountBalances usd = _balancesByAssets["USDT"];
 
-            if (btcBalance >= quantity)
+            if (_balancesByAssets.TryGetValue(symbol.ToUpper(), out AccountBalances? asset) && asset.Available >= quantity)
             {
-                usdBalance += totalPrice;
-                btcBalance -= quantity;
+                usd.Available += totalPrice;
+                asset.Available -= quantity;
 
                 return true;
             }

@@ -26,6 +26,8 @@ namespace CaptaTrader.Business.Services
             _getKeysFunction = getKeysFunction;
         }
 
+        public string GetExchangeID() => "BINANCE";
+
         public async Task<IEnumerable<AccountBalances>?> GetAccountBalancesAsync(IEnumerable<string> assets)
         {
             try

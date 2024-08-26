@@ -3,11 +3,11 @@ using CaptaTrader.Business.Models;
 
 namespace CaptaTrader.Business.Services
 {
-    internal class MockDataService : ICryptoDataService
+    internal class MockDataService : IMarketDataService
     {
         private readonly Random _random = new();
 
-        public async Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals()
+        public async Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals(string exchangeID, string baseAsset)
         {
             List<PriceInterval> priceIntervals = [];
 
@@ -22,7 +22,7 @@ namespace CaptaTrader.Business.Services
 
                     priceIntervals.Add(new PriceInterval()
                     {
-                        Symbol = "BTC",
+                        Symbol = baseAsset,
                         StartDate = startDate,
                         EndDate = endDate,
                         StartPrice = startPrice,

@@ -7,12 +7,10 @@ using System.Text.Json;
 namespace CaptaTrader.Business.Services
 {
     // API Documentation: https://docs.coinapi.io/
-    internal class CoinApiDataService : ICryptoDataService
+    internal class CoinApiDataService : IMarketDataService
     {
         private const string ENDPOINT = "https://rest.coinapi.io/";
         private const string QUERY_FORMAT_OHLCV_LATEST = "v1/ohlcv/{0}_SPOT_{1}_{2}/latest?period_id=1DAY&limit=30"; // {0} = Exchange ID, {1} = Base Asset, {2} = Quote Asset
-        private const string EXCHANGE_ID = "BINANCE";
-        private const string BASE_ASSET = "BTC";
         private const string QUOTE_ASSET = "USDT";
 
         private readonly ILogger _logger;
@@ -26,20 +24,20 @@ namespace CaptaTrader.Business.Services
             _getKeyFunction = getKeyFunction;   
         }
 
-        public async Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals()
+        public async Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals(string exchangeID, string baseAsset)
         {
             List<PriceInterval> priceIntervals = [];
 
             string? key = _getKeyFunction();
             if (key == null)
             {
-                _logger.LogError("CoinAPI key unavailable..");
+                _logger.LogError("CoinAPI key unavailable.");
                 return null;
             }
 
             try
             {
-                string url = $"{ENDPOINT}{string.Format(QUERY_FORMAT_OHLCV_LATEST, EXCHANGE_ID, BASE_ASSET, QUOTE_ASSET)}";
+                string url = $"{ENDPOINT}{string.Format(QUERY_FORMAT_OHLCV_LATEST, exchangeID, baseAsset, QUOTE_ASSET)}";
 
                 string? jsonResponse = await WebRequests.SendHTTPJsonRequestAsync(
                     url,
@@ -56,7 +54,7 @@ namespace CaptaTrader.Business.Services
                     {
                         return priceHistories.Select(cao => new PriceInterval()
                         {
-                            Symbol = BASE_ASSET,
+                            Symbol = baseAsset,
                             StartDate = cao.TimePeriodStart,
                             EndDate = cao.TimePeriodEnd,
                             StartPrice = Convert.ToDecimal(cao.PriceOpen),

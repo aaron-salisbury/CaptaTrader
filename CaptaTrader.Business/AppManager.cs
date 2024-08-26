@@ -134,13 +134,13 @@ namespace CaptaTrader.Business
 
             if (useMockData)
             {
-                services.AddSingleton<ICryptoDataService, MockDataService>();
+                services.AddSingleton<IMarketDataService, MockDataService>();
                 services.AddSingleton<IExchangeService, MockExchangeService>();
                 services.AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>();
             }
             else
             {
-                services.AddSingleton<ICryptoDataService, CoinApiDataService>(serviceProvider => new CoinApiDataService(
+                services.AddSingleton<IMarketDataService, CoinApiDataService>(serviceProvider => new CoinApiDataService(
                     logger: serviceProvider.GetRequiredService<ILogger>(),
                     httpClientFactory: serviceProvider.GetRequiredService<IHttpClientFactory>(),
                     getKeyFunction:() => { return User?.CoinAPIKey; }));
@@ -158,7 +158,7 @@ namespace CaptaTrader.Business
             logger.LogDebug("... Bot service");
 
             services.AddSingleton<IBotTraderService, BitcoinBotTraderService>(serviceProvider => new BitcoinBotTraderService(
-                cryptoDataService: serviceProvider.GetRequiredService<ICryptoDataService>(),
+                cryptoDataService: serviceProvider.GetRequiredService<IMarketDataService>(),
                 exchangeService: serviceProvider.GetRequiredService<IExchangeService>(),
                 tradeAnalyzerService: serviceProvider.GetRequiredService<ITradeAnalyzerService>(),
                 logger: serviceProvider.GetRequiredService<ILogger>(),

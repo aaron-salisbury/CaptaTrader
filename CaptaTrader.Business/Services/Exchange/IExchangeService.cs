@@ -4,6 +4,7 @@ namespace CaptaTrader.Business.Services
 {
     public interface IExchangeService
     {
+        string GetExchangeID();
         Task<IEnumerable<AccountBalances>?> GetAccountBalancesAsync(IEnumerable<string> assets);
         Task<decimal?> GetSpotPriceAsync(string symbol, string quoteAsset);
         bool Buy(string symbol, decimal quantity, decimal price);
