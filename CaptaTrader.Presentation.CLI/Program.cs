@@ -60,12 +60,6 @@ namespace CaptaTrader.Presentation.CLI
                 .WriteTo.Console()
                 .CreateLogger();
 
-            services.AddSingleton(
-                typeof(Microsoft.Extensions.Logging.ILogger), 
-                new LoggerFactory()
-                    .AddSerilog(Serilog.Log.Logger)
-                    .CreateLogger("Logger"));
-
             services.AddLogging(configure => configure.AddSerilog(Serilog.Log.Logger));
 
             return services;

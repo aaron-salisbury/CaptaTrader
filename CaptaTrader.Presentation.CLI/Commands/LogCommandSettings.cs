@@ -12,7 +12,7 @@ namespace CaptaTrader.Presentation.CLI.Commands
         [CommandOption("-l|--loglevel")]
         [Description("Minimum level for logging")]
         [TypeConverter(typeof(VerbosityConverter))]
-        [DefaultValue(LogEventLevel.Information)]
+        [DefaultValue(LogEventLevel.Debug)]
         public LogEventLevel LogLevel { get; set; }
     }
 
