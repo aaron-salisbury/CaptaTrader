@@ -2,7 +2,7 @@
 
 namespace CaptaTrader.Business.Models
 {
-    public class AccountBalances
+    public class AssetBalance
     {
         public required string Asset { get; set; }
         public decimal Available { get; set; }

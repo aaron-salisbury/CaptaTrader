@@ -28,7 +28,7 @@ namespace CaptaTrader.Business.Services
 
         public string GetExchangeID() => "BINANCE";
 
-        public async Task<IEnumerable<AccountBalances>?> GetAccountBalancesAsync(IEnumerable<string> assets)
+        public async Task<IEnumerable<AssetBalance>?> GetAccountBalancesAsync(IEnumerable<string> assets)
         {
             try
             {
@@ -45,7 +45,7 @@ namespace CaptaTrader.Business.Services
 
                     return result.Data.Balances
                         .Where(b => assets.Contains(b.Asset))
-                        .Select(b => new AccountBalances()
+                        .Select(b => new AssetBalance()
                         {
                             Asset = b.Asset,
                             Available = b.Available,

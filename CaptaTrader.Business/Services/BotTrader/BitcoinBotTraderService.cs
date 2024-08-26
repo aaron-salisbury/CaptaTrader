@@ -48,11 +48,11 @@ namespace CaptaTrader.Business.Services
         public override async Task<bool> UpdateBalancesAsync()
         {
             bool successful = false;
-            IEnumerable<AccountBalances>? accountAssetBalances = await _exchangeService.GetAccountBalancesAsync(new List<string>() { QUOTE_ASSET, BITCOIN_SYMBOL });
+            IEnumerable<AssetBalance>? assetBalances = await _exchangeService.GetAccountBalancesAsync(new List<string>() { QUOTE_ASSET, BITCOIN_SYMBOL });
 
-            if (accountAssetBalances != null)
+            if (assetBalances != null)
             {
-                foreach (AccountBalances balances in accountAssetBalances)
+                foreach (AssetBalance balances in assetBalances)
                 {
                     if (string.Equals(balances.Asset, QUOTE_ASSET))
                     {

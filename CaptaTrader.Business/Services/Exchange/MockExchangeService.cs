@@ -7,9 +7,9 @@ namespace CaptaTrader.Business.Services
     {
         private readonly Random _random = new();
 
-        private Dictionary<string, AccountBalances> _balancesByAssets = new()
+        private Dictionary<string, AssetBalance> _balancesByAssets = new()
         { 
-            { "USDT", new AccountBalances()
+            { "USDT", new AssetBalance()
                 {
                     Asset = "USDT",
                     Available = 250000.00M,
@@ -21,25 +21,25 @@ namespace CaptaTrader.Business.Services
 
         public string GetExchangeID() => "MockExchange";
 
-        public async Task<IEnumerable<AccountBalances>?> GetAccountBalancesAsync(IEnumerable<string> assets)
+        public async Task<IEnumerable<AssetBalance>?> GetAccountBalancesAsync(IEnumerable<string> assets)
         {
-            List<AccountBalances> accountBalances = [];
+            List<AssetBalance> assetBalances = [];
 
             await Task.Run(() =>
             {
                 foreach (string asset in assets)
                 {
                     string uppercaseAsset = asset.ToUpper();
-                    AccountBalances balancesForAsset;
+                    AssetBalance balancesForAsset;
 
-                    if (_balancesByAssets.TryGetValue(uppercaseAsset, out AccountBalances? accountBalanceForAsset))
+                    if (_balancesByAssets.TryGetValue(uppercaseAsset, out AssetBalance? existingAssetBalance))
                     {
-                        balancesForAsset = accountBalanceForAsset;
+                        balancesForAsset = existingAssetBalance;
                     }
                     else
                     {
                         decimal balance = _random.NextDecimal(0.001M, 0.02M).PrecisionTruncate(3);
-                        balancesForAsset = new AccountBalances()
+                        balancesForAsset = new AssetBalance()
                         {
                             Asset = uppercaseAsset,
                             Available = balance,
@@ -49,11 +49,11 @@ namespace CaptaTrader.Business.Services
                         _balancesByAssets[uppercaseAsset] = balancesForAsset;
                     }
 
-                    accountBalances.Add(balancesForAsset);
+                    assetBalances.Add(balancesForAsset);
                 }
             });
 
-            return accountBalances;
+            return assetBalances;
         }
 
         public async Task<decimal?> GetSpotPriceAsync(string symbol, string quoteAsset)
@@ -66,9 +66,9 @@ namespace CaptaTrader.Business.Services
         public bool Buy(string symbol, decimal quantity, decimal price)
         {
             decimal totalPrice = quantity * price;
-            AccountBalances usd = _balancesByAssets["USDT"];
+            AssetBalance usd = _balancesByAssets["USDT"];
 
-            if (usd.Available >= totalPrice && _balancesByAssets.TryGetValue(symbol.ToUpper(), out AccountBalances? asset))
+            if (usd.Available >= totalPrice && _balancesByAssets.TryGetValue(symbol.ToUpper(), out AssetBalance? asset))
             {
                 usd.Available -= totalPrice;
                 asset.Available += quantity;
@@ -82,9 +82,9 @@ namespace CaptaTrader.Business.Services
         public bool Sell(string symbol, decimal quantity, decimal price)
         {
             decimal totalPrice = quantity * price;
-            AccountBalances usd = _balancesByAssets["USDT"];
+            AssetBalance usd = _balancesByAssets["USDT"];
 
-            if (_balancesByAssets.TryGetValue(symbol.ToUpper(), out AccountBalances? asset) && asset.Available >= quantity)
+            if (_balancesByAssets.TryGetValue(symbol.ToUpper(), out AssetBalance? asset) && asset.Available >= quantity)
             {
                 usd.Available += totalPrice;
                 asset.Available -= quantity;
