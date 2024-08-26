@@ -40,6 +40,7 @@ namespace CaptaTrader.Presentation.CLI
 
         private static FigletFont SetTitleFont()
         {
+            // https://github.com/xero/figlet-fonts
             string? font = Assembly.GetExecutingAssembly().ReadResource("Ogre.flf");
             return font != null ? FigletFont.Parse(font) : FigletFont.Default;
         }
