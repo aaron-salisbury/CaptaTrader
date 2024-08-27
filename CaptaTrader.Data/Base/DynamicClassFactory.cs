@@ -10,9 +10,6 @@ namespace CaptaTrader.Data.Base
     // Copied from: https://github.com/zzzprojects/System.Linq.Dynamic.Core/blob/master/src/System.Linq.Dynamic.Core/DynamicClassFactory.cs
     internal class DynamicClassFactory
     {
-        private const string DynamicAssemblyName = "System.Linq.Dynamic.Core.DynamicClasses, Version=1.0.0.0";
-        private const string DynamicModuleName = "System.Linq.Dynamic.Core.DynamicClasses";
-
         private static readonly CustomAttributeBuilder _compilerGeneratedAttributeBuilder = new(typeof(CompilerGeneratedAttribute).GetConstructor(Type.EmptyTypes)!, []);
         private static readonly CustomAttributeBuilder _debuggerBrowsableAttributeBuilder = new(typeof(DebuggerBrowsableAttribute).GetConstructor([typeof(DebuggerBrowsableState)])!, [DebuggerBrowsableState.Never]);
         private static readonly CustomAttributeBuilder _debuggerHiddenAttributeBuilder = new(typeof(DebuggerHiddenAttribute).GetConstructor(Type.EmptyTypes)!, []);
@@ -29,10 +26,17 @@ namespace CaptaTrader.Data.Base
 
         static DynamicClassFactory()
         {
-            var assemblyName = new AssemblyName(DynamicAssemblyName);
-            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
+            Assembly executingAssembly = Assembly.GetExecutingAssembly();
+            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(executingAssembly.Location);
+            string version = fvi.FileVersion ?? "1.0.0.0";
+            string executingAssemblyName = executingAssembly.GetName().Name ?? "MyApp.Data";
+            string dynamicModuleName = $"{executingAssemblyName}.DynamicClasses";
+            string dynamicAssemblyName = $"{dynamicModuleName}, Version={version}";
 
-            _moduleBuilder = assemblyBuilder.DefineDynamicModule(DynamicModuleName);
+            AssemblyName assemblyName = new(dynamicAssemblyName);
+            AssemblyBuilder assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
+
+            _moduleBuilder = assemblyBuilder.DefineDynamicModule(dynamicModuleName);
         }
 
         /// <summary>
@@ -45,8 +49,6 @@ namespace CaptaTrader.Data.Base
         /// <param name="createParameterCtor">Create a constructor with parameters. Default set to true. Note that for Linq-to-Database objects, this needs to be set to false.</param>
         internal static Type CreateType(IList<DynamicProperty> properties, Type baseClassType, bool createParameterCtor = true)
         {
-            //Check.HasNoNulls(properties);
-
             var key = GenerateKey(properties, createParameterCtor);
 
             // ReSharper disable once InconsistentlySynchronizedField
@@ -66,23 +68,23 @@ namespace CaptaTrader.Data.Base
 
         private static Type EmitType(IList<DynamicProperty> properties, Type baseClassType, bool createParameterCtor)
         {
-            var typeIndex = Interlocked.Increment(ref _index);
-            var typeName = properties.Any() ? $"<>f__AnonymousType{typeIndex}`{properties.Count}" : $"<>f__AnonymousType{typeIndex}";
+            int typeIndex = Interlocked.Increment(ref _index);
+            string typeName = properties.Any() ? $"<>f__AnonymousType{typeIndex}`{properties.Count}" : $"<>f__AnonymousType{typeIndex}";
 
-            var typeBuilder = _moduleBuilder.DefineType(
+            TypeBuilder typeBuilder = _moduleBuilder.DefineType(
                 typeName,
                 TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.AutoLayout | TypeAttributes.BeforeFieldInit,
                 baseClassType);
 
             typeBuilder.SetCustomAttribute(_compilerGeneratedAttributeBuilder);
 
-            var fieldBuilders = new FieldBuilder[properties.Count];
+            FieldBuilder[] fieldBuilders = new FieldBuilder[properties.Count];
 
             // There are two for-loops because we want to have all the getter methods before all the other methods
             for (int i = 0; i < properties.Count; i++)
             {
-                var fieldName = properties[i].Name;
-                var fieldType = properties[i].Type;
+                string fieldName = properties[i].Name;
+                Type fieldType = properties[i].Type;
 
                 // field
                 fieldBuilders[i] = typeBuilder.DefineField($"<{fieldName}>i__Field", fieldType, FieldAttributes.Private | FieldAttributes.InitOnly);
@@ -164,11 +166,11 @@ namespace CaptaTrader.Data.Base
 
             Label equalsLabel = ilgeneratorEquals.DefineLabel();
 
-            for (var i = 0; i < properties.Count; i++)
+            for (int i = 0; i < properties.Count; i++)
             {
-                var fieldName = properties[i].Name;
-                var fieldType = properties[i].Type;
-                var equalityComparerT = _equalityComparer.MakeGenericType(fieldType);
+                string fieldName = properties[i].Name;
+                Type fieldType = properties[i].Type;
+                Type equalityComparerT = _equalityComparer.MakeGenericType(fieldType);
 
                 // Equals()
                 MethodInfo equalityComparerTDefault = equalityComparerT.GetMethod("get_Default", BindingFlags.Static | BindingFlags.Public)!;
@@ -224,7 +226,7 @@ namespace CaptaTrader.Data.Base
                 ilgeneratorConstructorDef.Emit(OpCodes.Ret);
 
                 // .ctor with params
-                var types = properties.Select(p => p.Type).ToArray();
+                Type[] types = properties.Select(p => p.Type).ToArray();
                 ConstructorBuilder constructor = typeBuilder.DefineConstructor(MethodAttributes.Public | MethodAttributes.HideBySig, CallingConventions.HasThis, types);
                 constructor.SetCustomAttribute(_debuggerHiddenAttributeBuilder);
 
@@ -232,7 +234,7 @@ namespace CaptaTrader.Data.Base
                 ilgeneratorConstructor.Emit(OpCodes.Ldarg_0);
                 ilgeneratorConstructor.Emit(OpCodes.Call, _objectCtor);
 
-                for (var i = 0; i < properties.Count; i++)
+                for (int i = 0; i < properties.Count; i++)
                 {
                     constructor.DefineParameter(i + 1, ParameterAttributes.None, properties[i].Name);
                     ilgeneratorConstructor.Emit(OpCodes.Ldarg_0);

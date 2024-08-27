@@ -59,7 +59,7 @@ namespace CaptaTrader.Data
         {
             _dbContext.SaveChanges();
 
-            foreach (var dbEntry in dbEntries)
+            foreach (EntityEntry dbEntry in dbEntries)
             {
                 dbEntry.Reload();
             }
