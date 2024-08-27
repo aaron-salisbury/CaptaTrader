@@ -1,12 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CaptaTrader.Data.Base;
 
-namespace CaptaTrader.Models
+namespace CaptaTrader.Business.Entities
 {
     [Serializable]
-    public class AppCredentials
+    public class AppCredentials : BaseEntity
     {
-        [Key]
-        public int AppCredentialsId { get; set; }
         public long UserId { get; set; }
         public required byte[] LoginSalt { get; set; }
         public required byte[] LoginHash { get; set; }

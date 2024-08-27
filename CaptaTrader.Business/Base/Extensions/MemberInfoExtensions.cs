@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace CaptaTrader.Models.Base.Extensions
+namespace CaptaTrader.Business.Base.Extensions
 {
     public static class MemberInfoExtensions
     {

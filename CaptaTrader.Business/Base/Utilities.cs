@@ -1,7 +1,7 @@
-﻿using CaptaTrader.Models.Base.Extensions;
+﻿using CaptaTrader.Business.Base.Extensions;
 using System.Reflection;
 
-namespace CaptaTrader.Models.Base
+namespace CaptaTrader.Business.Base
 {
     public static class Utilities
     {

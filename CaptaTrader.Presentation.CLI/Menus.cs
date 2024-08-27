@@ -147,7 +147,7 @@ namespace CaptaTrader.Presentation.CLI
                     PresentConfigurationsAsync(appManager);
                     break;
                 case ConfigurationOptions.Save:
-                    appManager.SaveUser();
+                    appManager.UpdateUser();
                     PresentMainMenuAsync(appManager);
                     break;
                 case ConfigurationOptions.Return:

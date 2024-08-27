@@ -1,6 +1,6 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
+using CaptaTrader.Business.Entities;
 using CaptaTrader.Business.Services;
-using CaptaTrader.Models;
 
 namespace CaptaTrader.Business.Models
 {
@@ -8,7 +8,7 @@ namespace CaptaTrader.Business.Models
     {
         private readonly Random _random = new();
 
-        public TradeTransaction? AnalyzePotentialTrade()
+        public TradeOrder? AnalyzePotentialTrade()
         {
             if (_random.Next(3) == 0)
             {
@@ -19,11 +19,11 @@ namespace CaptaTrader.Business.Models
             return CreateMockTradeTransaction();
         }
 
-        private TradeTransaction CreateMockTradeTransaction()
+        private TradeOrder CreateMockTradeTransaction()
         {
-            TradeTransaction.TransactionTypes transactionType = _random.Next(2) == 1
-                ? TradeTransaction.TransactionTypes.Buy
-                : TradeTransaction.TransactionTypes.Sell;
+            TradeOrder.TransactionTypes transactionType = _random.Next(2) == 1
+                ? TradeOrder.TransactionTypes.Buy
+                : TradeOrder.TransactionTypes.Sell;
 
             decimal quantity = _random.NextDecimal(0.001M, 0.01M).PrecisionTruncate(3);
             decimal price = _random.NextDecimal(55000.00M, 60000.00M).PrecisionTruncate(2);
@@ -31,7 +31,7 @@ namespace CaptaTrader.Business.Models
             decimal availableBTC = _random.NextDecimal(1.0M, 2.0M).PrecisionTruncate(2);
             decimal total = quantity * price;
 
-            return new TradeTransaction()
+            return new TradeOrder()
             {
                 TimeStamp = DateTime.Now,
                 TransactionType = transactionType,

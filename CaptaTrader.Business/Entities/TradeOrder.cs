@@ -1,21 +1,18 @@
-﻿using CaptaTrader.Models.Base.Extensions;
+﻿using CaptaTrader.Business.Base.Extensions;
+using CaptaTrader.Data.Base;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace CaptaTrader.Models
+namespace CaptaTrader.Business.Entities
 {
     [Serializable]
-    public class TradeTransaction
+    public class TradeOrder : BaseEntity
     {
         public enum TransactionTypes
         {
             Buy,
             Sell
         }
-
-        [Key]
-        public long TradeTransactionId { get; set; }
 
         [DisplayName("Time Stamp")]
         public required DateTime TimeStamp { get; set; }
@@ -55,7 +52,7 @@ namespace CaptaTrader.Models
 
         private static IEnumerable<MemberInfo> GetNonKeyPublicProperties()
         {
-            return typeof(TradeTransaction)
+            return typeof(TradeOrder)
                 .GetMembers(BindingFlags.Public | BindingFlags.Instance)
                 .Where(mi => mi.MemberType == MemberTypes.Property && !mi.IsKey());
         }

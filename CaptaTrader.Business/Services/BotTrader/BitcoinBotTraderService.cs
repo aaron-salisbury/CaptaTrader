@@ -1,6 +1,6 @@
-﻿using CaptaTrader.Business.Jobs;
+﻿using CaptaTrader.Business.Entities;
+using CaptaTrader.Business.Jobs;
 using CaptaTrader.Business.Models;
-using CaptaTrader.Models;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
@@ -111,11 +111,11 @@ namespace CaptaTrader.Business.Services
 
             //TODO: TESTING
             await Task.Delay(5000);
-            TradeTransaction? tradeTransaction = _tradeAnalyzerService.AnalyzePotentialTrade();
+            TradeOrder? tradeOrder = _tradeAnalyzerService.AnalyzePotentialTrade();
 
-            if (tradeTransaction != null)
+            if (tradeOrder != null)
             {
-                NotifyOfTransaction(tradeTransaction);
+                NotifyOfTradeOrder(tradeOrder);
 
                 //await UpdateBalancesAsync();
             }

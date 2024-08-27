@@ -1,9 +1,9 @@
-﻿using CaptaTrader.Data.Base.Extensions;
-using CaptaTrader.Models;
+﻿using CaptaTrader.Business.Entities;
+using CaptaTrader.Data.Base.Extensions;
 using System.Security;
 using System.Security.Cryptography;
 
-namespace CaptaTrader.Data.Base
+namespace CaptaTrader.Business.Base
 {
     // https://www.mking.net/blog/password-security-best-practices-with-examples-in-csharp
 

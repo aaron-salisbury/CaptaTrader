@@ -1,5 +1,5 @@
-﻿using CaptaTrader.Business.Services;
-using CaptaTrader.Models;
+﻿using CaptaTrader.Business.Entities;
+using CaptaTrader.Business.Services;
 using Quartz;
 using Quartz.Impl;
 using static CaptaTrader.Business.Models.Notification;
@@ -25,12 +25,12 @@ namespace CaptaTrader.Business.Models
             _scheduler.Context.Put(this.GetType().Name, this);
         }
 
-        protected void NotifyOfTransaction(TradeTransaction transaction)
+        protected void NotifyOfTradeOrder(TradeOrder order)
         {
             _notifyAction.Invoke(new Notification()
             {
                 NotificationType = NotificationTypes.Transaction,
-                TradeTransaction = transaction
+                TradeOrder = order
             });
         }
 

@@ -1,12 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CaptaTrader.Data.Base;
 
-namespace CaptaTrader.Models
+namespace CaptaTrader.Business.Entities
 {
     [Serializable]
-    public class User
+    public class User : BaseEntity
     {
-        [Key]
-        public int UserId { get; set; }
         public required string UserName { get; set; }
         public string? Email { get; set; }
         public string? CoinAPIKey { get; set; }

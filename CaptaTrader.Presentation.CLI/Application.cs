@@ -1,6 +1,6 @@
 ﻿using CaptaTrader.Business;
+using CaptaTrader.Business.Entities;
 using CaptaTrader.Business.Models;
-using CaptaTrader.Models;
 using CaptaTrader.Presentation.CLI.Base.Extensions;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
@@ -18,7 +18,7 @@ namespace CaptaTrader.Presentation.CLI
         internal int ExitCode { get; set; } = 0;
 
         private AppManager _appManager;
-        private readonly string[] _tradeTransactionColumns = TradeTransaction.GetColumnNames();
+        private readonly string[] _tradeTransactionColumns = TradeOrder.GetColumnNames();
         private static readonly FigletFont _titleFont = SetTitleFont();
 
         public Application(ILogger logger, bool useMockData)
@@ -93,9 +93,9 @@ namespace CaptaTrader.Presentation.CLI
             }
         }
 
-        private void WriteTradeTransaction(TradeTransaction? tradeTransaction)
+        private void WriteTradeOrder(TradeOrder? tradeOrder)
         {
-            if (tradeTransaction != null)
+            if (tradeOrder != null)
             {
                 Style columnsHeaderStyle = new(decoration: Decoration.Bold);
                 Text[] columnHeaders = _tradeTransactionColumns.Select(ttc => new Text(ttc, columnsHeaderStyle)).ToArray();
@@ -103,12 +103,12 @@ namespace CaptaTrader.Presentation.CLI
                 Grid transactionGrid = new();
                 transactionGrid.AddColumns(_tradeTransactionColumns.Length);
                 transactionGrid.AddRow(columnHeaders);
-                transactionGrid.AddRow(tradeTransaction.AsDataRow().ToArray());
+                transactionGrid.AddRow(tradeOrder.AsDataRow().ToArray());
 
-                string headerColor = tradeTransaction.TransactionType == TradeTransaction.TransactionTypes.Sell ? "green" : "purple";
+                string headerColor = tradeOrder.TransactionType == TradeOrder.TransactionTypes.Sell ? "green" : "purple";
                 Panel transactionPanel = new(transactionGrid)
                 {
-                    Header = new PanelHeader($"[{headerColor}]{tradeTransaction.TransactionType} Order[/]"),
+                    Header = new PanelHeader($"[{headerColor}]{tradeOrder.TransactionType} Order[/]"),
                     Border = BoxBorder.Ascii,
                     Expand = false
                 };
@@ -129,7 +129,7 @@ namespace CaptaTrader.Presentation.CLI
                     }
                     else if (manager.LastNotification.NotificationType == Notification.NotificationTypes.Transaction)
                     {
-                        WriteTradeTransaction(manager.LastNotification.TradeTransaction);
+                        WriteTradeOrder(manager.LastNotification.TradeOrder);
                     }
                 }
             }

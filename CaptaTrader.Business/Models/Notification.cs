@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Models;
+﻿using CaptaTrader.Business.Entities;
 
 namespace CaptaTrader.Business.Models
 {
@@ -12,6 +12,6 @@ namespace CaptaTrader.Business.Models
 
         public NotificationTypes NotificationType { get; set; }
         public string? Message { get; set; }
-        public TradeTransaction? TradeTransaction { get; set; }
+        public TradeOrder? TradeOrder { get; set; }
     }
 }

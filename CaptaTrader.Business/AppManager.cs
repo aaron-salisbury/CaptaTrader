@@ -1,12 +1,13 @@
 ﻿using CaptaTrader.Business.Base;
+using CaptaTrader.Business.Entities;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
+using CaptaTrader.Data;
 using CaptaTrader.Data.Base.Extensions;
-using CaptaTrader.Data.DataAccess;
-using CaptaTrader.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Reflection;
 using System.Security;
 
 namespace CaptaTrader.Business
@@ -25,48 +26,44 @@ namespace CaptaTrader.Business
             set => SetProperty(ref _lastNotification, value);
         }
 
-        private ApplicationDbContext _dbContext;
+        private DataAccesor _dataAccesor;
         private IBotTraderService? _botTrader;
 
         public AppManager(ILogger logger, bool useMockData)
         {
             Services = ConfigureServices(logger, useMockData).BuildServiceProvider();
 
-            _dbContext = Services.GetRequiredService<ApplicationDbContext>();
+            _dataAccesor = Services.GetRequiredService<DataAccesor>();
         }
 
         public bool CreateUser(string userName, SecureString password)
         {
-            if (string.IsNullOrEmpty(userName) || _dbContext.Users.Any(u => string.Equals(userName, u.UserName)))
+            if (string.IsNullOrEmpty(userName) || _dataAccesor.ReadAll<User>().Any(u => string.Equals(userName, u.UserName)))
             {
                 return false;
             }
 
             User newUser = new() { UserName = userName };
-            _dbContext.Users.Add(newUser);
+            _dataAccesor.Create(newUser);
             User = newUser;
-            SaveUser();
 
-            AppCredentials credentials = Data.Base.Security.CreateAppCredentials(password);
-            credentials.UserId = newUser.UserId;
-
-            _dbContext.AppCredentials.Add(credentials);
-            Save();
+            AppCredentials credentials = Security.CreateAppCredentials(password);
+            credentials.UserId = newUser.Id;
+            _dataAccesor.Create(credentials);
 
             return true;
         }
 
         public bool VerifyUser(string userName, SecureString password)
         {
-            User? user = _dbContext.Users.Where(u => string.Equals(userName, u.UserName)).FirstOrDefault();
+            User? user = _dataAccesor.ReadWhere<User>(u => string.Equals(userName, u.UserName)).FirstOrDefault();
             if (user == null)
             {
                 return false;
             }
 
-            AppCredentials? credentials = _dbContext.AppCredentials.Where(ac => user.UserId == ac.UserId).FirstOrDefault();
-
-            if (credentials != null && Data.Base.Security.Login(credentials, password))
+            AppCredentials? credentials = _dataAccesor.ReadWhere<AppCredentials>(ac => user.Id == ac.UserId).FirstOrDefault();
+            if (credentials != null && Security.Login(credentials, password))
             {
                 User = user;
                 return true;
@@ -114,7 +111,7 @@ namespace CaptaTrader.Business
             logger.LogDebug("Beginning to configure services for business application...");
 
             logger.LogDebug("... Data access service");
-            services.AddDataAccess<ApplicationDbContext>();
+            services.AddDataAccess(Assembly.GetExecutingAssembly().GetEntityTypes());
 
             logger.LogDebug("... Logger service");
             services.AddSingleton(typeof(ILogger), logger);
@@ -167,19 +164,12 @@ namespace CaptaTrader.Business
             return services;
         }
 
-        public void SaveUser()
+        public void UpdateUser()
         {
-            Save();
-
-            if (User != null)
+            if (this.User != null)
             {
-                _dbContext.Entry(User).Reload();
+                _dataAccesor.Update(this.User);
             }
-        }
-
-        internal void Save()
-        {
-            _dbContext.SaveChanges();
         }
     }
 }
