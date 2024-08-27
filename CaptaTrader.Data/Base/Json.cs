@@ -1,10 +1,8 @@
-﻿using CaptaTrader.Data.Base;
-using CaptaTrader.Data.Base.Attributes;
-using CaptaTrader.Data.Domains;
+﻿using CaptaTrader.Data.Base.Attributes;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace CaptaTrader.Data.DataAccess
+namespace CaptaTrader.Data.Base
 {
     public static class Json
     {
@@ -43,7 +41,7 @@ namespace CaptaTrader.Data.DataAccess
             {
                 internalStorage = new InternalStorage() { UserStorageDirectory = IO.GetAppDirectoryPath() };
 
-                await UpdateDataAsync<InternalStorage>(internalStorage, logger);
+                await UpdateDataAsync(internalStorage, logger);
 
                 return internalStorage;
             }
@@ -63,7 +61,7 @@ namespace CaptaTrader.Data.DataAccess
 
                         using (FileStream createStream = File.Create(file.FullName))
                         {
-                            await JsonSerializer.SerializeAsync<T>(createStream, data);
+                            await JsonSerializer.SerializeAsync(createStream, data);
                         }
                     }
                 }

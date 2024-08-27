@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CaptaTrader.Data.Domains
+namespace CaptaTrader.Data.Base
 {
     [Serializable]
     internal class InternalStorage

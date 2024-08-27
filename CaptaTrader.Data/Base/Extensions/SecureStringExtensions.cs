@@ -11,7 +11,7 @@ namespace CaptaTrader.Data.Base.Extensions
         /// </summary>
         public static string ToPlainString(this SecureString secureString)
         {
-            // From Matt's answer at https://stackoverflow.com/questions/818704/how-to-convert-securestring-to-system-string
+            // https://stackoverflow.com/a/38016279
 
             NetworkCredential secureStringAsNetworkCredential = new(string.Empty, secureString);
 

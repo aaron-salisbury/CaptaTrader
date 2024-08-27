@@ -9,7 +9,7 @@ namespace CaptaTrader.Data.Base.Extensions
         /// </summary>
         internal static async Task DownloadFileTaskAsync(this HttpClient client, Uri address, string fileName)
         {
-            // Tony's answer at https://stackoverflow.com/questions/45711428/download-file-with-webclient-or-httpclient
+            // https://stackoverflow.com/a/66270371
 
             using (Stream stream = await client.GetStreamAsync(address))
             using (FileStream fileStream = new(fileName, FileMode.CreateNew))

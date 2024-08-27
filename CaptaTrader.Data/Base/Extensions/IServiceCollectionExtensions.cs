@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Data.DataAccess;
+﻿using CaptaTrader.Data.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

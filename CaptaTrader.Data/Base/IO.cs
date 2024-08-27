@@ -1,6 +1,4 @@
-﻿using CaptaTrader.Data.DataAccess;
-using CaptaTrader.Data.Domains;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
 namespace CaptaTrader.Data.Base
