@@ -148,8 +148,7 @@ namespace CaptaTrader.Presentation.CLI
                     break;
                 case ConfigurationOptions.Save:
                     appManager.UpdateUser();
-                    PresentMainMenuAsync(appManager);
-                    break;
+                    return;
                 case ConfigurationOptions.Return:
                 default:
                     return;
