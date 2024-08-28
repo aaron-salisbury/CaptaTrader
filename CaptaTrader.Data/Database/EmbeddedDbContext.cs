@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CaptaTrader.Data.Database
 {
-    public class ApplicationDbContext : DbContext
+    public class EmbeddedDbContext : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {

@@ -7,17 +7,17 @@ namespace CaptaTrader.Data.Base.Extensions
     public static class IServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds a singleton service of the type DbContext 
+        /// Adds a singleton embedded SQLite service of the type DbContext 
         /// and a singleton service of the type DataAccesor that is a wrapper for the DbContext.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
         /// <param name="entityTypes">Must inherit from CaptaTrader.Data.Base.BaseEntity</param>
         /// <returns>A reference to this instance after the operation has completed.</returns>
-        public static IServiceCollection AddDataAccess(this IServiceCollection services, Type[] entityTypes)
+        public static IServiceCollection AddDataAccessEmbedded(this IServiceCollection services, Type[] entityTypes)
         {
-            Type dynamicDbContextType = BuildDynamicDbContextType<ApplicationDbContext>(entityTypes);
+            Type dynamicDbContextType = BuildDynamicDbContextType<EmbeddedDbContext>(entityTypes);
 
-            if (Activator.CreateInstance(dynamicDbContextType) is ApplicationDbContext dbContext)
+            if (Activator.CreateInstance(dynamicDbContextType) is EmbeddedDbContext dbContext)
             {
                 Directory.CreateDirectory(IO.GetAppDirectoryPath());
                 dbContext.Database.EnsureCreated();

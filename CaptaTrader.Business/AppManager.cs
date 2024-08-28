@@ -111,7 +111,7 @@ namespace CaptaTrader.Business
             logger.LogDebug("Beginning to configure services for business application...");
 
             logger.LogDebug("... Data access service");
-            services.AddDataAccess(Assembly.GetExecutingAssembly().GetEntityTypes());
+            services.AddDataAccessEmbedded(Assembly.GetExecutingAssembly().GetEntityTypes());
 
             logger.LogDebug("... Logger service");
             services.AddSingleton(typeof(ILogger), logger);
@@ -128,7 +128,6 @@ namespace CaptaTrader.Business
                 });
 
             logger.LogDebug("... External API services");
-
             if (useMockData)
             {
                 services.AddSingleton<IMarketDataService, MockDataService>();
@@ -153,7 +152,6 @@ namespace CaptaTrader.Business
             }
 
             logger.LogDebug("... Bot service");
-
             services.AddSingleton<IBotTraderService, BitcoinBotTraderService>(serviceProvider => new BitcoinBotTraderService(
                 cryptoDataService: serviceProvider.GetRequiredService<IMarketDataService>(),
                 exchangeService: serviceProvider.GetRequiredService<IExchangeService>(),
