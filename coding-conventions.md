@@ -18,3 +18,12 @@ Generally follow the definitions described within this [article](https://medium.
 2. **DTOs** - Lightweight objects for data transfer. All should be considered serializable.
 3. **Domains** - Real-world concepts and business logic. Will have an access modifier of Internal.
 4. **Models** - Can represent a view of either domains or DTOs, with the intention that these are what will be consumed by any presentation layer. In MVVM and MVC, models are the objects used for data binding. Will have an access modifier of Public.
+
+Coding
+================
+
+1. Prefer `Foo fooInstance = new();` over `var fooInstance = new Foo();`.
+2. Name constants is all caps with underscores between words (e.g., `const string API_ENDPOINT = "https://rest.example.io/v1";`).
+3. Generally follow [this](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions) for C#.
+4. Generally follow [this](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/) for libraries.
+5. Generally follow [this](https://www.infoq.com/articles/Exceptions-API-Design/) for exceptions.
