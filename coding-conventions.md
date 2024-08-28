@@ -1,10 +1,12 @@
 Architecture
 ================
 
-1. Follow a [Three-Tier Architecture](https://www.ibm.com/topics/three-tier-architecture) (Data, Business, Presentation).
-2. Name projects with the postfix of their tier (e.g., MyCoolApp.Data).
-3. There can be more than one presentation for the set of given business functionality (i.e., a mobile app and a desktop application). Name each presentation project with the target platform postfix (e.g., MyCoolApp.Presentation.Web).
-4. Any GUI projects for desktop and mobile targets should follow the [MVVM Design Pattern](https://dev.to/mochafreddo/mastering-mvvm-a-comprehensive-guide-to-the-model-view-viewmodel-architecture-221g).
+1. Libraries will target the LTS version (highest even number) of .NET. 
+2. Application projects can target either the LTS or STS  versions of .NET.
+3. Follow a [Three-Tier Architecture](https://www.ibm.com/topics/three-tier-architecture) (Data, Business, Presentation).
+4. Name projects with the postfix of their tier (e.g., MyCoolApp.Data).
+5. There can be more than one presentation for the set of given business functionality (i.e., a mobile app and a desktop application). Name each presentation project with the target platform postfix (e.g., MyCoolApp.Presentation.Web).
+6. Any GUI projects for desktop and mobile targets should follow the [MVVM Design Pattern](https://dev.to/mochafreddo/mastering-mvvm-a-comprehensive-guide-to-the-model-view-viewmodel-architecture-221g).
 
 
 Business Classes
