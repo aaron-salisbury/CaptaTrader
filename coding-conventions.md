@@ -23,7 +23,9 @@ Coding
 ================
 
 1. Prefer `Foo fooInstance = new();` over `var fooInstance = new Foo();`.
-2. Name constants is all caps with underscores between words (e.g., `const string API_ENDPOINT = "https://rest.example.io/v1";`).
-3. Generally follow [this](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions) for C#.
-4. Generally follow [this](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/) for libraries.
-5. Generally follow [this](https://www.infoq.com/articles/Exceptions-API-Design/) for exceptions.
+2. Name constants is all caps and snake case (underscores between words) (e.g., `const string API_ENDPOINT = "https://rest.example.com/v1";`).
+3. Name private fields as camel case with a leading undercore (e.g., `private int _counter = 0;`).
+3. Name public and internal members as pascal case (e.g., `public required DateTime TimeStamp { get; set; }`).
+4. Generally follow [this](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions) for C#.
+5. Generally follow [this](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/) for libraries.
+6. Generally follow [this](https://www.infoq.com/articles/Exceptions-API-Design/) for exceptions.
