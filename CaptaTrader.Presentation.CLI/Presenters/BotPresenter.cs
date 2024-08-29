@@ -10,18 +10,23 @@ namespace CaptaTrader.Presentation.CLI.Presenters
     internal class BotPresenter : Presenter
     {
         private BotView? _view;
-        private IBotService? _botService = Application.DomainServices?.GetRequiredService<IBotService>();
+        private IBotService _botService = Application.DomainServices!.GetRequiredService<IBotService>();
 
-        internal override void Display()
+        internal override void Display(View view)
         {
-            if (_botService?.Startup() ?? false)
+            _view = (BotView)view;
+
+            _view.ShutdownRequested += BotView_ShutdownRequested;
+            _botService.TradeExecuted += BotService_TradeExecuted;
+
+            if (_botService.Startup())
             {
-                _view = ViewLocator.GetView<BotView>(this);
-
-                _view.ShutdownRequested += BotView_ShutdownRequested;
-                _botService.TradeExecuted += BotService_TradeExecuted;
-
                 _view.Show();
+            }
+            else
+            {
+                _view.PopupActivationError();
+                Navigator?.NavigateTo(typeof(MainMenuPresenter));
             }
         }
 
@@ -32,20 +37,17 @@ namespace CaptaTrader.Presentation.CLI.Presenters
                 _view.ShutdownRequested -= BotView_ShutdownRequested;
             }
 
-            if (_botService != null)
-            {
-                _botService.TradeExecuted -= BotService_TradeExecuted;
-            }
+            _botService.TradeExecuted -= BotService_TradeExecuted;
         }
 
         private void BotService_TradeExecuted(object? sender, Trade e)
         {
-            _view?.WriteTradeOrder(e);
+            _view?.PopupTradeOrder(e);
         }
 
         private void BotView_ShutdownRequested(object? sender, EventArgs e)
         {
-            _botService?.Shutdown();
+            _botService.Shutdown();
 
             Navigator?.NavigateTo(typeof(MainMenuPresenter));
         }

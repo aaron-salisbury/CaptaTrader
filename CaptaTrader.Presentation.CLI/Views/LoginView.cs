@@ -40,7 +40,7 @@ namespace CaptaTrader.Presentation.CLI.Views
             LoginOptionSelected?.Invoke(this, selectedOption);
         }
 
-        internal void RequestLogin()
+        internal void PopupAuthenticate()
         {
             string userName = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, "Username"))).Trim();
 
@@ -51,7 +51,7 @@ namespace CaptaTrader.Presentation.CLI.Views
             LoginCredentialsEntered?.Invoke(this, credentials);
         }
 
-        internal void RegisterNew()
+        internal void PopupRegister()
         {
             string newUserName = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, "New Username"))).Trim();
 
@@ -60,6 +60,12 @@ namespace CaptaTrader.Presentation.CLI.Views
             NetworkCredential credentials = new(newUserName, newPass);
 
             RegisterNewCredentialsEntered?.Invoke(this, credentials);
+        }
+
+        internal void PopupLoginError(string process)
+        {
+            AnsiConsole.MarkupLineInterpolated($"[red]{process} failed[/]. Press any key to return...");
+            Console.ReadKey();
         }
     }
 }

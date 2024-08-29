@@ -10,11 +10,11 @@ namespace CaptaTrader.Presentation.CLI.Presenters
     internal class LoginPresenter : Presenter
     {
         private LoginView? _view;
-        private IUserService? _userService = Application.DomainServices?.GetRequiredService<IUserService>();
+        private IUserService _userService = Application.DomainServices!.GetRequiredService<IUserService>();
 
-        internal override void Display()
+        internal override void Display(View view)
         {
-            _view = ViewLocator.GetView<LoginView>(this);
+            _view = (LoginView)view;
 
             _view.LoginOptionSelected += LoginView_LoginOptionSelected;
             _view.LoginCredentialsEntered += LoginView_LoginCredentialsEntered;
@@ -38,17 +38,17 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             switch (selectedOption)
             {
                 case LoginMenuOptions.Login:
-                    _view?.RequestLogin();
+                    _view?.PopupAuthenticate();
                     break;
                 case LoginMenuOptions.CreateNewUser:
-                    _view?.RegisterNew();
+                    _view?.PopupRegister();
                     break;
             }
         }
 
         private void LoginView_LoginCredentialsEntered(object? sender, NetworkCredential credentials)
         {
-            Application.SessionUser = _userService?.Authenticate(credentials);
+            Application.SessionUser = _userService.Authenticate(credentials);
 
             if (Application.SessionUser != null)
             {
@@ -56,13 +56,14 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             }
             else
             {
-                //TODO: Request from the view a bad login attempt and then navigate to a new login view.
+                _view?.PopupLoginError(nameof(IUserService.Authenticate));
+                Navigator?.NavigateTo(typeof(LoginPresenter));
             }
         }
 
         private void LoginView_RegisterNewCredentialsEntered(object? sender, NetworkCredential credentials)
         {
-            Application.SessionUser = _userService?.Register(credentials);
+            Application.SessionUser = _userService.Register(credentials);
 
             if (Application.SessionUser != null)
             {
@@ -70,7 +71,8 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             }
             else
             {
-                //TODO: Request from the view a bad login attempt and then navigate to a new login view.
+                _view?.PopupLoginError(nameof(IUserService.Register));
+                Navigator?.NavigateTo(typeof(LoginPresenter));
             }
         }
     }

@@ -8,9 +8,9 @@ namespace CaptaTrader.Presentation.CLI.Presenters
     {
         private MainMenuView? _view;
 
-        internal override void Display()
+        internal override void Display(View view)
         {
-            _view = ViewLocator.GetView<MainMenuView>(this);
+            _view = (MainMenuView)view;
 
             _view.MainMenuOptionSelected += MainMenuView_MainMenuOptionSelected;
 

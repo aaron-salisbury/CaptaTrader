@@ -46,14 +46,14 @@ namespace CaptaTrader.Presentation.CLI.Views
             ConfigurationOptionSelected?.Invoke(this, selectedOption);
         }
 
-        internal void RequestConfiguration(ConfigurationOptions configurationOption)
+        internal void PopupConfiguration(ConfigurationOptions configurationOption)
         {
             string optionValue = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, configurationOption.GetDisplayName()))).Trim();
 
             ConfigurationEntered?.Invoke(this, (configurationOption, optionValue));
         }
 
-        internal void RequestSecretConfiguration(ConfigurationOptions configurationOption)
+        internal void PopupSecretConfiguration(ConfigurationOptions configurationOption)
         {
             string optionValue = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, configurationOption.GetDisplayName())).Secret()).Trim();
 

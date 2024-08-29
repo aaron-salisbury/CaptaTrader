@@ -21,7 +21,13 @@ namespace CaptaTrader.Presentation.CLI.Views
             ShutdownRequested?.Invoke(this, EventArgs.Empty);
         }
 
-        internal void WriteTradeOrder(Trade trade)
+        internal void PopupActivationError()
+        {
+            AnsiConsole.MarkupLineInterpolated($"[red]Bot failed to activate[/]. Press any key to return...");
+            Console.ReadKey();
+        }
+
+        internal void PopupTradeOrder(Trade trade)
         {
             //TODO: Streamline these.
             List<string> tradeTransactionColumns = ["Type", "PriceUSDT", "Amount"];

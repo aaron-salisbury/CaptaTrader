@@ -9,11 +9,11 @@ namespace CaptaTrader.Presentation.CLI.Presenters
     internal class ConfigurationsPresenter : Presenter
     {
         private ConfigurationsView? _view;
-        private IUserService? _userService = Application.DomainServices?.GetRequiredService<IUserService>();
+        private IUserService _userService = Application.DomainServices!.GetRequiredService<IUserService>();
 
-        internal override void Display()
+        internal override void Display(View view)
         {
-            _view = ViewLocator.GetView<ConfigurationsView>(this);
+            _view = (ConfigurationsView)view;
 
             _view.ConfigurationOptionSelected += ConfigurationsView_ConfigurationOptionSelected;
             _view.ConfigurationEntered += ConfigurationsView_ConfigurationEntered;
@@ -37,15 +37,15 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             switch (selectedOption)
             {
                 case ConfigurationOptions.EnterEmail:
-                    _view?.RequestConfiguration(selectedOption);
+                    _view?.PopupConfiguration(selectedOption);
                     break;
                 case ConfigurationOptions.EnterCoinApiAPIKey:
                 case ConfigurationOptions.EnterBinanceAPIKey:
                 case ConfigurationOptions.EnterBinanceSecretKey:
-                    _view?.RequestSecretConfiguration(selectedOption);
+                    _view?.PopupSecretConfiguration(selectedOption);
                     break;
                 case ConfigurationOptions.Save:
-                    if (_userService != null && Application.SessionUser != null)
+                    if (Application.SessionUser != null)
                     {
                         _userService.Save(Application.SessionUser);
                     }

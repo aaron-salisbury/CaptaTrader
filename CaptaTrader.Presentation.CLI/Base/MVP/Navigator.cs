@@ -2,7 +2,7 @@
 
 namespace CaptaTrader.Presentation.CLI.Base.MVP
 {
-    // https://stackoverflow.com/a/13030590
+    // Inspired by https://stackoverflow.com/a/13030590
 
     internal class Navigator
     {
@@ -18,13 +18,26 @@ namespace CaptaTrader.Presentation.CLI.Base.MVP
             }
         }
 
-        internal void NavigateTo(Presenter nextPresenter)
+        private void NavigateTo(Presenter nextPresenter)
         {
             _current?.Dismiss();
 
             _current = nextPresenter;
             _current.Navigator = this;
-            _current.Display();
+            _current.Display(GetView(nextPresenter));
+        }
+
+        private static View GetView(Presenter presenter)
+        {
+            string? name = presenter.GetType().FullName!.Replace("Presenter", "View");
+            Type? type = Type.GetType(name);
+
+            if (type != null && Activator.CreateInstance(type) is View view)
+            {
+                return view;
+            }
+
+            throw new Exception("View not found for presenter.");
         }
     }
 }
