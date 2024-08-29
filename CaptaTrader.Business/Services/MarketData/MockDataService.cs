@@ -3,7 +3,7 @@ using CaptaTrader.Business.Models;
 
 namespace CaptaTrader.Business.Services
 {
-    internal class MockDataService : IMarketDataService
+    public class MockDataService : IMarketDataService
     {
         private readonly Random _random = new();
 

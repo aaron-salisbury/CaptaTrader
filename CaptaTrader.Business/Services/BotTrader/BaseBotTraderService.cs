@@ -4,7 +4,7 @@ using Quartz.Impl;
 
 namespace CaptaTrader.Business.Models
 {
-    internal class BaseBotTraderService : IBotTraderService
+    public class BaseBotTraderService : IBotTraderService
     {
         public event EventHandler<TradeEventArgs>? TradeCompleted;
 
@@ -16,7 +16,7 @@ namespace CaptaTrader.Business.Models
 
         protected readonly IScheduler _scheduler;
 
-        internal BaseBotTraderService()
+        public BaseBotTraderService()
         {
             _scheduler = Task.Run(() => new StdSchedulerFactory().GetScheduler()).Result;
             _scheduler.Context.Put(this.GetType().Name, this);
@@ -35,6 +35,7 @@ namespace CaptaTrader.Business.Models
 
         protected virtual void OnTradeCompleted(TradeEventArgs tradeEventArgs)
         {
+            //TODO: Save to DB.
             TradeCompleted?.Invoke(this, tradeEventArgs);
         }
 

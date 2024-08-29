@@ -6,7 +6,7 @@ using Quartz;
 
 namespace CaptaTrader.Business.Services
 {
-    internal class BitcoinBotTraderService : BaseBotTraderService
+    public class BitcoinBotTraderService : BaseBotTraderService
     {
         private const string BITCOIN_SYMBOL = "BTC";
         private const string QUOTE_ASSET = "USDT";
@@ -18,7 +18,7 @@ namespace CaptaTrader.Business.Services
         private readonly IExchangeService _exchangeService;
         private readonly ITradeAnalyzerService _tradeAnalyzerService;
 
-        internal BitcoinBotTraderService(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger) : base()
+        public BitcoinBotTraderService(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger) : base()
         {
             _cryptoDataService = cryptoDataService;
             _exchangeService = exchangeService;

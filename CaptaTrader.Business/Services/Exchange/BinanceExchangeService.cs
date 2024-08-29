@@ -11,14 +11,14 @@ namespace CaptaTrader.Business.Services
 {
     // API Documentation: https://docs.binance.us/#introduction
     // Helper Library: https://github.com/JKorf/Binance.Net
-    internal class BinanceExchangeService : IExchangeService
+    public class BinanceExchangeService : IExchangeService
     {
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly Func<(string? key, string? secret)> _getKeysFunction;
 
-        internal BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, Func<(string? key, string? secret)> getKeysFunction)
+        public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, Func<(string? key, string? secret)> getKeysFunction)
         {
             _logger = logger;
             _loggerFactory = loggerFactory;

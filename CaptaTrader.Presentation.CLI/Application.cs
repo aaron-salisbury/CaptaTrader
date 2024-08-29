@@ -17,7 +17,6 @@ namespace CaptaTrader.Presentation.CLI
         internal static User? SessionUser { get; set; }
         internal static int ExitCode { get; set; } = 0;
 
-        //private readonly string[] _tradeTransactionColumns = TradeOrder.GetColumnNames();
         private static readonly FigletFont _titleFont = SetTitleFont();
 
         public Application(ILoggerProvider _loggerProvider, bool useMockData)
@@ -47,47 +46,5 @@ namespace CaptaTrader.Presentation.CLI
             AnsiConsole.Write(new FigletText(_titleFont, "Capta Trader").Color(Color.Green));
             AnsiConsole.Write(Environment.NewLine);
         }
-
-        //private void WriteTradeOrder(TradeOrder? tradeOrder)
-        //{
-        //    if (tradeOrder != null)
-        //    {
-        //        Style columnsHeaderStyle = new(decoration: Decoration.Bold);
-        //        Text[] columnHeaders = _tradeTransactionColumns.Select(ttc => new Text(ttc, columnsHeaderStyle)).ToArray();
-
-        //        Grid transactionGrid = new();
-        //        transactionGrid.AddColumns(_tradeTransactionColumns.Length);
-        //        transactionGrid.AddRow(columnHeaders);
-        //        transactionGrid.AddRow(tradeOrder.AsDataRow().ToArray());
-
-        //        string headerColor = tradeOrder.TransactionType == TradeOrder.TransactionTypes.Sell ? "green" : "purple";
-        //        Panel transactionPanel = new(transactionGrid)
-        //        {
-        //            Header = new PanelHeader($"[{headerColor}]{tradeOrder.TransactionType} Order[/]"),
-        //            Border = BoxBorder.Ascii,
-        //            Expand = false
-        //        };
-
-        //        AnsiConsole.Write(transactionPanel);
-        //    }
-        //}
-
-        //private void TradingManager_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        //{
-        //    if (sender is AppManager manager)
-        //    {
-        //        if (string.Equals(e.PropertyName, nameof(Business.AppManager.LastNotification)) && manager.LastNotification != null)
-        //        {
-        //            if (manager.LastNotification.NotificationType == Notification.NotificationTypes.Message && manager.LastNotification.Message != null)
-        //            {
-        //                AnsiConsole.WriteLine(manager.LastNotification.Message);
-        //            }
-        //            else if (manager.LastNotification.NotificationType == Notification.NotificationTypes.TradeTransaction)
-        //            {
-        //                WriteTradeOrder(manager.LastNotification.TradeOrder);
-        //            }
-        //        }
-        //    }
-        //}
     }
 }

@@ -2,7 +2,7 @@
 
 namespace CaptaTrader.Business.Services
 {
-    internal interface IMarketDataService
+    public interface IMarketDataService
     {
         Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals(string exchangeID, string baseAsset);
     }

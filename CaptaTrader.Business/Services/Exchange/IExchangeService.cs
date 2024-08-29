@@ -2,7 +2,7 @@
 
 namespace CaptaTrader.Business.Services
 {
-    internal interface IExchangeService
+    public interface IExchangeService
     {
         string GetExchangeID();
         Task<IEnumerable<AssetBalance>?> GetAccountBalancesAsync(IEnumerable<string> assets);

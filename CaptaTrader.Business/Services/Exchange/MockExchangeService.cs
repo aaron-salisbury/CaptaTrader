@@ -3,7 +3,7 @@ using CaptaTrader.Business.Models;
 
 namespace CaptaTrader.Business.Services
 {
-    internal class MockExchangeService : IExchangeService
+    public class MockExchangeService : IExchangeService
     {
         private readonly Random _random = new();
 

@@ -13,27 +13,6 @@ namespace CaptaTrader.Business
     {
         internal static User? SessionUser { get; set; } //TODO: I hate this.
 
-        //private Notification? _lastNotification;
-        //public Notification? LastNotification
-        //{
-        //    get => _lastNotification;
-        //    set => SetProperty(ref _lastNotification, value);
-        //}
-
-        //internal void Notify(Notification notification)
-        //{
-        //    LastNotification = notification;
-        //}
-
-        //internal void Notify(string message)
-        //{
-        //    Notify(new Notification()
-        //    {
-        //        NotificationType = Notification.NotificationTypes.Message,
-        //        Message = message
-        //    });
-        //}
-
         public static IServiceProvider InitializeDomainServices(ILogger logger, bool useMockData)
         {
             return ConfigureServices(logger, useMockData)

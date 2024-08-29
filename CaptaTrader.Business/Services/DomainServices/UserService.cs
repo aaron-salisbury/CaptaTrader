@@ -9,7 +9,7 @@ namespace CaptaTrader.Business.Services
     {
         private DataAccesor _dataAccesor;
 
-        internal UserService(DataAccesor dataAccesor)
+        public UserService(DataAccesor dataAccesor)
         {
             _dataAccesor = dataAccesor;
         }

@@ -2,7 +2,7 @@
 
 namespace CaptaTrader.Business.Services
 {
-    internal interface IBotTraderService
+    public interface IBotTraderService
     {
         event EventHandler<TradeEventArgs>? TradeCompleted;
 
@@ -13,7 +13,7 @@ namespace CaptaTrader.Business.Services
         Task<bool> AttemptToInitiateTradeAsync();
     }
 
-    internal class TradeEventArgs(Trade tradeOrder) : EventArgs
+    public class TradeEventArgs(Trade tradeOrder) : EventArgs
     {
         internal Trade TradeOrder { get; set; } = tradeOrder;
     }

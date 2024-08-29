@@ -1,14 +1,22 @@
-﻿using System;
+﻿using CaptaTrader.Business.DTOs;
 
 namespace CaptaTrader.Business.Services
 {
     public class BotService : IBotService
     {
+        public event EventHandler<Trade>? TradeExecuted;
+
         private IBotTraderService _botTraderService;
 
-        internal BotService(IBotTraderService botTraderService)
+        public BotService(IBotTraderService botTraderService)
         {
             _botTraderService = botTraderService;
+            _botTraderService.TradeCompleted += BotTrader_TradeCompleted;
+        }
+
+        private void BotTrader_TradeCompleted(object? sender, TradeEventArgs e)
+        {
+            TradeExecuted?.Invoke(sender, e.TradeOrder);
         }
 
         public bool Startup()
