@@ -1,37 +1,25 @@
-﻿using CaptaTrader.Business.Entities;
-using CaptaTrader.Business.Services;
+﻿using CaptaTrader.Business.Services;
 using Quartz;
 using Quartz.Impl;
-using static CaptaTrader.Business.Models.Notification;
 
 namespace CaptaTrader.Business.Models
 {
-    public class BaseBotTraderService : IBotTraderService
+    internal class BaseBotTraderService : IBotTraderService
     {
-        public int MinSecondsBetweenTrades { get; set; } = 6;
-        public PriceInterval? PriceIntervalMonth { get; set; }
-        public PriceInterval? PriceIntervalDay { get; set; }
-        public decimal? AccountBalance { get; set; }
-        public decimal? AssetBalance { get; set; }
+        public event EventHandler<TradeEventArgs>? TradeCompleted;
 
-        protected readonly Action<Notification> _notifyAction;
+        internal int MinSecondsBetweenTrades { get; set; } = 6;
+        internal PriceInterval? PriceIntervalMonth { get; set; }
+        internal PriceInterval? PriceIntervalDay { get; set; }
+        internal decimal? AccountBalance { get; set; }
+        internal decimal? AssetBalance { get; set; }
+
         protected readonly IScheduler _scheduler;
 
-        public BaseBotTraderService(Action<Notification> notifyAction)
+        internal BaseBotTraderService()
         {
-            _notifyAction = notifyAction;
-
             _scheduler = Task.Run(() => new StdSchedulerFactory().GetScheduler()).Result;
             _scheduler.Context.Put(this.GetType().Name, this);
-        }
-
-        protected void NotifyOfTradeOrder(TradeOrder order)
-        {
-            _notifyAction.Invoke(new Notification()
-            {
-                NotificationType = NotificationTypes.Transaction,
-                TradeOrder = order
-            });
         }
 
         protected async Task UnscheduleJobsAsync()
@@ -43,6 +31,11 @@ namespace CaptaTrader.Business.Models
         protected virtual async Task ScheduleJobsAsync()
         {
             await Task.Run(() => throw new NotImplementedException());
+        }
+
+        protected virtual void OnTradeCompleted(TradeEventArgs tradeEventArgs)
+        {
+            TradeCompleted?.Invoke(this, tradeEventArgs);
         }
 
         #region Virtual Interface Methods

@@ -1,13 +1,11 @@
 ﻿using CaptaTrader.Business;
 using CaptaTrader.Business.Entities;
-using CaptaTrader.Business.Models;
 using CaptaTrader.Presentation.CLI.Base.Extensions;
+using CaptaTrader.Presentation.CLI.Base.MVP;
+using CaptaTrader.Presentation.CLI.Presenters;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using System;
-using System.ComponentModel;
-using System.Data;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -15,25 +13,23 @@ namespace CaptaTrader.Presentation.CLI
 {
     public class Application
     {
-        internal int ExitCode { get; set; } = 0;
+        internal static IServiceProvider? DomainServices { get; set; }
+        internal static User? SessionUser { get; set; }
+        internal static int ExitCode { get; set; } = 0;
 
-        private AppManager _appManager;
-        private readonly string[] _tradeTransactionColumns = TradeOrder.GetColumnNames();
+        //private readonly string[] _tradeTransactionColumns = TradeOrder.GetColumnNames();
         private static readonly FigletFont _titleFont = SetTitleFont();
 
-        public Application(ILogger logger, bool useMockData)
+        public Application(ILoggerProvider _loggerProvider, bool useMockData)
         {
-            _appManager = new(logger, useMockData);
-            _appManager.PropertyChanged += TradingManager_PropertyChanged;
+            ILogger logger = _loggerProvider.CreateLogger(nameof(Application));
+
+            DomainServices = Startup.InitializeDomainServices(logger, useMockData);
         }
 
         public async Task<int> RunAsync()
         {
-            ClearConsole();
-
-            LaunchLoginMenu();
-
-            LaunchMainMenuAsync();
+            new Navigator().NavigateTo(typeof(LoginPresenter));
 
             return ExitCode;
         }
@@ -52,87 +48,46 @@ namespace CaptaTrader.Presentation.CLI
             AnsiConsole.Write(Environment.NewLine);
         }
 
-        private void LaunchLoginMenu()
-        {
-            bool verified = false;
+        //private void WriteTradeOrder(TradeOrder? tradeOrder)
+        //{
+        //    if (tradeOrder != null)
+        //    {
+        //        Style columnsHeaderStyle = new(decoration: Decoration.Bold);
+        //        Text[] columnHeaders = _tradeTransactionColumns.Select(ttc => new Text(ttc, columnsHeaderStyle)).ToArray();
 
-            while (!verified)
-            {
-                verified = Menus.PresentLogin(_appManager);
+        //        Grid transactionGrid = new();
+        //        transactionGrid.AddColumns(_tradeTransactionColumns.Length);
+        //        transactionGrid.AddRow(columnHeaders);
+        //        transactionGrid.AddRow(tradeOrder.AsDataRow().ToArray());
 
-                if (!verified)
-                {
-                    AnsiConsole.MarkupLine("[red]Bad user.[/] Press any key to return...");
-                    Console.ReadKey();
-                }
-            }
-        }
+        //        string headerColor = tradeOrder.TransactionType == TradeOrder.TransactionTypes.Sell ? "green" : "purple";
+        //        Panel transactionPanel = new(transactionGrid)
+        //        {
+        //            Header = new PanelHeader($"[{headerColor}]{tradeOrder.TransactionType} Order[/]"),
+        //            Border = BoxBorder.Ascii,
+        //            Expand = false
+        //        };
 
-        private void LaunchMainMenuAsync()
-        {
-            bool userSelectedLaunchApp = Menus.PresentMainMenuAsync(_appManager);
-            
-            if (userSelectedLaunchApp)
-            {
-                ActivateMainProcess();
+        //        AnsiConsole.Write(transactionPanel);
+        //    }
+        //}
 
-                LaunchMainMenuAsync();
-            }
-        }
-
-        private void ActivateMainProcess()
-        {
-            if (_appManager.InitializeBot())
-            {
-                ClearConsole();
-
-                AnsiConsole.MarkupLine("Bot is [lime]active[/], press any key to shutdown..." + Environment.NewLine);
-                Console.ReadKey();
-
-                _appManager.ShutdownBot();
-            }
-        }
-
-        private void WriteTradeOrder(TradeOrder? tradeOrder)
-        {
-            if (tradeOrder != null)
-            {
-                Style columnsHeaderStyle = new(decoration: Decoration.Bold);
-                Text[] columnHeaders = _tradeTransactionColumns.Select(ttc => new Text(ttc, columnsHeaderStyle)).ToArray();
-
-                Grid transactionGrid = new();
-                transactionGrid.AddColumns(_tradeTransactionColumns.Length);
-                transactionGrid.AddRow(columnHeaders);
-                transactionGrid.AddRow(tradeOrder.AsDataRow().ToArray());
-
-                string headerColor = tradeOrder.TransactionType == TradeOrder.TransactionTypes.Sell ? "green" : "purple";
-                Panel transactionPanel = new(transactionGrid)
-                {
-                    Header = new PanelHeader($"[{headerColor}]{tradeOrder.TransactionType} Order[/]"),
-                    Border = BoxBorder.Ascii,
-                    Expand = false
-                };
-
-                AnsiConsole.Write(transactionPanel);
-            }
-        }
-
-        private void TradingManager_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (sender is AppManager manager)
-            {
-                if (string.Equals(e.PropertyName, nameof(Business.AppManager.LastNotification)) && manager.LastNotification != null)
-                {
-                    if (manager.LastNotification.NotificationType == Notification.NotificationTypes.Message && manager.LastNotification.Message != null)
-                    {
-                        AnsiConsole.WriteLine(manager.LastNotification.Message);
-                    }
-                    else if (manager.LastNotification.NotificationType == Notification.NotificationTypes.Transaction)
-                    {
-                        WriteTradeOrder(manager.LastNotification.TradeOrder);
-                    }
-                }
-            }
-        }
+        //private void TradingManager_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        //{
+        //    if (sender is AppManager manager)
+        //    {
+        //        if (string.Equals(e.PropertyName, nameof(Business.AppManager.LastNotification)) && manager.LastNotification != null)
+        //        {
+        //            if (manager.LastNotification.NotificationType == Notification.NotificationTypes.Message && manager.LastNotification.Message != null)
+        //            {
+        //                AnsiConsole.WriteLine(manager.LastNotification.Message);
+        //            }
+        //            else if (manager.LastNotification.NotificationType == Notification.NotificationTypes.TradeTransaction)
+        //            {
+        //                WriteTradeOrder(manager.LastNotification.TradeOrder);
+        //            }
+        //        }
+        //    }
+        //}
     }
 }

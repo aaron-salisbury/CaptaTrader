@@ -1,7 +1,6 @@
-﻿using CaptaTrader.Presentation.CLI.Commands;
-using CaptaTrader.Presentation.CLI.Infrastructure;
+﻿using CaptaTrader.Presentation.CLI.Base.Commands;
+using CaptaTrader.Presentation.CLI.Base.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -44,7 +43,7 @@ namespace CaptaTrader.Presentation.CLI
 
                     app.Configure(config =>
                     {
-                        config.SetInterceptor(new LogInterceptor());
+                        config.SetInterceptor(new CommandInterceptor());
                     });
 
                     return app;
@@ -56,7 +55,7 @@ namespace CaptaTrader.Presentation.CLI
             IServiceCollection services = new ServiceCollection();
 
             Serilog.Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.ControlledBy(LogInterceptor.LogLevel) // https://github.com/spectreconsole/examples/tree/main/examples/Cli/Logging
+                .MinimumLevel.ControlledBy(CommandInterceptor.LogLevel) // https://github.com/spectreconsole/examples/tree/main/examples/Cli/Logging
                 .WriteTo.Console()
                 .CreateLogger();
 

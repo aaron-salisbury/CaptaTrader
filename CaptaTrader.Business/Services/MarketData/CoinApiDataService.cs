@@ -1,5 +1,5 @@
-﻿using CaptaTrader.Business.Models;
-using CaptaTrader.Business.Services.DTOs;
+﻿using CaptaTrader.Business.DTOs;
+using CaptaTrader.Business.Models;
 using CaptaTrader.Data;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
@@ -15,12 +15,14 @@ namespace CaptaTrader.Business.Services
 
         private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly string _compressionClientName;
         private readonly Func<string?> _getKeyFunction;
 
-        public CoinApiDataService(ILogger logger, IHttpClientFactory httpClientFactory, Func<string?> getKeyFunction)
+        internal CoinApiDataService(ILogger logger, IHttpClientFactory httpClientFactory, string compressionClientName, Func<string?> getKeyFunction)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
+            _compressionClientName = compressionClientName;
             _getKeyFunction = getKeyFunction;   
         }
 
@@ -44,7 +46,7 @@ namespace CaptaTrader.Business.Services
                     _httpClientFactory,
                     _logger,
                     requestHeaders: new Dictionary<string, string>() { { "Authorization", key } },
-                    namedClient: AppManager.COMPRESSION_CLIENT_NAME); // CoinApi requests that compression be used.
+                    namedClient: _compressionClientName); // CoinApi requests that compression be used.
 
                 if (!string.IsNullOrEmpty(jsonResponse))
                 {

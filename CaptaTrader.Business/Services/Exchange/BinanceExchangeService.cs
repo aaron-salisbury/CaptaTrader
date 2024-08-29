@@ -18,7 +18,7 @@ namespace CaptaTrader.Business.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly Func<(string? key, string? secret)> _getKeysFunction;
 
-        public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, Func<(string? key, string? secret)> getKeysFunction)
+        internal BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, Func<(string? key, string? secret)> getKeysFunction)
         {
             _logger = logger;
             _loggerFactory = loggerFactory;

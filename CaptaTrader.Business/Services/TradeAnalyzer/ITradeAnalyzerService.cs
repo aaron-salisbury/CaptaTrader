@@ -2,7 +2,7 @@
 
 namespace CaptaTrader.Business.Services
 {
-    public interface ITradeAnalyzerService
+    internal interface ITradeAnalyzerService
     {
         TradeOrder? AnalyzePotentialTrade();
     }

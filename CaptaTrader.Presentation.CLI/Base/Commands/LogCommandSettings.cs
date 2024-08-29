@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace CaptaTrader.Presentation.CLI.Commands
+namespace CaptaTrader.Presentation.CLI.Base.Commands
 {
     internal class LogCommandSettings : CommandSettings
     {

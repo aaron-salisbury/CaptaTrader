@@ -7,7 +7,7 @@ namespace CaptaTrader.Business.Models
         public enum NotificationTypes
         {
             Message,
-            Transaction
+            TradeTransaction
         }
 
         public NotificationTypes NotificationType { get; set; }

@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
 using System;
 
-namespace CaptaTrader.Presentation.CLI.Infrastructure
+namespace CaptaTrader.Presentation.CLI.Base.Infrastructure
 {
     public sealed class TypeRegistrar : ITypeRegistrar
     {

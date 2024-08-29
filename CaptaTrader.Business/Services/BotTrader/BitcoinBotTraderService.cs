@@ -6,7 +6,7 @@ using Quartz;
 
 namespace CaptaTrader.Business.Services
 {
-    public class BitcoinBotTraderService : BaseBotTraderService
+    internal class BitcoinBotTraderService : BaseBotTraderService
     {
         private const string BITCOIN_SYMBOL = "BTC";
         private const string QUOTE_ASSET = "USDT";
@@ -18,7 +18,7 @@ namespace CaptaTrader.Business.Services
         private readonly IExchangeService _exchangeService;
         private readonly ITradeAnalyzerService _tradeAnalyzerService;
 
-        public BitcoinBotTraderService(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, Action<Notification> notifyAction) : base(notifyAction)
+        internal BitcoinBotTraderService(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger) : base()
         {
             _cryptoDataService = cryptoDataService;
             _exchangeService = exchangeService;
@@ -115,7 +115,15 @@ namespace CaptaTrader.Business.Services
 
             if (tradeOrder != null)
             {
-                NotifyOfTradeOrder(tradeOrder);
+                //TODO: DTOs.Trade, Entities.TraderOrder, Models.ExchangeTransaction ... it's all a mess.
+                OnTradeCompleted(new TradeEventArgs(
+                    new DTOs.Trade()
+                    {
+                        Type = tradeOrder.TransactionType == TradeOrder.TransactionTypes.Buy ? DTOs.Trade.Types.Buy : DTOs.Trade.Types.Sell,
+                        PriceUSDT = tradeOrder.Price,
+                        Amount = tradeOrder.Quantity
+                    }));
+
 
                 //await UpdateBalancesAsync();
             }

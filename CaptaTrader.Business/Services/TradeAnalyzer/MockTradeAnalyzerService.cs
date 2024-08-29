@@ -4,7 +4,7 @@ using CaptaTrader.Business.Services;
 
 namespace CaptaTrader.Business.Models
 {
-    public class MockTradeAnalyzerService : ITradeAnalyzerService
+    internal class MockTradeAnalyzerService : ITradeAnalyzerService
     {
         private readonly Random _random = new();
 
