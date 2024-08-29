@@ -2,7 +2,6 @@
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
 using static CaptaTrader.Presentation.CLI.Views.LoginView;
 
 namespace CaptaTrader.Presentation.CLI.Presenters
@@ -33,9 +32,9 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             }
         }
 
-        private void LoginView_LoginOptionSelected(object? sender, LoginMenuOptions selectedOption)
+        private void LoginView_LoginOptionSelected(object? sender, LoginViewEventArgs e)
         {
-            switch (selectedOption)
+            switch (e.MenuOption)
             {
                 case LoginMenuOptions.Login:
                     _view?.PopupAuthenticate();
@@ -43,12 +42,18 @@ namespace CaptaTrader.Presentation.CLI.Presenters
                 case LoginMenuOptions.CreateNewUser:
                     _view?.PopupRegister();
                     break;
+                default:
+                    Serilog.Log.Warning("Invalid login option selected.");
+                    Navigator?.NavigateTo(typeof(LoginPresenter));
+                    break;
             }
         }
 
-        private void LoginView_LoginCredentialsEntered(object? sender, NetworkCredential credentials)
+        private void LoginView_LoginCredentialsEntered(object? sender, LoginViewEventArgs e)
         {
-            Application.SessionUser = _userService.Authenticate(credentials);
+            Application.SessionUser = e.NetworkCredential != null 
+                ? _userService.Authenticate(e.NetworkCredential) 
+                : null;
 
             if (Application.SessionUser != null)
             {
@@ -61,9 +66,11 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             }
         }
 
-        private void LoginView_RegisterNewCredentialsEntered(object? sender, NetworkCredential credentials)
+        private void LoginView_RegisterNewCredentialsEntered(object? sender, LoginViewEventArgs e)
         {
-            Application.SessionUser = _userService.Register(credentials);
+            Application.SessionUser = e.NetworkCredential != null
+                ? _userService.Register(e.NetworkCredential)
+                : null;
 
             if (Application.SessionUser != null)
             {

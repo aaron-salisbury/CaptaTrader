@@ -32,17 +32,17 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             }
         }
 
-        private void ConfigurationsView_ConfigurationOptionSelected(object? sender, ConfigurationOptions selectedOption)
+        private void ConfigurationsView_ConfigurationOptionSelected(object? sender, ConfigViewEventArgs e)
         {
-            switch (selectedOption)
+            switch (e.MenuOption)
             {
                 case ConfigurationOptions.EnterEmail:
-                    _view?.PopupConfiguration(selectedOption);
+                    _view?.PopupConfiguration(e.MenuOption);
                     break;
                 case ConfigurationOptions.EnterCoinApiAPIKey:
                 case ConfigurationOptions.EnterBinanceAPIKey:
                 case ConfigurationOptions.EnterBinanceSecretKey:
-                    _view?.PopupSecretConfiguration(selectedOption);
+                    _view?.PopupSecretConfiguration(e.MenuOption);
                     break;
                 case ConfigurationOptions.Save:
                     if (Application.SessionUser != null)
@@ -53,19 +53,20 @@ namespace CaptaTrader.Presentation.CLI.Presenters
                     break;
                 case ConfigurationOptions.Return:
                 default:
+                    Serilog.Log.Warning("Invalid configuration option selected.");
                     Navigator?.NavigateTo(typeof(MainMenuPresenter));
                     break;
             }
         }
 
-        private void ConfigurationsView_ConfigurationEntered(object? sender, (ConfigurationOptions option, string newValue) optionAndItsNewValue)
+        private void ConfigurationsView_ConfigurationEntered(object? sender, ConfigViewEventArgs e)
         {
             if (Application.SessionUser != null)
             {
-                switch (optionAndItsNewValue.option)
+                switch (e.MenuOption)
                 {
                     case ConfigurationOptions.EnterEmail:
-                        Application.SessionUser.Email = optionAndItsNewValue.newValue;
+                        Application.SessionUser.Email = e.EnteredValue;
                         break;
                 }
             }
@@ -73,20 +74,20 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             Navigator?.NavigateTo(typeof(ConfigurationsPresenter));
         }
 
-        private void ConfigurationsView_ConfigurationSecretEntered(object? sender, (ConfigurationOptions option, string newValue) optionAndItsNewValue)
+        private void ConfigurationsView_ConfigurationSecretEntered(object? sender, ConfigViewEventArgs e)
         {
             if (Application.SessionUser != null)
             {
-                switch (optionAndItsNewValue.option)
+                switch (e.MenuOption)
                 {
                     case ConfigurationOptions.EnterCoinApiAPIKey:
-                        Application.SessionUser.CoinAPIKey = optionAndItsNewValue.newValue;
+                        Application.SessionUser.CoinAPIKey = e.EnteredValue;
                         break;
                     case ConfigurationOptions.EnterBinanceAPIKey:
-                        Application.SessionUser.BinanceKey = optionAndItsNewValue.newValue;
+                        Application.SessionUser.BinanceKey = e.EnteredValue;
                         break;
                     case ConfigurationOptions.EnterBinanceSecretKey:
-                        Application.SessionUser.BinanceSecretKey = optionAndItsNewValue.newValue;
+                        Application.SessionUser.BinanceSecretKey = e.EnteredValue;
                         break;
                 }
             }

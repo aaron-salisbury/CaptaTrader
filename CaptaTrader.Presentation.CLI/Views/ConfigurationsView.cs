@@ -5,14 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using static CaptaTrader.Presentation.CLI.Views.ConfigurationsView;
 
 namespace CaptaTrader.Presentation.CLI.Views
 {
     internal class ConfigurationsView : View
     {
-        internal event EventHandler<ConfigurationOptions>? ConfigurationOptionSelected;
-        internal event EventHandler<(ConfigurationOptions o, string v)>? ConfigurationEntered;
-        internal event EventHandler<(ConfigurationOptions o, string v)>? ConfigurationSecretEntered;
+        internal event EventHandler<ConfigViewEventArgs>? ConfigurationOptionSelected;
+        internal event EventHandler<ConfigViewEventArgs>? ConfigurationEntered;
+        internal event EventHandler<ConfigViewEventArgs>? ConfigurationSecretEntered;
 
         internal enum ConfigurationOptions
         {
@@ -43,21 +44,27 @@ namespace CaptaTrader.Presentation.CLI.Views
 
             ConfigurationOptions selectedOption = options.Where(co => string.Equals(co.GetDisplayName(), readableChoice)).FirstOrDefault();
 
-            ConfigurationOptionSelected?.Invoke(this, selectedOption);
+            ConfigurationOptionSelected?.Invoke(this, new ConfigViewEventArgs(selectedOption));
         }
 
         internal void PopupConfiguration(ConfigurationOptions configurationOption)
         {
             string optionValue = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, configurationOption.GetDisplayName()))).Trim();
 
-            ConfigurationEntered?.Invoke(this, (configurationOption, optionValue));
+            ConfigurationEntered?.Invoke(this, new ConfigViewEventArgs(configurationOption) { EnteredValue = optionValue });
         }
 
         internal void PopupSecretConfiguration(ConfigurationOptions configurationOption)
         {
             string optionValue = AnsiConsole.Prompt(new TextPrompt<string>(string.Format(PROMPT_FORMAT, configurationOption.GetDisplayName())).Secret()).Trim();
 
-            ConfigurationSecretEntered?.Invoke(this, (configurationOption, optionValue));
+            ConfigurationSecretEntered?.Invoke(this, new ConfigViewEventArgs(configurationOption) { EnteredValue = optionValue });
         }
+    }
+
+    internal class ConfigViewEventArgs(ConfigurationOptions configurationOption) : EventArgs
+    {
+        internal ConfigurationOptions MenuOption { get; set; } = configurationOption;
+        internal string? EnteredValue { get; set; }
     }
 }

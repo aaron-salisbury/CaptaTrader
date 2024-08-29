@@ -25,9 +25,9 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             }
         }
 
-        private void MainMenuView_MainMenuOptionSelected(object? sender, MainMenuOptions selectedOption)
+        private void MainMenuView_MainMenuOptionSelected(object? sender, MainMenuViewEventArgs e)
         {
-            switch (selectedOption)
+            switch (e.MenuOption)
             {
                 case MainMenuOptions.EnterConfigurations:
                     Navigator?.NavigateTo(typeof(ConfigurationsPresenter));

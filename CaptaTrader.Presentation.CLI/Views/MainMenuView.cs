@@ -5,12 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using static CaptaTrader.Presentation.CLI.Views.MainMenuView;
 
 namespace CaptaTrader.Presentation.CLI.Views
 {
     internal class MainMenuView : View
     {
-        internal event EventHandler<MainMenuOptions>? MainMenuOptionSelected;
+        internal event EventHandler<MainMenuViewEventArgs>? MainMenuOptionSelected;
 
         internal enum MainMenuOptions
         {
@@ -36,7 +37,12 @@ namespace CaptaTrader.Presentation.CLI.Views
 
             MainMenuOptions selectedOption = options.Where(mmo => string.Equals(mmo.GetDisplayName(), choice)).FirstOrDefault();
 
-            MainMenuOptionSelected?.Invoke(this, selectedOption);
+            MainMenuOptionSelected?.Invoke(this, new MainMenuViewEventArgs(selectedOption));
         }
+    }
+
+    internal class MainMenuViewEventArgs(MainMenuOptions mainMenuOption) : EventArgs
+    {
+        internal MainMenuOptions MenuOption { get; set; } = mainMenuOption;
     }
 }

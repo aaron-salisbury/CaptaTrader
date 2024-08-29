@@ -6,14 +6,15 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
+using static CaptaTrader.Presentation.CLI.Views.LoginView;
 
 namespace CaptaTrader.Presentation.CLI.Views
 {
     internal class LoginView : View
     {
-        internal event EventHandler<LoginMenuOptions>? LoginOptionSelected;
-        internal event EventHandler<NetworkCredential>? LoginCredentialsEntered;
-        internal event EventHandler<NetworkCredential>? RegisterNewCredentialsEntered;
+        internal event EventHandler<LoginViewEventArgs>? LoginOptionSelected;
+        internal event EventHandler<LoginViewEventArgs>? LoginCredentialsEntered;
+        internal event EventHandler<LoginViewEventArgs>? RegisterNewCredentialsEntered;
 
         internal enum LoginMenuOptions
         {
@@ -37,7 +38,7 @@ namespace CaptaTrader.Presentation.CLI.Views
 
             LoginMenuOptions selectedOption = options.Where(lo => string.Equals(lo.GetDisplayName(), choice)).FirstOrDefault();
 
-            LoginOptionSelected?.Invoke(this, selectedOption);
+            LoginOptionSelected?.Invoke(this, new LoginViewEventArgs() { MenuOption = selectedOption });
         }
 
         internal void PopupAuthenticate()
@@ -48,7 +49,7 @@ namespace CaptaTrader.Presentation.CLI.Views
 
             NetworkCredential credentials = new(userName, pass);
 
-            LoginCredentialsEntered?.Invoke(this, credentials);
+            LoginCredentialsEntered?.Invoke(this, new LoginViewEventArgs() { NetworkCredential = credentials });
         }
 
         internal void PopupRegister()
@@ -59,7 +60,7 @@ namespace CaptaTrader.Presentation.CLI.Views
 
             NetworkCredential credentials = new(newUserName, newPass);
 
-            RegisterNewCredentialsEntered?.Invoke(this, credentials);
+            RegisterNewCredentialsEntered?.Invoke(this, new LoginViewEventArgs() { NetworkCredential = credentials });
         }
 
         internal void PopupLoginError(string process)
@@ -67,5 +68,11 @@ namespace CaptaTrader.Presentation.CLI.Views
             AnsiConsole.MarkupLineInterpolated($"[red]{process} failed[/]. Press any key to return...");
             Console.ReadKey();
         }
+    }
+
+    internal class LoginViewEventArgs : EventArgs
+    {
+        internal LoginMenuOptions? MenuOption { get; set; }
+        internal NetworkCredential? NetworkCredential { get; set; }
     }
 }

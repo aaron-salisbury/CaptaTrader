@@ -2,7 +2,7 @@
 
 namespace CaptaTrader.Presentation.CLI.Base.MVP
 {
-    internal class View
+    internal abstract class View
     {
         internal const string PROMPT_FORMAT = "{0}: ";
 
