@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Spectre.Console;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CaptaTrader.Presentation.CLI.Base.MVP
 {
@@ -7,5 +10,23 @@ namespace CaptaTrader.Presentation.CLI.Base.MVP
         internal const string PROMPT_FORMAT = "{0}: ";
 
         internal virtual void Show() { throw new NotImplementedException(); }
+
+        internal virtual void PopupProcessFail(string processName, IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult>? results = null)
+        {
+            if (results != null)
+            {
+                string errorMessage = string.Join(Environment.NewLine, results.Select(vr => vr.ErrorMessage));
+
+                AnsiConsole.MarkupLineInterpolated($"[red]{processName} failed[/]: {errorMessage}");
+            }
+            else
+            {
+                AnsiConsole.MarkupLineInterpolated($"[red]{processName} failed[/].");
+            }
+
+            AnsiConsole.Write("Press any key to return...");
+
+            Console.ReadKey();
+        }
     }
 }

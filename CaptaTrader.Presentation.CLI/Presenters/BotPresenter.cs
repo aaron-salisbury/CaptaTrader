@@ -25,7 +25,7 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             }
             else
             {
-                _view.PopupActivationError();
+                _view?.PopupProcessFail("Bot activation");
                 Navigator?.NavigateTo(typeof(MainMenuPresenter));
             }
         }

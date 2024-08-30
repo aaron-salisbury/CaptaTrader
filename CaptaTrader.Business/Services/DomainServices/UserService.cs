@@ -1,6 +1,7 @@
 ﻿using CaptaTrader.Business.Base;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Data;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 
 namespace CaptaTrader.Business.Services
@@ -14,7 +15,7 @@ namespace CaptaTrader.Business.Services
             _dataAccesor = dataAccesor;
         }
 
-        public EndUser? Authenticate(NetworkCredential networkCredentials)
+        public (EndUser?, IEnumerable<ValidationResult>) Authenticate(NetworkCredential networkCredentials)
         {
             //TODO:
             // https://jasonwatmore.com/post/2021/12/20/net-6-basic-authentication-tutorial-with-example-api
@@ -23,27 +24,32 @@ namespace CaptaTrader.Business.Services
             EndUser? user = _dataAccesor.ReadWhere<EndUser>(u => string.Equals(networkCredentials.UserName, u.UserName)).FirstOrDefault();
             if (user == null)
             {
-                return null;
+                return (null, [new ValidationResult("User Name not found.")]);
             }
 
             AppCredentials? appCredentials = _dataAccesor.ReadWhere<AppCredentials>(ac => user.Id == ac.UserId).FirstOrDefault();
-            if (appCredentials != null && Security.Login(appCredentials, networkCredentials.SecurePassword))
+            if (appCredentials == null || !Security.Login(appCredentials, networkCredentials.SecurePassword))
             {
-                Startup.SessionUser = user;
-                return user;
+                return (null, [new ValidationResult("Bad credentials.")]);
             }
 
-            return null;
+            Startup.SessionUser = user;
+            return (user, []);
         }
 
-        public EndUser? Register(NetworkCredential networkCredentials)
+        public (EndUser?, IEnumerable<ValidationResult>) Register(NetworkCredential networkCredentials)
         {
             if (string.IsNullOrEmpty(networkCredentials.UserName) || _dataAccesor.ReadAll<EndUser>().Any(u => string.Equals(networkCredentials.UserName, u.UserName)))
             {
-                return null;
+                return (null, [new ValidationResult("User Name must be unique.")]);
             }
 
             EndUser newUser = new() { UserName = networkCredentials.UserName };
+            IEnumerable<ValidationResult> userModelResults = newUser.Validate();
+            if (userModelResults.Any())
+            {
+                return (null, userModelResults);
+            }
             _dataAccesor.Create(newUser);
 
             AppCredentials appCredentials = Security.CreateAppCredentials(networkCredentials.SecurePassword);
@@ -51,12 +57,19 @@ namespace CaptaTrader.Business.Services
             _dataAccesor.Create(appCredentials);
 
             Startup.SessionUser = newUser;
-            return newUser;
+            return (newUser, []);
         }
 
-        public void Save(EndUser user)
+        public IEnumerable<ValidationResult> Save(EndUser user)
         {
-            _dataAccesor.Update(user);
+            IEnumerable<ValidationResult> results = user.Validate();
+
+            if (!results.Any())
+            {
+                _dataAccesor.Update(user);
+            }
+            
+            return results;
         }
     }
 }

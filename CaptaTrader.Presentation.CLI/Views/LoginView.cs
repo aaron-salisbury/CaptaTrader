@@ -62,12 +62,6 @@ namespace CaptaTrader.Presentation.CLI.Views
 
             RegisterNewCredentialsEntered?.Invoke(this, new LoginViewEventArgs() { NetworkCredential = credentials });
         }
-
-        internal void PopupLoginError(string process)
-        {
-            AnsiConsole.MarkupLineInterpolated($"[red]{process} failed[/]. Press any key to return...");
-            Console.ReadKey();
-        }
     }
 
     internal class LoginViewEventArgs : EventArgs

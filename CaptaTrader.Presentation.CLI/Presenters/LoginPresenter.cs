@@ -1,7 +1,13 @@
-﻿using CaptaTrader.Business.Services;
+﻿using CaptaTrader.Business.Models;
+using CaptaTrader.Business.Services;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using static CaptaTrader.Presentation.CLI.Views.LoginView;
 
 namespace CaptaTrader.Presentation.CLI.Presenters
@@ -51,9 +57,19 @@ namespace CaptaTrader.Presentation.CLI.Presenters
 
         private void LoginView_LoginCredentialsEntered(object? sender, LoginViewEventArgs e)
         {
-            Application.SessionUser = e.NetworkCredential != null 
-                ? _userService.Authenticate(e.NetworkCredential) 
-                : null;
+            IEnumerable<ValidationResult> results;
+
+            if (e.NetworkCredential == null)
+            {
+                Application.SessionUser = null;
+                results = [new ValidationResult("No credentials found.")];
+            }
+            else
+            {
+                (EndUser?, IEnumerable<ValidationResult>) result = _userService.Authenticate(e.NetworkCredential);
+                Application.SessionUser = result.Item1;
+                results = result.Item2;
+            }
 
             if (Application.SessionUser != null)
             {
@@ -61,16 +77,26 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             }
             else
             {
-                _view?.PopupLoginError(nameof(IUserService.Authenticate));
+                _view?.PopupProcessFail(nameof(IUserService.Authenticate), results);
                 Navigator?.NavigateTo(typeof(LoginPresenter));
             }
         }
 
         private void LoginView_RegisterNewCredentialsEntered(object? sender, LoginViewEventArgs e)
         {
-            Application.SessionUser = e.NetworkCredential != null
-                ? _userService.Register(e.NetworkCredential)
-                : null;
+            IEnumerable<ValidationResult> results;
+
+            if (e.NetworkCredential == null)
+            {
+                Application.SessionUser = null;
+                results = [new ValidationResult("No credentials found.")];
+            }
+            else
+            {
+                (EndUser?, IEnumerable<ValidationResult>) result = _userService.Authenticate(e.NetworkCredential);
+                Application.SessionUser = result.Item1;
+                results = result.Item2;
+            }
 
             if (Application.SessionUser != null)
             {
@@ -78,7 +104,7 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             }
             else
             {
-                _view?.PopupLoginError(nameof(IUserService.Register));
+                _view?.PopupProcessFail(nameof(IUserService.Register), results);
                 Navigator?.NavigateTo(typeof(LoginPresenter));
             }
         }

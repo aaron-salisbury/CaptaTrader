@@ -22,12 +22,6 @@ namespace CaptaTrader.Presentation.CLI.Views
             ShutdownRequested?.Invoke(this, EventArgs.Empty);
         }
 
-        internal void PopupActivationError()
-        {
-            AnsiConsole.MarkupLineInterpolated($"[red]Bot failed to activate[/]. Press any key to return...");
-            Console.ReadKey();
-        }
-
         internal void PopupTradeOrder(TradeOrder trade)
         {
             Grid transactionGrid = new();
