@@ -78,10 +78,13 @@ namespace CaptaTrader.Data.Base
         public static string GetAppDirectoryPath()
         {
             string appPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string? assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
+            string? assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name; //TODO: The app name should really be configured and gotten from the app (presentation layer).
             string? appName = assemblyName?.Substring(0, assemblyName.IndexOf('.'));
 
             string appDirectoryPath = !string.IsNullOrEmpty(appName) ? Path.Combine(appPath, appName) : appPath;
+
+            Directory.CreateDirectory(appDirectoryPath);
+
             return appDirectoryPath;
         }
     }

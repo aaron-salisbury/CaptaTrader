@@ -7,6 +7,11 @@ namespace CaptaTrader.Data.Database
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
+            Configure(options);
+        }
+
+        internal static void Configure(DbContextOptionsBuilder options)
+        {
             //TODO: It would be nice to let the user change where the DB gets stored.
             // For instance, if they'd like to place it in a share folder where separate
             // instances of the application can all point to it. Could use 

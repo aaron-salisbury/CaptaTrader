@@ -1,4 +1,5 @@
-﻿using CaptaTrader.Business.Models;
+﻿using CaptaTrader.Business.Entities;
+using CaptaTrader.Business.Models;
 
 namespace CaptaTrader.Business.Services
 {
@@ -7,7 +8,7 @@ namespace CaptaTrader.Business.Services
         string GetExchangeID();
         Task<IEnumerable<AssetBalance>?> GetAccountBalancesAsync(IEnumerable<string> assets);
         Task<decimal?> GetSpotPriceAsync(string symbol, string quoteAsset);
-        bool Buy(string symbol, decimal quantity, decimal price);
-        bool Sell(string symbol, decimal quantity, decimal price);
+        bool Buy(TradeOrder tradeOrder);
+        bool Sell(TradeOrder tradeOrder);
     }
 }

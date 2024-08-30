@@ -1,6 +1,7 @@
 ﻿using CaptaTrader.Business.Entities;
 using CaptaTrader.Business.Jobs;
 using CaptaTrader.Business.Models;
+using CaptaTrader.Data;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
@@ -17,13 +18,15 @@ namespace CaptaTrader.Business.Services
         private readonly IMarketDataService _cryptoDataService;
         private readonly IExchangeService _exchangeService;
         private readonly ITradeAnalyzerService _tradeAnalyzerService;
+        private readonly DataAccesor _dataAccesor;
 
-        public BitcoinBotTraderService(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger) : base()
+        public BitcoinBotTraderService(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, DataAccesor dataAccesor) : base()
         {
             _cryptoDataService = cryptoDataService;
             _exchangeService = exchangeService;
             _tradeAnalyzerService = tradeAnalyzerService;
             _logger = logger;
+            _dataAccesor = dataAccesor;
         }
 
         public override async Task<bool> InitializeAsync()
@@ -107,7 +110,7 @@ namespace CaptaTrader.Business.Services
 
         public override async Task<bool> AttemptToInitiateTradeAsync()
         {
-            //TODO: Answer whether I should I sell, buy, or hold?
+            //TODO: Answer whether I should sell, buy, or hold?
 
             //TODO: TESTING
             await Task.Delay(5000);
@@ -115,15 +118,16 @@ namespace CaptaTrader.Business.Services
 
             if (tradeOrder != null)
             {
-                //TODO: DTOs.Trade, Entities.TraderOrder, Models.ExchangeTransaction ... it's all a mess.
-                OnTradeCompleted(new TradeEventArgs(
-                    new DTOs.Trade()
-                    {
-                        Type = tradeOrder.TransactionType == TradeOrder.TransactionTypes.Buy ? DTOs.Trade.Types.Buy : DTOs.Trade.Types.Sell,
-                        PriceUSDT = tradeOrder.Price,
-                        Amount = tradeOrder.Quantity
-                    }));
-
+                if (tradeOrder.TransactionType == TradeOrder.TransactionTypes.Buy && _exchangeService.Buy(tradeOrder))
+                {
+                    _dataAccesor.Create(tradeOrder);
+                    OnTradeCompleted(new TradeEventArgs(tradeOrder));
+                }
+                else if (tradeOrder.TransactionType == TradeOrder.TransactionTypes.Sell && _exchangeService.Sell(tradeOrder))
+                {
+                    _dataAccesor.Create(tradeOrder);
+                    OnTradeCompleted(new TradeEventArgs(tradeOrder));
+                }
 
                 //await UpdateBalancesAsync();
             }

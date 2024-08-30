@@ -7,24 +7,33 @@ namespace CaptaTrader.Business.Base.Extensions
     public static class MemberInfoExtensions
     {
         /// <summary>
-        /// Returns value of the DisplayName attribute for the given MemberInfo.
-        /// If MemberInfo has no DisplayName attribute on it, MemberInfo.Name is returned.
+        /// For the given MemberInfo, first checks for DisplayAttribute to return its Name.
+        /// Next checks for a DisplayNameAttribute to return its DisplayName.
+        /// If neither attribute can be found, MemberInfo.Name is returned.
         /// </summary>
         public static string GetDisplayName(this MemberInfo memberInfo)
         {
-            // https://stackoverflow.com/a/5015878
+            DisplayAttribute? displayAttribute = memberInfo
+                .GetCustomAttributes(typeof(DisplayAttribute), true)
+                .Cast<DisplayAttribute>()
+                .FirstOrDefault();
 
-            DisplayNameAttribute? attribute = memberInfo
+            if (displayAttribute?.Name != null)
+            {
+                return displayAttribute.Name;
+            }
+
+            DisplayNameAttribute? displayNameAttribute = memberInfo
                 .GetCustomAttributes(typeof(DisplayNameAttribute), true)
                 .Cast<DisplayNameAttribute>()
                 .FirstOrDefault();
 
-            if (attribute == null)
+            if (displayNameAttribute != null)
             {
-                return memberInfo.Name;
+                return displayNameAttribute.DisplayName;
             }
 
-            return attribute.DisplayName;
+            return memberInfo.Name;
         }
 
         /// <summary>

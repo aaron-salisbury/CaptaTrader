@@ -1,8 +1,7 @@
-﻿using CaptaTrader.Business.DTOs;
+﻿using CaptaTrader.Business.Entities;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using Spectre.Console;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace CaptaTrader.Presentation.CLI.Views
@@ -10,6 +9,8 @@ namespace CaptaTrader.Presentation.CLI.Views
     internal class BotView : View
     {
         internal event EventHandler? ShutdownRequested;
+
+        private static readonly Text[] _tradeOrderColumnHeaders = BuildTradeOrderColumnHeaders();
 
         internal override void Show()
         {
@@ -27,29 +28,32 @@ namespace CaptaTrader.Presentation.CLI.Views
             Console.ReadKey();
         }
 
-        internal void PopupTradeOrder(Trade trade)
+        internal void PopupTradeOrder(TradeOrder trade)
         {
-            //TODO: Streamline these.
-            List<string> tradeTransactionColumns = ["Type", "PriceUSDT", "Amount"];
-            string[] tradeAsDataRow = [trade.Type.ToString(), trade.PriceUSDT.ToString(), trade.Amount.ToString()];
-
-            Style columnsHeaderStyle = new(decoration: Decoration.Bold);
-            Text[] columnHeaders = tradeTransactionColumns.Select(ttc => new Text(ttc, columnsHeaderStyle)).ToArray();
-
             Grid transactionGrid = new();
-            transactionGrid.AddColumns(tradeTransactionColumns.Count);
-            transactionGrid.AddRow(columnHeaders);
-            transactionGrid.AddRow(tradeAsDataRow);
+            transactionGrid.AddColumns(_tradeOrderColumnHeaders.Length);
+            transactionGrid.AddRow(_tradeOrderColumnHeaders);
+            transactionGrid.AddRow(trade.AsDataRow());
 
-            string headerColor = trade.Type == Trade.Types.Sell ? "green" : "purple";
+            string headerColor = trade.TransactionType == TradeOrder.TransactionTypes.Sell ? "green" : "purple";
+
             Panel transactionPanel = new(transactionGrid)
             {
-                Header = new PanelHeader($"[{headerColor}]{trade.Type} Order[/]"),
+                Header = new PanelHeader($"[{headerColor}]{trade.TransactionType} Order[/]"),
                 Border = BoxBorder.Ascii,
                 Expand = false
             };
 
             AnsiConsole.Write(transactionPanel);
+        }
+
+        private static Text[] BuildTradeOrderColumnHeaders()
+        {
+            Style columnsHeaderStyle = new(decoration: Decoration.Bold);
+
+            return TradeOrder.GetColumnNames()
+                .Select(ttc => new Text(ttc, columnsHeaderStyle))
+                .ToArray();
         }
     }
 }

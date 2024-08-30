@@ -2,6 +2,7 @@
 using Binance.Net.Clients;
 using Binance.Net.Objects.Models.Spot;
 using Binance.Net.Objects.Options;
+using CaptaTrader.Business.Entities;
 using CaptaTrader.Business.Models;
 using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Objects;
@@ -81,7 +82,7 @@ namespace CaptaTrader.Business.Services
             }
         }
 
-        public bool Buy(string symbol, decimal quantity, decimal price)
+        public bool Buy(TradeOrder tradeOrder)
         {
             //try
             //{
@@ -101,7 +102,7 @@ namespace CaptaTrader.Business.Services
             return false;
         }
 
-        public bool Sell(string symbol, decimal quantity, decimal price)
+        public bool Sell(TradeOrder tradeOrder)
         {
             //try
             //{

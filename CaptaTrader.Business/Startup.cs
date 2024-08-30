@@ -19,21 +19,21 @@ namespace CaptaTrader.Business
                 .BuildServiceProvider();
         }
 
-        private static ServiceCollection ConfigureServices(ILogger logger, bool useMockData)
+        private static IServiceCollection ConfigureServices(ILogger logger, bool useMockData)
         {
             const string COMPRESSION_CLIENT_NAME = "CompressionClient";
 
-            ServiceCollection services = new();
+            IServiceCollection services = new ServiceCollection();
 
             logger.LogDebug("Beginning to configure domain services...");
 
-            logger.LogDebug("... Data access service");
+            logger.LogDebug("... data access service");
             services.AddDataAccessEmbedded(Assembly.GetExecutingAssembly().GetEntityTypes());
 
-            logger.LogDebug("... Logger service");
+            logger.LogDebug("... logger service");
             services.AddSingleton(typeof(ILogger), logger);
 
-            logger.LogDebug("... Http service");
+            logger.LogDebug("... HTTP service");
             services.AddHttpClient(COMPRESSION_CLIENT_NAME, c =>
             {
                 c.DefaultRequestHeaders.Add("Accept-Encoding", "deflate, gzip");
@@ -44,7 +44,7 @@ namespace CaptaTrader.Business
                     AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
                 });
 
-            logger.LogDebug("... External API services");
+            logger.LogDebug("... external API services");
             if (useMockData)
             {
                 services.AddSingleton<IMarketDataService, MockDataService>();
@@ -69,12 +69,12 @@ namespace CaptaTrader.Business
                 services.AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>();
             }
 
-            logger.LogDebug("... Bot service");
+            logger.LogDebug("... bot service");
             services.AddSingleton<IBotTraderService, BitcoinBotTraderService>();
 
             logger.LogDebug("... public services");
-            services.AddSingleton<IUserService, UserService>();
-            services.AddSingleton<IBotService, BotService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IBotService, BotService>();
 
             return services;
         }

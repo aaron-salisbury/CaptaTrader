@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.DTOs;
+﻿using CaptaTrader.Business.Entities;
 using CaptaTrader.Business.Services;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
@@ -40,7 +40,7 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             _botService.TradeExecuted -= BotService_TradeExecuted;
         }
 
-        private void BotService_TradeExecuted(object? sender, Trade e)
+        private void BotService_TradeExecuted(object? sender, TradeOrder e)
         {
             _view?.PopupTradeOrder(e);
         }

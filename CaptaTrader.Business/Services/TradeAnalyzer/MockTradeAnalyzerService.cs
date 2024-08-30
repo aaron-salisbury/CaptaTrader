@@ -21,27 +21,30 @@ namespace CaptaTrader.Business.Models
 
         private TradeOrder CreateMockTradeTransaction()
         {
-            TradeOrder.TransactionTypes transactionType = _random.Next(2) == 1
-                ? TradeOrder.TransactionTypes.Buy
-                : TradeOrder.TransactionTypes.Sell;
+            TradeOrder.TransactionTypes transactionType;
+            string symbol;
+
+            if (_random.Next(2) == 1)
+            {
+                transactionType = TradeOrder.TransactionTypes.Buy;
+                symbol = "BTC";
+            }
+            else
+            {
+                transactionType = TradeOrder.TransactionTypes.Sell;
+                symbol = "USDT";
+            }
 
             decimal quantity = _random.NextDecimal(0.001M, 0.01M).PrecisionTruncate(3);
             decimal price = _random.NextDecimal(55000.00M, 60000.00M).PrecisionTruncate(2);
-            decimal availableUSD = _random.NextDecimal(100000.0M, 200000.0M).PrecisionTruncate(2);
-            decimal availableBTC = _random.NextDecimal(1.0M, 2.0M).PrecisionTruncate(2);
-            decimal total = quantity * price;
 
             return new TradeOrder()
             {
                 TimeStamp = DateTime.Now,
                 TransactionType = transactionType,
-                Quantity = quantity,
-                Price = price,
-                Total = total,
-                AvailableUSD = availableUSD,
-                LockedUSD = 0.0M,
-                AvailableBTC = availableBTC,
-                LockedBTC = 0.0M
+                Symbol = symbol,
+                PriceUSDT = price,
+                Amount = quantity
             };
         }
     }

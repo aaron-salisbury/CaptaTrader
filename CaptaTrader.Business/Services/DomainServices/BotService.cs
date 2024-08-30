@@ -1,10 +1,10 @@
-﻿using CaptaTrader.Business.DTOs;
+﻿using CaptaTrader.Business.Entities;
 
 namespace CaptaTrader.Business.Services
 {
     public class BotService : IBotService
     {
-        public event EventHandler<Trade>? TradeExecuted;
+        public event EventHandler<TradeOrder>? TradeExecuted;
 
         private IBotTraderService _botTraderService;
 

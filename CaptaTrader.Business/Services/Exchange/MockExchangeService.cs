@@ -1,4 +1,5 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
+using CaptaTrader.Business.Entities;
 using CaptaTrader.Business.Models;
 
 namespace CaptaTrader.Business.Services
@@ -63,15 +64,15 @@ namespace CaptaTrader.Business.Services
             return price;
         }
 
-        public bool Buy(string symbol, decimal quantity, decimal price)
+        public bool Buy(TradeOrder tradeOrder)
         {
-            decimal totalPrice = quantity * price;
+            decimal totalPrice = tradeOrder.Amount * tradeOrder.PriceUSDT;
             AssetBalance usd = _balancesByAssets["USDT"];
 
-            if (usd.Available >= totalPrice && _balancesByAssets.TryGetValue(symbol.ToUpper(), out AssetBalance? asset))
+            if (usd.Available >= totalPrice && _balancesByAssets.TryGetValue(tradeOrder.Symbol.ToUpper(), out AssetBalance? asset))
             {
                 usd.Available -= totalPrice;
-                asset.Available += quantity;
+                asset.Available += tradeOrder.Amount;
 
                 return true;
             }
@@ -79,15 +80,15 @@ namespace CaptaTrader.Business.Services
             return false;
         }
 
-        public bool Sell(string symbol, decimal quantity, decimal price)
+        public bool Sell(TradeOrder tradeOrder)
         {
-            decimal totalPrice = quantity * price;
+            decimal totalPrice = tradeOrder.Amount * tradeOrder.PriceUSDT;
             AssetBalance usd = _balancesByAssets["USDT"];
 
-            if (_balancesByAssets.TryGetValue(symbol.ToUpper(), out AssetBalance? asset) && asset.Available >= quantity)
+            if (_balancesByAssets.TryGetValue(tradeOrder.Symbol.ToUpper(), out AssetBalance? asset) && asset.Available >= tradeOrder.Amount)
             {
                 usd.Available += totalPrice;
-                asset.Available -= quantity;
+                asset.Available -= tradeOrder.Amount;
 
                 return true;
             }

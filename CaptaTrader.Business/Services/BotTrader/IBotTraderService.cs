@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.DTOs;
+﻿using CaptaTrader.Business.Entities;
 
 namespace CaptaTrader.Business.Services
 {
@@ -13,8 +13,8 @@ namespace CaptaTrader.Business.Services
         Task<bool> AttemptToInitiateTradeAsync();
     }
 
-    public class TradeEventArgs(Trade tradeOrder) : EventArgs
+    public class TradeEventArgs(TradeOrder tradeOrder) : EventArgs
     {
-        internal Trade TradeOrder { get; set; } = tradeOrder;
+        internal TradeOrder TradeOrder { get; set; } = tradeOrder;
     }
 }
