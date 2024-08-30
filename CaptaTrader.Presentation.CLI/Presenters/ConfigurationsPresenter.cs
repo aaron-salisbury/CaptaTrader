@@ -110,7 +110,7 @@ namespace CaptaTrader.Presentation.CLI.Presenters
 
             if (results.Any())
             {
-                _view?.PopupProcessFail("User save", results);
+                _view?.PopupProcessFail(nameof(IUserService.Save), results);
             }
 
             Navigator?.NavigateTo(typeof(MainMenuPresenter));
