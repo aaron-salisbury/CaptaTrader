@@ -9,7 +9,7 @@ namespace CaptaTrader.Business.Base
 
     public static class Security
     {
-        private const int SHA_BYTE_LENGTH = 32;
+        private const int SALT_LENGTH = 32;
         private const int NEW_USER_WORK_FACTOR = 10000;
 
         public static bool Login(AppCredentials credentials, SecureString password)
@@ -34,7 +34,7 @@ namespace CaptaTrader.Business.Base
 
         private static byte[] GenerateSalt()
         {
-            var bytes = new byte[SHA_BYTE_LENGTH];
+            var bytes = new byte[SALT_LENGTH];
 
             using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
             {
@@ -48,7 +48,7 @@ namespace CaptaTrader.Business.Base
         {
             using (Rfc2898DeriveBytes deriveBytes = new(password, salt, workFactor, HashAlgorithmName.SHA1))
             {
-                return deriveBytes.GetBytes(SHA_BYTE_LENGTH);
+                return deriveBytes.GetBytes(SALT_LENGTH);
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using CaptaTrader.Business.Base;
 using CaptaTrader.Business.Base.Extensions;
+using CaptaTrader.Business.Base.ValidationAttributes;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
@@ -26,10 +27,10 @@ namespace CaptaTrader.Business.Models
         [Required]
         public required string Symbol { get; set; }
 
-        [Required, Display(Name = "Price (USDT)")]
+        [Required, Display(Name = "Price (USDT)"), PositiveNumber]
         public required decimal PriceUSDT { get; set; }
 
-        [Required]
+        [Required, PositiveNumber]
         public required decimal Amount { get; set; }
 
         public string[] AsDataRow()
