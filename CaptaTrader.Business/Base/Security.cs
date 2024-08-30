@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.Entities;
+﻿using CaptaTrader.Business.Models;
 using CaptaTrader.Data.Base.Extensions;
 using System.Security;
 using System.Security.Cryptography;

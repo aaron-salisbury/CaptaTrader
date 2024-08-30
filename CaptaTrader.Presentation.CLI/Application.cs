@@ -1,5 +1,5 @@
 ﻿using CaptaTrader.Business;
-using CaptaTrader.Business.Entities;
+using CaptaTrader.Business.Models;
 using CaptaTrader.Presentation.CLI.Base.Extensions;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Presenters;
@@ -14,7 +14,7 @@ namespace CaptaTrader.Presentation.CLI
     public class Application
     {
         internal static IServiceProvider? DomainServices { get; set; }
-        internal static User? SessionUser { get; set; }
+        internal static EndUser? SessionUser { get; set; }
         internal static int ExitCode { get; set; } = 0;
 
         private static readonly FigletFont _titleFont = SetTitleFont();

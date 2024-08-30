@@ -1,11 +1,14 @@
-﻿using CaptaTrader.Data.Base;
+﻿using CaptaTrader.Business.Base;
 using System.ComponentModel.DataAnnotations;
 
-namespace CaptaTrader.Business.Entities
+namespace CaptaTrader.Business.Models
 {
     [Serializable]
-    public class User : BaseEntity
+    public class EndUser : Model, IEntity
     {
+        [Key]
+        public int Id { get; set; }
+
         [Required, Display(Name = "User Name")]
         public required string UserName { get; set; }
 

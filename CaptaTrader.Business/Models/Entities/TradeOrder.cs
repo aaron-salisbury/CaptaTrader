@@ -1,18 +1,21 @@
-﻿using CaptaTrader.Business.Base.Extensions;
-using CaptaTrader.Data.Base;
+﻿using CaptaTrader.Business.Base;
+using CaptaTrader.Business.Base.Extensions;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace CaptaTrader.Business.Entities
+namespace CaptaTrader.Business.Models
 {
     [Serializable]
-    public class TradeOrder : BaseEntity
+    public class TradeOrder : IEntity
     {
         public enum TransactionTypes
         {
             Buy,
             Sell
         }
+
+        [Key]
+        public int Id { get; set; }
 
         [Required, Display(Name = "Time Stamp")]
         public required DateTime TimeStamp { get; set; }

@@ -1,5 +1,5 @@
 ﻿using CaptaTrader.Business.Base;
-using CaptaTrader.Business.Entities;
+using CaptaTrader.Business.Models;
 using CaptaTrader.Data;
 using System.Net;
 
@@ -14,13 +14,13 @@ namespace CaptaTrader.Business.Services
             _dataAccesor = dataAccesor;
         }
 
-        public User? Authenticate(NetworkCredential networkCredentials)
+        public EndUser? Authenticate(NetworkCredential networkCredentials)
         {
             //TODO:
             // https://jasonwatmore.com/post/2021/12/20/net-6-basic-authentication-tutorial-with-example-api
             // https://github.com/cornflourblue/dotnet-6-registration-login-api/blob/master/Controllers/UsersController.cs
 
-            User? user = _dataAccesor.ReadWhere<User>(u => string.Equals(networkCredentials.UserName, u.UserName)).FirstOrDefault();
+            EndUser? user = _dataAccesor.ReadWhere<EndUser>(u => string.Equals(networkCredentials.UserName, u.UserName)).FirstOrDefault();
             if (user == null)
             {
                 return null;
@@ -36,14 +36,14 @@ namespace CaptaTrader.Business.Services
             return null;
         }
 
-        public User? Register(NetworkCredential networkCredentials)
+        public EndUser? Register(NetworkCredential networkCredentials)
         {
-            if (string.IsNullOrEmpty(networkCredentials.UserName) || _dataAccesor.ReadAll<User>().Any(u => string.Equals(networkCredentials.UserName, u.UserName)))
+            if (string.IsNullOrEmpty(networkCredentials.UserName) || _dataAccesor.ReadAll<EndUser>().Any(u => string.Equals(networkCredentials.UserName, u.UserName)))
             {
                 return null;
             }
 
-            User newUser = new() { UserName = networkCredentials.UserName };
+            EndUser newUser = new() { UserName = networkCredentials.UserName };
             _dataAccesor.Create(newUser);
 
             AppCredentials appCredentials = Security.CreateAppCredentials(networkCredentials.SecurePassword);
@@ -54,7 +54,7 @@ namespace CaptaTrader.Business.Services
             return newUser;
         }
 
-        public void Save(User user)
+        public void Save(EndUser user)
         {
             _dataAccesor.Update(user);
         }

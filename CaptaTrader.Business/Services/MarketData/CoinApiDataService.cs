@@ -1,5 +1,4 @@
-﻿using CaptaTrader.Business.DTOs;
-using CaptaTrader.Business.Models;
+﻿using CaptaTrader.Business.Models;
 using CaptaTrader.Data;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;

@@ -1,5 +1,4 @@
-﻿using CaptaTrader.Business.Entities;
-using CaptaTrader.Business.Jobs;
+﻿using CaptaTrader.Business.Jobs;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Data;
 using Microsoft.Extensions.Logging;

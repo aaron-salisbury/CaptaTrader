@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.Entities;
+﻿using CaptaTrader.Business.Models;
 
 namespace CaptaTrader.Business.Services
 {

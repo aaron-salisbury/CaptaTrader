@@ -1,14 +1,14 @@
-﻿using CaptaTrader.Business.Entities;
+﻿using CaptaTrader.Business.Models;
 using System.Net;
 
 namespace CaptaTrader.Business.Services
 {
     public interface IUserService
     {
-        User? Authenticate(NetworkCredential networkCredentials);
+        EndUser? Authenticate(NetworkCredential networkCredentials);
 
-        User? Register(NetworkCredential networkCredentials);
+        EndUser? Register(NetworkCredential networkCredentials);
 
-        void Save(User user);
+        void Save(EndUser user);
     }
 }

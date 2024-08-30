@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.Entities;
+﻿using CaptaTrader.Business.Models;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using Spectre.Console;
 using System;

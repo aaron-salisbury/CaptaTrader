@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.Entities;
+﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
 using CaptaTrader.Data.Base.Extensions;
@@ -11,7 +11,7 @@ namespace CaptaTrader.Business
 {
     public static class Startup
     {
-        internal static User? SessionUser { get; set; } //TODO: I hate this.
+        internal static EndUser? SessionUser { get; set; } //TODO: I hate this.
 
         public static IServiceProvider InitializeDomainServices(ILogger logger, bool useMockData)
         {

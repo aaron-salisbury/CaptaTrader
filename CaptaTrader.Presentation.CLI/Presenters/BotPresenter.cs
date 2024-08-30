@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.Entities;
+﻿using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;

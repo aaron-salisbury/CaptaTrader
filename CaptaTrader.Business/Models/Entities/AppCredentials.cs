@@ -1,11 +1,14 @@
-﻿using CaptaTrader.Data.Base;
+﻿using CaptaTrader.Business.Base;
 using System.ComponentModel.DataAnnotations;
 
-namespace CaptaTrader.Business.Entities
+namespace CaptaTrader.Business.Models
 {
     [Serializable]
-    public class AppCredentials : BaseEntity
+    public class AppCredentials : IEntity
     {
+        [Key]
+        public int Id { get; set; }
+
         [Required]
         public long UserId { get; set; }
 

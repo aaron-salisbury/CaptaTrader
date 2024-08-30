@@ -9,11 +9,9 @@ namespace CaptaTrader.Data.Base.Extensions
         private static Type? _dynamicDbContextType;
 
         /// <summary>
-        /// Adds a scoped DbContext service for an embedded SQLite database built against the provided entity types. 
+        /// Adds a scoped DbContext service for an embedded SQLite database whose tables are built against the provided entity types. 
         /// Also adds a scoped service of the type DataAccesor that is a wrapper for the DbContext.
         /// </summary>
-        /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
-        /// <param name="entityTypes">Must inherit from CaptaTrader.Data.Base.BaseEntity</param>
         /// <returns>A reference to this instance after the operation has completed.</returns>
         public static IServiceCollection AddDataAccessEmbedded(this IServiceCollection services, Type[] entityTypes)
         {
