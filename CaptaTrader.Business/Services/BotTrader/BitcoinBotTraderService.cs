@@ -75,6 +75,7 @@ namespace CaptaTrader.Business.Services
         public override async Task<bool> UpdatePriceIntervalsAsync()
         {
             bool successful = false;
+
             IEnumerable<PriceInterval>? priceIntervals = await _cryptoDataService.GetLastThirtyDaysOfPriceIntervals(_exchangeService.GetExchangeID(), BITCOIN_SYMBOL);
 
             DateTime dateTimeTodayStart = DateTime.Now.Date;

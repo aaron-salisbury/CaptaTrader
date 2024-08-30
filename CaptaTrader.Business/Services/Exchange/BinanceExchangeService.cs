@@ -2,6 +2,7 @@
 using Binance.Net.Clients;
 using Binance.Net.Objects.Models.Spot;
 using Binance.Net.Objects.Options;
+using CaptaTrader.Business.Base;
 using CaptaTrader.Business.Models;
 using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Objects;
@@ -16,14 +17,14 @@ namespace CaptaTrader.Business.Services
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly Func<(string? key, string? secret)> _getKeysFunction;
+        private readonly ISessionValueProvider _sessionValueProvider;
 
-        public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, Func<(string? key, string? secret)> getKeysFunction)
+        public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, ISessionValueProvider sessionValueProvider)
         {
             _logger = logger;
             _loggerFactory = loggerFactory;
             _httpClientFactory = httpClientFactory;
-            _getKeysFunction = getKeysFunction;
+            _sessionValueProvider = sessionValueProvider;
         }
 
         public string GetExchangeID() => "BINANCE";
@@ -128,13 +129,28 @@ namespace CaptaTrader.Business.Services
                 _loggerFactory,
                 (BinanceRestOptions options) => options.Environment = BinanceEnvironment.Us); // https://dev.binance.vision/t/error-restricted-location-according-b-eligibility/13838/2
 
-            (string? key, string? secret) = _getKeysFunction();
-            if (key != null && secret != null)
+            ApiCredentials? apiCredentials = GetApiCredentialsForSessionUser();
+            if (apiCredentials != null)
             {
-                restClient.SetApiCredentials(new ApiCredentials(key, secret));
+                restClient.SetApiCredentials(apiCredentials);
+            }
+            else
+            {
+                _logger.LogError("No API credentials available to exchange service.");
             }
 
             return restClient;
+        }
+
+        private ApiCredentials? GetApiCredentialsForSessionUser()
+        {
+            EndUser? sessionUser = _sessionValueProvider.GetUser();
+            if (sessionUser?.ExchangeAPIKey != null && sessionUser?.ExchangeSecretKey != null)
+            {
+                return new(sessionUser.ExchangeAPIKey, sessionUser.ExchangeSecretKey);
+            }
+
+            return null;
         }
     }
 }

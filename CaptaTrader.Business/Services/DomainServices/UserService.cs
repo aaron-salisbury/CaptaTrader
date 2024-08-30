@@ -9,10 +9,12 @@ namespace CaptaTrader.Business.Services
     public class UserService : IUserService
     {
         private DataAccesor _dataAccesor;
+        private ISessionValueProvider _sessionValueProvider;
 
-        public UserService(DataAccesor dataAccesor)
+        public UserService(DataAccesor dataAccesor, ISessionValueProvider sessionValueProvider)
         {
             _dataAccesor = dataAccesor;
+            _sessionValueProvider = sessionValueProvider;
         }
 
         public (EndUser?, IEnumerable<ValidationResult>) Authenticate(NetworkCredential networkCredentials)
@@ -33,7 +35,7 @@ namespace CaptaTrader.Business.Services
                 return (null, [new ValidationResult("Bad credentials.")]);
             }
 
-            Startup.SessionUser = user;
+            _sessionValueProvider.SetUser(user);
             return (user, []);
         }
 
@@ -56,7 +58,7 @@ namespace CaptaTrader.Business.Services
             appCredentials.UserId = newUser.Id;
             _dataAccesor.Create(appCredentials);
 
-            Startup.SessionUser = newUser;
+            _sessionValueProvider.SetUser(newUser);
             return (newUser, []);
         }
 

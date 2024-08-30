@@ -80,13 +80,13 @@ namespace CaptaTrader.Presentation.CLI.Presenters
                 switch (e.MenuOption)
                 {
                     case ConfigurationOptions.EnterCoinApiAPIKey:
-                        Application.SessionUser.CoinAPIKey = e.EnteredValue;
+                        Application.SessionUser.MarketDataAPIKey = e.EnteredValue;
                         break;
                     case ConfigurationOptions.EnterBinanceAPIKey:
-                        Application.SessionUser.BinanceKey = e.EnteredValue;
+                        Application.SessionUser.ExchangeAPIKey = e.EnteredValue;
                         break;
                     case ConfigurationOptions.EnterBinanceSecretKey:
-                        Application.SessionUser.BinanceSecretKey = e.EnteredValue;
+                        Application.SessionUser.ExchangeSecretKey = e.EnteredValue;
                         break;
                 }
             }

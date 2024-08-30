@@ -1,5 +1,7 @@
 ﻿using CaptaTrader.Business;
+using CaptaTrader.Business.Base;
 using CaptaTrader.Business.Models;
+using CaptaTrader.Presentation.CLI.Base;
 using CaptaTrader.Presentation.CLI.Base.Extensions;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Presenters;
@@ -22,8 +24,9 @@ namespace CaptaTrader.Presentation.CLI
         public Application(ILoggerProvider _loggerProvider, bool useMockData)
         {
             ILogger logger = _loggerProvider.CreateLogger(nameof(Application));
+            ISessionValueProvider sessionValueProvider = new Session();
 
-            DomainServices = Startup.InitializeDomainServices(logger, useMockData);
+            DomainServices = Startup.InitializeDomainServices(logger, sessionValueProvider, useMockData);
         }
 
         public async Task<int> RunAsync()

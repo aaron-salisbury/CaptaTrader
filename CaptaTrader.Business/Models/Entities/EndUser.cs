@@ -1,23 +1,42 @@
 ﻿using CaptaTrader.Business.Base;
+using CaptaTrader.Business.Base.ValidationAttributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace CaptaTrader.Business.Models
 {
     public class EndUser : Model, IEntity
     {
+        //TODO: Add option to select which APIs to use and logic set their keys after doing so.
+        public enum MarketDataAPIs
+        {
+            CoinAPI
+        }
+
+        public enum ExchangeAPIs
+        {
+            Binance
+        }
+
         [Key]
         public int Id { get; set; }
 
         [Required, Display(Name = "User Name")]
         public required string UserName { get; set; }
 
+        [DirectoryExists]
+        public string? PreferredStorageDirectory { get; set; }
+
         [EmailAddress, Display(Name = "E-Mail")]
         public string? Email { get; set; }
 
-        public string? CoinAPIKey { get; set; }
+        public MarketDataAPIs? MarketDataAPI { get; set; }
 
-        public string? BinanceKey { get; set; }
+        public string? MarketDataAPIKey { get; set; }
 
-        public string? BinanceSecretKey { get; set; }
+        public ExchangeAPIs? ExchangeAPI { get; set; }
+
+        public string? ExchangeAPIKey { get; set; }
+
+        public string? ExchangeSecretKey { get; set; }
     }
 }

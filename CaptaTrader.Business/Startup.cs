@@ -1,4 +1,5 @@
-﻿using CaptaTrader.Business.Base.Extensions;
+﻿using CaptaTrader.Business.Base;
+using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
 using CaptaTrader.Data.Base.Extensions;
@@ -11,72 +12,43 @@ namespace CaptaTrader.Business
 {
     public static class Startup
     {
-        internal static EndUser? SessionUser { get; set; } //TODO: I hate this.
+        public const string COMPRESSION_CLIENT_NAME = "CompressionClient";
 
-        public static IServiceProvider InitializeDomainServices(ILogger logger, bool useMockData)
+        public static IServiceProvider InitializeDomainServices(ILogger logger, ISessionValueProvider sessionValueProvider, bool useMockData)
         {
-            return ConfigureServices(logger, useMockData)
-                .BuildServiceProvider();
-        }
-
-        private static IServiceCollection ConfigureServices(ILogger logger, bool useMockData)
-        {
-            const string COMPRESSION_CLIENT_NAME = "CompressionClient";
-
             IServiceCollection services = new ServiceCollection();
 
-            logger.LogDebug("Beginning to configure domain services...");
+            // Infrastructure services.
+            services.AddSingleton(logger)
+                .AddSingleton(sessionValueProvider)
+                .AddDataAccessEmbedded(Assembly.GetExecutingAssembly().GetEntityTypes())
+                .AddHttpClient(COMPRESSION_CLIENT_NAME, c => { c.DefaultRequestHeaders.Add("Accept-Encoding", "deflate, gzip"); })
+                    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+                    {
+                        AllowAutoRedirect = false,
+                        AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                    });
 
-            logger.LogDebug("... data access service");
-            services.AddDataAccessEmbedded(Assembly.GetExecutingAssembly().GetEntityTypes());
-
-            logger.LogDebug("... logger service");
-            services.AddSingleton(typeof(ILogger), logger);
-
-            logger.LogDebug("... HTTP service");
-            services.AddHttpClient(COMPRESSION_CLIENT_NAME, c =>
-            {
-                c.DefaultRequestHeaders.Add("Accept-Encoding", "deflate, gzip");
-            })
-                .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-                {
-                    AllowAutoRedirect = false,
-                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
-                });
-
-            logger.LogDebug("... external API services");
+            // External API services.
             if (useMockData)
             {
-                services.AddSingleton<IMarketDataService, MockDataService>();
-                services.AddSingleton<IExchangeService, MockExchangeService>();
-                services.AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>();
+                services.AddSingleton<IMarketDataService, MockDataService>()
+                    .AddSingleton<IExchangeService, MockExchangeService>()
+                    .AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>();
             }
             else
             {
-                services.AddSingleton<IMarketDataService, CoinApiDataService>(serviceProvider => new CoinApiDataService(
-                    logger: serviceProvider.GetRequiredService<ILogger>(),
-                    httpClientFactory: serviceProvider.GetRequiredService<IHttpClientFactory>(),
-                    getKeyFunction: () => { return SessionUser?.CoinAPIKey; },
-                    compressionClientName: COMPRESSION_CLIENT_NAME));
-
-                services.AddSingleton<IExchangeService, BinanceExchangeService>(serviceProvider => new BinanceExchangeService(
-                    logger: serviceProvider.GetRequiredService<ILogger>(),
-                    loggerFactory: serviceProvider.GetRequiredService<ILoggerFactory>(),
-                    httpClientFactory: serviceProvider.GetRequiredService<IHttpClientFactory>(),
-                    getKeysFunction: () => { return (SessionUser?.BinanceKey, SessionUser?.BinanceSecretKey); }));
-
-                //TODO: Obviously will need a real analyzer.
-                services.AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>();
+                services.AddSingleton<IMarketDataService, CoinApiDataService>()
+                    .AddSingleton<IExchangeService, BinanceExchangeService>()
+                    .AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>();//TODO: Obviously will need a real analyzer.
             }
 
-            logger.LogDebug("... bot service");
-            services.AddSingleton<IBotTraderService, BitcoinBotTraderService>();
+            // Business domain services.
+            services.AddSingleton<IBotTraderService, BitcoinBotTraderService>()
+                .AddScoped<IUserService, UserService>()
+                .AddScoped<IBotService, BotService>();
 
-            logger.LogDebug("... public services");
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IBotService, BotService>();
-
-            return services;
+            return services.BuildServiceProvider();
         }
     }
 }

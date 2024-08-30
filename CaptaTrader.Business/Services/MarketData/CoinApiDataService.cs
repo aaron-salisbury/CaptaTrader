@@ -1,4 +1,5 @@
-﻿using CaptaTrader.Business.Models;
+﻿using CaptaTrader.Business.Base;
+using CaptaTrader.Business.Models;
 using CaptaTrader.Data;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
@@ -14,25 +15,21 @@ namespace CaptaTrader.Business.Services
 
         private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly string _compressionClientName;
-        private readonly Func<string?> _getKeyFunction;
+        private readonly ISessionValueProvider _sessionValueProvider;
 
-        public CoinApiDataService(ILogger logger, IHttpClientFactory httpClientFactory, string compressionClientName, Func<string?> getKeyFunction)
+        public CoinApiDataService(ILogger logger, IHttpClientFactory httpClientFactory, ISessionValueProvider sessionValueProvider)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
-            _compressionClientName = compressionClientName;
-            _getKeyFunction = getKeyFunction;   
+            _sessionValueProvider = sessionValueProvider;
         }
 
         public async Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals(string exchangeID, string baseAsset)
         {
-            List<PriceInterval> priceIntervals = [];
-
-            string? key = _getKeyFunction();
-            if (key == null)
+            string? apiKey = _sessionValueProvider.GetUser()?.MarketDataAPIKey;
+            if (apiKey == null)
             {
-                _logger.LogError("CoinAPI key unavailable.");
+                _logger.LogError("No API key available to market data service.");
                 return null;
             }
 
@@ -44,8 +41,8 @@ namespace CaptaTrader.Business.Services
                     url,
                     _httpClientFactory,
                     _logger,
-                    requestHeaders: new Dictionary<string, string>() { { "Authorization", key } },
-                    namedClient: _compressionClientName); // CoinApi requests that compression be used.
+                    requestHeaders: new Dictionary<string, string>() { { "Authorization", apiKey } },
+                    namedClient: Startup.COMPRESSION_CLIENT_NAME); // CoinApi requests that compression be used.
 
                 if (!string.IsNullOrEmpty(jsonResponse))
                 {
