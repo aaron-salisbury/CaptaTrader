@@ -1,16 +1,19 @@
 ﻿using CaptaTrader.Data.Base;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace CaptaTrader.Data
 {
     public class DataAccesor
     {
+        private ILogger _logger;
         private DbContext _dbContext;
 
-        public DataAccesor(DbContext dbContext)
+        public DataAccesor(ILogger logger, DbContext dbContext)
         {
+            _logger = logger;
             _dbContext = dbContext;
         }
 
@@ -52,16 +55,23 @@ namespace CaptaTrader.Data
 
         private void SaveAndReload(EntityEntry dbEntry)
         {
-            SaveAndReload(new List<EntityEntry>() { dbEntry });
+            SaveAndReload([dbEntry]);
         }
 
         private void SaveAndReload(IEnumerable<EntityEntry> dbEntries)
         {
-            _dbContext.SaveChanges();
-
-            foreach (EntityEntry dbEntry in dbEntries)
+            try
             {
-                dbEntry.Reload();
+                _dbContext.SaveChanges();
+
+                foreach (EntityEntry dbEntry in dbEntries)
+                {
+                    dbEntry.Reload();
+                }
+            }
+            catch (DbUpdateException e)
+            {
+                _logger.LogError(e, "Database save failed.");
             }
         }
     }
