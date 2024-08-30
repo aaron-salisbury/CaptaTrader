@@ -6,7 +6,6 @@ using System.Reflection;
 
 namespace CaptaTrader.Business.Models
 {
-    [Serializable]
     public class TradeOrder : IEntity
     {
         public enum TransactionTypes

@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CaptaTrader.Business.Models
 {
-    [Serializable]
     public class EndUser : Model, IEntity
     {
         [Key]
