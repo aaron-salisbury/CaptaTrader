@@ -3,11 +3,8 @@ using CaptaTrader.Business.Services;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using static CaptaTrader.Presentation.CLI.Views.LoginView;
 
 namespace CaptaTrader.Presentation.CLI.Presenters
@@ -93,7 +90,7 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             }
             else
             {
-                (EndUser?, IEnumerable<ValidationResult>) result = _userService.Authenticate(e.NetworkCredential);
+                (EndUser?, IEnumerable<ValidationResult>) result = _userService.Register(e.NetworkCredential);
                 Application.SessionUser = result.Item1;
                 results = result.Item2;
             }

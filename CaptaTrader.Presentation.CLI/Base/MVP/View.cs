@@ -15,7 +15,9 @@ namespace CaptaTrader.Presentation.CLI.Base.MVP
         {
             if (results != null)
             {
-                string errorMessage = string.Join(Environment.NewLine, results.Select(vr => vr.ErrorMessage));
+                string errorMessage = results.Count() == 1
+                    ? results.First().ErrorMessage ?? string.Empty
+                    : Environment.NewLine + string.Join(Environment.NewLine, results.Select(vr => $" * {vr.ErrorMessage}"));
 
                 AnsiConsole.MarkupLineInterpolated($"[red]{processName} failed[/]: {errorMessage}");
             }
