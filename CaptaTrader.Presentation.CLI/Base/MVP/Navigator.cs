@@ -24,10 +24,10 @@ namespace CaptaTrader.Presentation.CLI.Base.MVP
 
             _current = nextPresenter;
             _current.Navigator = this;
-            _current.Display(GetView(nextPresenter));
+            _current.Display(FindView(nextPresenter));
         }
 
-        private static View GetView(Presenter presenter)
+        private static View FindView(Presenter presenter)
         {
             string? name = presenter.GetType().FullName!.Replace("Presenter", "View");
             Type? type = Type.GetType(name);
