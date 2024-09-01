@@ -16,17 +16,16 @@ namespace CaptaTrader.Presentation.CLI
     public class Application
     {
         internal static IServiceProvider? DomainServices { get; set; }
-        internal static EndUser? SessionUser { get; set; }
         internal static int ExitCode { get; set; } = 0;
 
-        private static readonly FigletFont _titleFont = SetTitleFont();
+        private static readonly FigletText _title = SetTitle();
 
         public Application(ILoggerProvider _loggerProvider, bool useMockData)
         {
             ILogger logger = _loggerProvider.CreateLogger(nameof(Application));
-            ISessionValueProvider sessionValueProvider = new Session();
+            ISessionValueProvider session = new Session();
 
-            DomainServices = Startup.InitializeDomainServices(logger, sessionValueProvider, useMockData);
+            DomainServices = Startup.InitializeDomainServices(logger, session, useMockData);
         }
 
         public async Task<int> RunAsync()
@@ -36,17 +35,19 @@ namespace CaptaTrader.Presentation.CLI
             return ExitCode;
         }
 
-        private static FigletFont SetTitleFont()
+        private static FigletText SetTitle()
         {
             // https://github.com/xero/figlet-fonts
             string? font = Assembly.GetExecutingAssembly().ReadResource("Ogre.flf");
-            return font != null ? FigletFont.Parse(font) : FigletFont.Default;
+            FigletFont figletFont != null ? FigletFont.Parse(font) : FigletFont.Default;
+
+            return new FigletText(figletFont, "Capta Trader").Color(Color.Green)
         }
 
         internal static void ClearConsole()
         {
             AnsiConsole.Clear();
-            AnsiConsole.Write(new FigletText(_titleFont, "Capta Trader").Color(Color.Green));
+            AnsiConsole.Write(_title);
             AnsiConsole.Write(Environment.NewLine);
         }
     }
