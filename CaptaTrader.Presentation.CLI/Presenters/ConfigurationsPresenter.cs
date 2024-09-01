@@ -12,6 +12,7 @@ namespace CaptaTrader.Presentation.CLI.Presenters
     internal class ConfigurationsPresenter : Presenter
     {
         private ConfigurationsView? _view;
+        private ISessionValueProvider _session = Application.DomainServices!.GetRequiredService<ISessionValueProvider>();
         private IUserService _userService = Application.DomainServices!.GetRequiredService<IUserService>();
 
         internal override void Display(View view)
@@ -60,12 +61,12 @@ namespace CaptaTrader.Presentation.CLI.Presenters
 
         private void ConfigurationsView_ConfigurationEntered(object? sender, ConfigViewEventArgs e)
         {
-            if (Application.SessionUser != null)
+            if (_session.GetUser() is EndUser user)
             {
                 switch (e.MenuOption)
                 {
                     case ConfigurationOptions.EnterEmail:
-                        Application.SessionUser.Email = e.EnteredValue;
+                        user.Email = e.EnteredValue;
                         break;
                 }
             }
@@ -75,18 +76,18 @@ namespace CaptaTrader.Presentation.CLI.Presenters
 
         private void ConfigurationsView_ConfigurationSecretEntered(object? sender, ConfigViewEventArgs e)
         {
-            if (Application.SessionUser != null)
+            if (_session.GetUser() is EndUser user)
             {
                 switch (e.MenuOption)
                 {
                     case ConfigurationOptions.EnterCoinApiAPIKey:
-                        Application.SessionUser.MarketDataAPIKey = e.EnteredValue;
+                        user.MarketDataAPIKey = e.EnteredValue;
                         break;
                     case ConfigurationOptions.EnterBinanceAPIKey:
-                        Application.SessionUser.ExchangeAPIKey = e.EnteredValue;
+                        user.ExchangeAPIKey = e.EnteredValue;
                         break;
                     case ConfigurationOptions.EnterBinanceSecretKey:
-                        Application.SessionUser.ExchangeSecretKey = e.EnteredValue;
+                        user.ExchangeSecretKey = e.EnteredValue;
                         break;
                 }
             }
@@ -97,14 +98,15 @@ namespace CaptaTrader.Presentation.CLI.Presenters
         private void Save()
         {
             IEnumerable<ValidationResult> results;
+            EndUser? user = _session.GetUser();
 
-            if (Application.SessionUser == null)
+            if (user == null)
             {
                 results = [new ValidationResult("No user found to update.")];
             }
             else
             {
-                results = _userService.Save(Application.SessionUser);
+                results = _userService.Save(user);
             }
 
             if (results.Any())
