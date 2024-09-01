@@ -12,7 +12,6 @@ namespace CaptaTrader.Presentation.CLI.Presenters
     internal class LoginPresenter : Presenter
     {
         private LoginView? _view;
-        private ISessionValueProvider _session = Application.DomainServices!.GetRequiredService<ISessionValueProvider>();
         private IUserService _userService = Application.DomainServices!.GetRequiredService<IUserService>();
 
         internal override void Display(View view)
