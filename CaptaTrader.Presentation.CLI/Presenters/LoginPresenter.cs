@@ -12,6 +12,7 @@ namespace CaptaTrader.Presentation.CLI.Presenters
     internal class LoginPresenter : Presenter
     {
         private LoginView? _view;
+        private ISessionValueProvider _session = Application.DomainServices!.GetRequiredService<ISessionValueProvider>();
         private IUserService _userService = Application.DomainServices!.GetRequiredService<IUserService>();
 
         internal override void Display(View view)
@@ -54,21 +55,11 @@ namespace CaptaTrader.Presentation.CLI.Presenters
 
         private void LoginView_LoginCredentialsEntered(object? sender, LoginViewEventArgs e)
         {
-            IEnumerable<ValidationResult> results;
-
-            if (e.NetworkCredential == null)
-            {
-                Application.SessionUser = null;
-                results = [new ValidationResult("No credentials found.")];
-            }
-            else
-            {
-                (EndUser?, IEnumerable<ValidationResult>) result = _userService.Authenticate(e.NetworkCredential);
-                Application.SessionUser = result.Item1;
-                results = result.Item2;
-            }
-
-            if (Application.SessionUser != null)
+            IEnumerable<ValidationResult> results = e.NetworkCredential == null
+                ? [new ValidationResult("No credentials found.")]
+                : _userService.Authenticate(e.NetworkCredential);
+                
+            if (!results.Any())
             {
                 Navigator?.NavigateTo(typeof(MainMenuPresenter));
             }
@@ -81,21 +72,11 @@ namespace CaptaTrader.Presentation.CLI.Presenters
 
         private void LoginView_RegisterNewCredentialsEntered(object? sender, LoginViewEventArgs e)
         {
-            IEnumerable<ValidationResult> results;
-
-            if (e.NetworkCredential == null)
-            {
-                Application.SessionUser = null;
-                results = [new ValidationResult("No credentials found.")];
-            }
-            else
-            {
-                (EndUser?, IEnumerable<ValidationResult>) result = _userService.Register(e.NetworkCredential);
-                Application.SessionUser = result.Item1;
-                results = result.Item2;
-            }
-
-            if (Application.SessionUser != null)
+            IEnumerable<ValidationResult> results = e.NetworkCredential == null
+                ? [new ValidationResult("No credentials found.")]
+                : _userService.Register(e.NetworkCredential);
+                
+            if (!results.Any())
             {
                 Navigator?.NavigateTo(typeof(MainMenuPresenter));
             }
