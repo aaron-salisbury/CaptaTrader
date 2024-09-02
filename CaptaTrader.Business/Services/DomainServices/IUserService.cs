@@ -6,9 +6,9 @@ namespace CaptaTrader.Business.Services
 {
     public interface IUserService
     {
-        (EndUser?, IEnumerable<ValidationResult>) Authenticate(NetworkCredential networkCredentials);
+        IEnumerable<ValidationResult> Authenticate(NetworkCredential networkCredentials);
 
-        (EndUser?, IEnumerable<ValidationResult>) Register(NetworkCredential networkCredentials);
+        IEnumerable<ValidationResult> Register(NetworkCredential networkCredentials);
 
         IEnumerable<ValidationResult> Save(EndUser user);
     }

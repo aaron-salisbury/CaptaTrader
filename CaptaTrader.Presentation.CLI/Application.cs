@@ -1,6 +1,5 @@
 ﻿using CaptaTrader.Business;
 using CaptaTrader.Business.Base;
-using CaptaTrader.Business.Models;
 using CaptaTrader.Presentation.CLI.Base;
 using CaptaTrader.Presentation.CLI.Base.Extensions;
 using CaptaTrader.Presentation.CLI.Base.MVP;
@@ -39,9 +38,9 @@ namespace CaptaTrader.Presentation.CLI
         {
             // https://github.com/xero/figlet-fonts
             string? font = Assembly.GetExecutingAssembly().ReadResource("Ogre.flf");
-            FigletFont figletFont != null ? FigletFont.Parse(font) : FigletFont.Default;
+            FigletFont figletFont = font != null ? FigletFont.Parse(font) : FigletFont.Default;
 
-            return new FigletText(figletFont, "Capta Trader").Color(Color.Green)
+            return new FigletText(figletFont, "Capta Trader").Color(Color.Green);
         }
 
         internal static void ClearConsole()

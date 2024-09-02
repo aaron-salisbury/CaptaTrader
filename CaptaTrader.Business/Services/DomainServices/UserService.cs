@@ -32,7 +32,7 @@ namespace CaptaTrader.Business.Services
             AppCredentials? appCredentials = _dataAccesor.ReadWhere<AppCredentials>(ac => user.Id == ac.UserId).FirstOrDefault();
             if (appCredentials == null || !Security.Login(appCredentials, networkCredentials.SecurePassword))
             {
-                return new ValidationResult("Bad credentials.")];
+                return [new ValidationResult("Bad credentials.")];
             }
 
             _sessionValueProvider.SetUser(user);
