@@ -6,10 +6,6 @@ using System.Net;
 
 namespace CaptaTrader.Business.Services
 {
-    //TODO:
-    // https://jasonwatmore.com/post/2021/12/20/net-6-basic-authentication-tutorial-with-example-api
-    // https://github.com/cornflourblue/dotnet-6-registration-login-api/blob/master/Controllers/UsersController.cs
-
     public class UserService : IUserService
     {
         private DataAccesor _dataAccesor;
