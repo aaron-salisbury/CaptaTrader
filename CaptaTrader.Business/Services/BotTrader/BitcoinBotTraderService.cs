@@ -110,9 +110,8 @@ namespace CaptaTrader.Business.Services
 
         public override async Task<bool> AttemptToInitiateTradeAsync()
         {
-            //TODO: Answer whether I should sell, buy, or hold?
+            //TODO: Answer whether I should sell, buy, or hold? The following is for testing:
 
-            //TODO: TESTING
             await Task.Delay(5000);
             TradeOrder? tradeOrder = _tradeAnalyzerService.AnalyzePotentialTrade();
 
@@ -128,6 +127,7 @@ namespace CaptaTrader.Business.Services
                     _dataAccesor.Create(tradeOrder);
                     RunningPortfolio.LastCompletedTradeOrder = tradeOrder;
                 }
+
 
                 //await UpdateBalancesAsync();
             }
@@ -174,142 +174,6 @@ namespace CaptaTrader.Business.Services
 
 
 
-
-        //public IEnumerable<string> Activate()
-        //{
-        //    //TODO: Instead of yield returning strings, take advantage of Notification
-
-        //    yield return "Bot is active.";
-        //    yield return string.Empty;
-
-        //    //TODO: Also need quantity with the price.
-        //    //decimal bitcoinSpotPrice = GetSpotPrice("BTCUSDT");
-
-        //    while (true) //TODO: Replace true with some sort of class level cancellation token
-        //    {
-        //        ExchangeTransaction? buyTransaction = LookToBuy();
-        //        if (buyTransaction != null)
-        //        {
-        //            Task.Run(() => WriteTransactionToFile(buyTransaction));
-
-        //            yield return buyTransaction.ToString();
-        //            yield return $"Account Balance: {AccountBalance}";
-        //            yield return $"Bitcoin Balance: {AssetBalance}";
-        //            yield return $"Average Price: {AveragePricePaid}";
-        //            yield return string.Empty;
-        //        }
-
-        //        ExchangeTransaction? sellTransaction = LookToSell();
-        //        if (sellTransaction != null)
-        //        {
-        //            Task.Run(() => WriteTransactionToFile(sellTransaction));
-
-        //            yield return sellTransaction.ToString();
-        //            yield return $"Account Balance: {AccountBalance}";
-        //            yield return $"Bitcoin Balance: {AssetBalance}";
-        //            yield return $"Average Price: {AveragePricePaid}";
-        //            yield return string.Empty;
-        //        }
-        //    }
-        //}
-
-        ////TODO: Instead of figuring cost/sale in real money, need to get cost AND fee into real money.
-        ////TODO: Set cost on transactions.
-
-        //private ExchangeTransaction? LookToBuy()
-        //{
-        //    // if im holding USD, look for a price to buy (should either be when down or when a signifigant climb is predicted)
-        //    if (AccountBalance != null && AccountBalance > 0M && AssetBalance != null)
-        //    {
-        //        //TODO: Get best price of BTC. Also factor in the quanity may be less than I could buy.
-        //        Thread.Sleep(1000);
-        //        decimal priceBitcoin = new decimal(new Random().NextDouble() * (40000 - 20000) + 20000);
-        //        //TODO: This is just a test:
-        //        //decimal? priceBitcoin = await _exchangeService.GetSpotPriceAsync(BITCOIN_SYMBOL, QUOTE_ASSET);
-        //        //_logger.LogDebug($"BTC Spot: {priceBitcoin}");
-
-        //        if (priceBitcoin > 0M)//TODO: Pick a good time to buy.
-        //        {
-        //            decimal amountOfBitcoinICanAfford = AccountBalance.Value / priceBitcoin;
-        //            decimal costOfMaxAmountOfBitcoin = amountOfBitcoinICanAfford * priceBitcoin;
-        //            // Take out fee from max cost, to make sure I can cover the most it could be.
-        //            costOfMaxAmountOfBitcoin -= costOfMaxAmountOfBitcoin * TRADING_FEE_SPOT;
-        //            decimal costInRealMoney = costOfMaxAmountOfBitcoin.PrecisionTruncate(2);
-        //            decimal bitcoinToBuy = costInRealMoney / priceBitcoin;
-
-        //            if (bitcoinToBuy > 0M)
-        //            {
-        //                //TODO: If transaction was successful.
-        //                decimal fee = costInRealMoney * TRADING_FEE_SPOT;
-        //                decimal costPlusFee = costInRealMoney + fee;
-        //                decimal previousTotalCost = AssetBalance.Value * AveragePricePaid;
-        //                decimal newTotalCost = previousTotalCost + costPlusFee;
-        //                decimal newTotalBitcoinBalance = AssetBalance.Value + bitcoinToBuy;
-        //                AveragePricePaid = newTotalCost / newTotalBitcoinBalance;
-        //                AssetBalance += newTotalBitcoinBalance;
-        //                AccountBalance -= costPlusFee;
-
-        //                return new ExchangeTransaction
-        //                {
-        //                    Symbol = BITCOIN_SYMBOL,
-        //                    Type = ExchangeTransaction.Types.Buy,
-        //                    Date = DateTime.Now,
-        //                    Quantity = bitcoinToBuy,
-        //                    Price = priceBitcoin,
-        //                    Cost = costInRealMoney,
-        //                    Fee = fee,
-        //                    Total = bitcoinToBuy * costPlusFee
-        //                };
-        //            }
-        //        }
-        //    }
-
-        //    return null;
-        //}
-
-        //private ExchangeTransaction? LookToSell()
-        //{
-        //    //if im holding BTC, look for a price to sell it, should be as soon as profit will be double the fee
-        //    if (AssetBalance != null && AssetBalance > 0M)
-        //    {
-        //        //TODO: Get best sell price of BTC. Also factor in the quantity may be less than I could sell.
-        //        Thread.Sleep(1000);
-        //        decimal priceBitcoin = new decimal(new Random().NextDouble() * (40000 - 20000) + 20000);
-
-        //        if (priceBitcoin > AveragePricePaid) //TODO: and the fee is no more than half the difference.
-        //        {
-        //            decimal maxUnits = AssetBalance.Value; //TODO: Replace with actual quantity;
-        //            decimal maxSale = maxUnits * priceBitcoin;
-        //            decimal saleInRealMoney = maxSale.PrecisionTruncate(2);
-        //            decimal unitsToSell = saleInRealMoney / priceBitcoin;
-        //            decimal totalPaid = unitsToSell * AveragePricePaid;
-        //            decimal fee = saleInRealMoney * TRADING_FEE_SPOT;
-
-        //            bool isProfitable = saleInRealMoney - totalPaid >= fee * 2; //TODO: Double seems arbitrary. Come up with real threshold.
-
-        //            if (isProfitable)
-        //            {
-        //                //TODO: If transaction was successful.
-        //                decimal saleMinusFee = saleInRealMoney - fee;
-        //                AccountBalance += saleMinusFee;
-        //                AssetBalance -= unitsToSell;
-
-        //                return new ExchangeTransaction
-        //                {
-        //                    Symbol = BITCOIN_SYMBOL,
-        //                    Type = ExchangeTransaction.Types.Sell,
-        //                    Date = DateTime.Now,
-        //                    Quantity = unitsToSell,
-        //                    Price = priceBitcoin,
-        //                    Fee = fee,
-        //                    Total = unitsToSell * priceBitcoin + fee
-        //                };
-        //            }
-        //        }
-        //    }
-
-        //    return null;
-        //}
 
         //private async Task WriteTransactionToFile(ExchangeTransaction exchangeTransaction)
         //{
