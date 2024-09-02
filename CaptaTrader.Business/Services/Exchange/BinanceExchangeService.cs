@@ -40,7 +40,7 @@ namespace CaptaTrader.Business.Services
 
                     if (result.Error != null)
                     {
-                        _logger.LogError($"Failed to get account balance: {result.Error.Message}");
+                        _logger.LogError("Failed to get account balance: {resultErrorMessage}", result.Error.Message);
                         return null;
                     }
 
@@ -57,7 +57,7 @@ namespace CaptaTrader.Business.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(default, ex, "Failed to get account balance.");
+                _logger.LogError(ex, "Failed to get account balance.");
                 return null;
             }
         }
@@ -77,7 +77,7 @@ namespace CaptaTrader.Business.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(default, ex, $"Failed to get spot price of {symbol}.");
+                _logger.LogError(ex, "Failed to get spot price of {symbol}.", symbol);
                 return null;
             }
         }
@@ -95,7 +95,7 @@ namespace CaptaTrader.Business.Services
             //}
             //catch (Exception ex)
             //{
-            //    _logger.LogError(default, ex, $"Failed to buy {quantity} of {symbol} at ${price}.");
+            //    _logger.LogError(ex, "Failed to buy {quantity} of {symbol} at ${price}.", quantity, symbol, price);
             //    return false;
             //}
 
@@ -115,7 +115,7 @@ namespace CaptaTrader.Business.Services
             //}
             //catch (Exception ex)
             //{
-            //    _logger.LogError(default, ex, $"Failed to sell {quantity} of {symbol} at ${price}.");
+            //    _logger.LogError(ex, "Failed to sell {quantity} of {symbol} at ${price}.", quantity, symbol, price);
             //    return false;
             //}
 

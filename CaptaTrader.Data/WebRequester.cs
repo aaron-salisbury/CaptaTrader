@@ -60,7 +60,7 @@ namespace CaptaTrader.Data
             }
             catch (Exception ex)
             {
-                _logger.LogError(default, ex, "HTTP request failed.");
+                _logger.LogError(ex, "HTTP request failed.");
                 return null;
             }
         }
@@ -115,7 +115,7 @@ namespace CaptaTrader.Data
             }
             catch (Exception ex)
             {
-                _logger.LogError(default, ex, "Web request failed.");
+                _logger.LogError(ex, "Web request failed.");
                 return null;
             }
         }

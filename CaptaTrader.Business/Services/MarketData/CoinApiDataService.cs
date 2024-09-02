@@ -65,7 +65,7 @@ namespace CaptaTrader.Business.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(default, ex, "Failed to update historical price data.");
+                _logger.LogError(ex, "Failed to update historical price data.");
             }
 
             return null;

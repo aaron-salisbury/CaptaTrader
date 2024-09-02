@@ -29,7 +29,7 @@ namespace CaptaTrader.Data.Base
             }
             catch (Exception ex)
             {
-                logger.LogError(default, ex, "Failed to update internal storage.");
+                logger.LogError(ex, "Failed to update internal storage.");
             }
 
             return isSuccessful;

@@ -22,7 +22,7 @@ namespace CaptaTrader.Data.Base
             }
             catch (Exception ex)
             {
-                logger.LogError(default, ex, "Failed to read from file system.");
+                logger.LogError(ex, "Failed to read from file system.");
             }
 
             return default;
@@ -67,7 +67,7 @@ namespace CaptaTrader.Data.Base
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(default, ex, "Failed to write to file system.");
+                    logger.LogError(ex, "Failed to write to file system.");
                 }
             }
         }
@@ -85,7 +85,7 @@ namespace CaptaTrader.Data.Base
             }
             catch (Exception ex)
             {
-                logger.LogError(default, ex, "Failed to delete file.");
+                logger.LogError(ex, "Failed to delete file.");
             }
         }
 
