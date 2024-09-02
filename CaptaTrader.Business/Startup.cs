@@ -14,7 +14,7 @@ namespace CaptaTrader.Business
     {
         public const string COMPRESSION_CLIENT_NAME = "CompressionClient";
 
-        public static IServiceProvider InitializeDomainServices(ILogger logger, ISessionValueProvider sessionValueProvider, bool useMockData)
+        public static IServiceCollection RegisterDomainServices(ILogger logger, ISessionValueProvider sessionValueProvider, bool useMockData)
         {
             IServiceCollection services = new ServiceCollection();
 
@@ -48,7 +48,7 @@ namespace CaptaTrader.Business
                 .AddScoped<IUserService, UserService>()
                 .AddScoped<IBotService, BotService>();
 
-            return services.BuildServiceProvider();
+            return services;
         }
     }
 }

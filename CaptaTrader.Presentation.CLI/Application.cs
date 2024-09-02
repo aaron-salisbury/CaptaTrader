@@ -4,6 +4,7 @@ using CaptaTrader.Presentation.CLI.Base;
 using CaptaTrader.Presentation.CLI.Base.Extensions;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Presenters;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using System;
@@ -24,7 +25,7 @@ namespace CaptaTrader.Presentation.CLI
             ILogger logger = _loggerProvider.CreateLogger(nameof(Application));
             ISessionValueProvider session = new Session();
 
-            DomainServices = Startup.InitializeDomainServices(logger, session, useMockData);
+            DomainServices = Startup.RegisterDomainServices(logger, session, useMockData).BuildServiceProvider();
         }
 
         public async Task<int> RunAsync()

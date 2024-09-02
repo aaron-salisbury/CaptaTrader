@@ -13,7 +13,7 @@ namespace CaptaTrader.Presentation.CLI
     {
         public static async Task<int> Main(string[] args)
         {
-            CommandApp<MainCommand> app = RegistrarApp();
+            CommandApp<MainCommand> app = RegisterApp();
 
             try
             {
@@ -30,7 +30,7 @@ namespace CaptaTrader.Presentation.CLI
             }
         }
 
-        private static CommandApp<MainCommand> RegistrarApp()
+        private static CommandApp<MainCommand> RegisterApp()
         {
             return AnsiConsole.Status()
                 .Spinner(Spinner.Known.SimpleDotsScrolling)
