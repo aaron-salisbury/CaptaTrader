@@ -30,7 +30,7 @@ namespace CaptaTrader.Presentation.CLI
 
         public async Task<int> RunAsync()
         {
-            new Navigator().NavigateTo(typeof(LoginPresenter));
+            await Task.Run(() => new Navigator().NavigateTo(typeof(LoginPresenter)));
 
             return ExitCode;
         }
