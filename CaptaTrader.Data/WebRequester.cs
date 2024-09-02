@@ -1,9 +1,5 @@
 ﻿using CaptaTrader.Data.Base.Extensions;
-using CaptaTrader.Data.Database;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Net;
 using System.Net.Http.Headers;
 
 namespace CaptaTrader.Data
