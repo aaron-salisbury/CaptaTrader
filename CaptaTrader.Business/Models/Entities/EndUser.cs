@@ -1,5 +1,4 @@
 ﻿using CaptaTrader.Business.Base;
-using CaptaTrader.Business.Base.ValidationAttributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace CaptaTrader.Business.Models
@@ -22,9 +21,6 @@ namespace CaptaTrader.Business.Models
 
         [Required, Display(Name = "User Name")]
         public required string UserName { get; set; }
-
-        [DirectoryExists]
-        public string? PreferredStorageDirectory { get; set; }
 
         [EmailAddress, Display(Name = "E-Mail")]
         public string? Email { get; set; }
