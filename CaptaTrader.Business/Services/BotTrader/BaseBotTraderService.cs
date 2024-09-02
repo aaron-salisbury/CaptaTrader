@@ -6,13 +6,11 @@ namespace CaptaTrader.Business.Models
 {
     public class BaseBotTraderService : IBotTraderService
     {
-        public event EventHandler<TradeEventArgs>? TradeCompleted;
+        public Portfolio RunningPortfolio { get; set; } = new();
 
         internal int MinSecondsBetweenTrades { get; set; } = 6;
         internal PriceInterval? PriceIntervalMonth { get; set; }
         internal PriceInterval? PriceIntervalDay { get; set; }
-        internal decimal? AccountBalance { get; set; }
-        internal decimal? AssetBalance { get; set; }
 
         protected readonly IScheduler _scheduler;
 
@@ -31,12 +29,6 @@ namespace CaptaTrader.Business.Models
         protected virtual async Task ScheduleJobsAsync()
         {
             await Task.Run(() => throw new NotImplementedException());
-        }
-
-        protected virtual void OnTradeCompleted(TradeEventArgs tradeEventArgs)
-        {
-            //TODO: Save to DB.
-            TradeCompleted?.Invoke(this, tradeEventArgs);
         }
 
         #region Virtual Interface Methods

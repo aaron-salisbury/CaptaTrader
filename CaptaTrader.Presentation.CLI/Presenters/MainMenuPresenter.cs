@@ -33,7 +33,7 @@ namespace CaptaTrader.Presentation.CLI.Presenters
                     Navigator?.NavigateTo(typeof(ConfigurationsPresenter));
                     break;
                 case MainMenuOptions.LaunchBot:
-                    Navigator?.NavigateTo(typeof(BotPresenter));
+                    Navigator?.NavigateTo(typeof(BotTraderPresenter));
                     break;
                 case MainMenuOptions.Exit:
                     return;

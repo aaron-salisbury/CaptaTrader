@@ -58,11 +58,11 @@ namespace CaptaTrader.Business.Services
                 {
                     if (string.Equals(balances.Asset, QUOTE_ASSET))
                     {
-                        AccountBalance = balances.Available;
+                        RunningPortfolio.AccountBalance = balances.Available;
                     }
                     else if (string.Equals(balances.Asset, BITCOIN_SYMBOL))
                     {
-                        AssetBalance = balances.Available;
+                        RunningPortfolio.AssetBalance = balances.Available;
                     }
                 }
 
@@ -121,12 +121,12 @@ namespace CaptaTrader.Business.Services
                 if (tradeOrder.TransactionType == TradeOrder.TransactionTypes.Buy && _exchangeService.Buy(tradeOrder))
                 {
                     _dataAccesor.Create(tradeOrder);
-                    OnTradeCompleted(new TradeEventArgs(tradeOrder));
+                    RunningPortfolio.LastCompletedTradeOrder = tradeOrder;
                 }
                 else if (tradeOrder.TransactionType == TradeOrder.TransactionTypes.Sell && _exchangeService.Sell(tradeOrder))
                 {
                     _dataAccesor.Create(tradeOrder);
-                    OnTradeCompleted(new TradeEventArgs(tradeOrder));
+                    RunningPortfolio.LastCompletedTradeOrder = tradeOrder;
                 }
 
                 //await UpdateBalancesAsync();

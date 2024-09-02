@@ -27,20 +27,18 @@ namespace CaptaTrader.Business
             if (useMockData)
             {
                 services.AddSingleton<IMarketDataService, MockDataService>()
-                    .AddSingleton<IExchangeService, MockExchangeService>()
-                    .AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>();
+                    .AddSingleton<IExchangeService, MockExchangeService>();
             }
             else
             {
                 services.AddSingleton<IMarketDataService, CoinApiDataService>()
-                    .AddSingleton<IExchangeService, BinanceExchangeService>()
-                    .AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>();//TODO: Obviously will need a real analyzer.
+                    .AddSingleton<IExchangeService, BinanceExchangeService>();
             }
 
             // Business domain services.
-            services.AddSingleton<IBotTraderService, BitcoinBotTraderService>()
-                .AddScoped<IUserService, UserService>()
-                .AddScoped<IBotService, BotService>();
+            services.AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>() //TODO: Obviously will need a real analyzer.
+                .AddSingleton<IBotTraderService, BitcoinBotTraderService>()
+                .AddScoped<IUserService, UserService>();
 
             return services;
         }
