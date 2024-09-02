@@ -32,6 +32,8 @@ namespace CaptaTrader.Presentation.CLI
         {
             await Task.Run(() => new Navigator().NavigateTo(typeof(LoginPresenter)));
 
+            AnsiConsole.Clear();
+            AnsiConsole.WriteLine("Capta Trader application exited.");
             return ExitCode;
         }
 

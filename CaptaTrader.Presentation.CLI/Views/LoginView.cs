@@ -20,7 +20,8 @@ namespace CaptaTrader.Presentation.CLI.Views
         {
             Login,
             [Display(Name = "Create New User")]
-            CreateNewUser
+            CreateNewUser,
+            Exit
         }
 
         internal override void Show()

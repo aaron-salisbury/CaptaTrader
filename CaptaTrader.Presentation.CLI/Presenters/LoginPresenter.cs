@@ -45,6 +45,8 @@ namespace CaptaTrader.Presentation.CLI.Presenters
                 case LoginMenuOptions.CreateNewUser:
                     _view?.PopupRegister();
                     break;
+                case LoginMenuOptions.Exit:
+                    return;
                 default:
                     Serilog.Log.Warning("Invalid login option selected.");
                     Navigator?.NavigateTo(typeof(LoginPresenter));
