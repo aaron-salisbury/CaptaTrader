@@ -7,11 +7,11 @@ namespace CaptaTrader.Presentation.CLI.Base.Commands
 {
     internal sealed class MainCommand : AsyncCommand<MainCommand.Settings>
     {
-        private ILoggerProvider _loggerProvider;
+        private ILoggerFactory _loggerFactory;
 
-        public MainCommand(ILoggerProvider loggerProvider)
+        public MainCommand(ILoggerFactory loggerFactory)
         {
-            _loggerProvider = loggerProvider;
+            _loggerFactory = loggerFactory;
         }
 
         public class Settings : LogCommandSettings
@@ -29,7 +29,7 @@ namespace CaptaTrader.Presentation.CLI.Base.Commands
             //TODO: Temporary for testing.
             settings.MockData = true;
 
-            return await new Application(_loggerProvider, settings.MockData).RunAsync();
+            return await new Application(_loggerFactory, settings.MockData).RunAsync();
         }
     }
 }

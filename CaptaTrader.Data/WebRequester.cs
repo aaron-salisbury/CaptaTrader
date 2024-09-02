@@ -1,16 +1,31 @@
 ﻿using CaptaTrader.Data.Base.Extensions;
+using CaptaTrader.Data.Database;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Net;
 using System.Net.Http.Headers;
 
 namespace CaptaTrader.Data
 {
-    public static class WebRequests
+    public class WebRequester
     {
-        public static async Task<string?> SendHTTPJsonRequestAsync(string url, IHttpClientFactory httpClientFactory, ILogger logger, string? jsonContent = null, Dictionary<string, string>? requestHeaders = null, string httpMethod = "GET", string? userAgent = null, string? namedClient = null)
+        public const string COMPRESSION_CLIENT_NAME = "CompressionClient";
+
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger _logger;
+
+        public WebRequester(IHttpClientFactory httpClientFactory, ILogger logger)
+        {
+            _httpClientFactory = httpClientFactory;
+            _logger = logger;
+        }
+
+        public async Task<string?> SendHTTPJsonRequestAsync(string url, bool useCompression = false, string? jsonContent = null, Dictionary<string, string>? requestHeaders = null, string httpMethod = "GET", string? userAgent = null)
         {
             try
             {
-                using (HttpClient client = (namedClient == null ? httpClientFactory.CreateClient() : httpClientFactory.CreateClient(namedClient)))
+                using (HttpClient client = (useCompression ? _httpClientFactory.CreateClient(COMPRESSION_CLIENT_NAME) : _httpClientFactory.CreateClient()))
                 {
                     client.DefaultRequestHeaders.Add("Accept", "application/json");
 
@@ -49,27 +64,27 @@ namespace CaptaTrader.Data
             }
             catch (Exception ex)
             {
-                logger.LogError(default, ex, "HTTP request failed.");
+                _logger.LogError(default, ex, "HTTP request failed.");
                 return null;
             }
         }
 
-        public static async Task DownloadFileAsync(IHttpClientFactory httpClientFactory, string url, string fullFilePath, bool deletePreexisting = false)
+        public async Task DownloadFileAsync(string url, string fullFilePath, bool deletePreexisting = false)
         {
             if (deletePreexisting && File.Exists(fullFilePath))
             {
                 File.Delete(fullFilePath);
             }
 
-            using (HttpClient client = httpClientFactory.CreateClient())
+            using (HttpClient client = _httpClientFactory.CreateClient())
             {
                 await client.DownloadFileTaskAsync(new Uri(url), fullFilePath);
             }
         }
 
-        public static async Task<Stream> GetWebRequestStreamAsync(string url, IHttpClientFactory httpClientFactory, ILogger logger)
+        public async Task<Stream> GetWebRequestStreamAsync(string url)
         {
-            HttpResponseMessage? response = await GetWebRequestResponseAsync(url, httpClientFactory, logger);
+            HttpResponseMessage? response = await GetWebRequestResponseAsync(url);
 
             if (response != null)
             {
@@ -80,9 +95,9 @@ namespace CaptaTrader.Data
             return new MemoryStream();
         }
 
-        public static async Task<byte[]> GetWebRequestSerializedAsync(string url, IHttpClientFactory httpClientFactory, ILogger logger)
+        public async Task<byte[]> GetWebRequestSerializedAsync(string url)
         {
-            HttpResponseMessage? response = await GetWebRequestResponseAsync(url, httpClientFactory, logger);
+            HttpResponseMessage? response = await GetWebRequestResponseAsync(url);
 
             if (response != null)
             {
@@ -93,18 +108,18 @@ namespace CaptaTrader.Data
 
         }
 
-        private static async Task<HttpResponseMessage?> GetWebRequestResponseAsync(string url, IHttpClientFactory httpClientFactory, ILogger logger)
+        private async Task<HttpResponseMessage?> GetWebRequestResponseAsync(string url)
         {
             try
             {
-                using (HttpClient client = httpClientFactory.CreateClient())
+                using (HttpClient client = _httpClientFactory.CreateClient())
                 {
                     return await client.GetAsync(url);
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError(default, ex, "Web request failed.");
+                _logger.LogError(default, ex, "Web request failed.");
                 return null;
             }
         }

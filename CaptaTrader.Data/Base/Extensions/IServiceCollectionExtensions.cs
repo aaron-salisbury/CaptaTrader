@@ -1,12 +1,33 @@
 ﻿using CaptaTrader.Data.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 
 namespace CaptaTrader.Data.Base.Extensions
 {
     public static class IServiceCollectionExtensions
     {
         private static Type? _dynamicDbContextType;
+
+        /// <summary>
+        /// Adds the <see cref="IHttpClientFactory"/> and related services to the <see cref="IServiceCollection"/> and configures
+        /// a named <see cref="HttpClient"/> used for compression.
+        /// Also adds a singleton service of the type WebRequester that is a wrapper for web requests.
+        /// </summary>
+        /// <returns>A reference to this instance after the operation has completed.</returns>
+        public static IServiceCollection AddWebRequesting(this IServiceCollection services)
+        {
+            services.AddHttpClient(WebRequester.COMPRESSION_CLIENT_NAME, c => { c.DefaultRequestHeaders.Add("Accept-Encoding", "deflate, gzip"); })
+                    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+                    {
+                        AllowAutoRedirect = false,
+                        AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                    });
+
+            services.AddSingleton<WebRequester, WebRequester>();
+
+            return services;
+        }
 
         /// <summary>
         /// Adds a scoped DbContext service for an embedded SQLite database whose tables are built against the provided entity types. 

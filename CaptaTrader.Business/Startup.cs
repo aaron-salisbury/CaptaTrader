@@ -5,7 +5,6 @@ using CaptaTrader.Business.Services;
 using CaptaTrader.Data.Base.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Net;
 using System.Reflection;
 
 namespace CaptaTrader.Business
@@ -21,13 +20,8 @@ namespace CaptaTrader.Business
             // Infrastructure services.
             services.AddSingleton(logger)
                 .AddSingleton(sessionValueProvider)
-                .AddDataAccessEmbedded(Assembly.GetExecutingAssembly().GetEntityTypes())
-                .AddHttpClient(COMPRESSION_CLIENT_NAME, c => { c.DefaultRequestHeaders.Add("Accept-Encoding", "deflate, gzip"); })
-                    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-                    {
-                        AllowAutoRedirect = false,
-                        AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
-                    });
+                .AddWebRequesting()
+                .AddDataAccessEmbedded(Assembly.GetExecutingAssembly().GetEntityTypes());
 
             // External API services.
             if (useMockData)

@@ -14,13 +14,13 @@ namespace CaptaTrader.Business.Services
         private const string QUOTE_ASSET = "USDT";
 
         private readonly ILogger _logger;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly WebRequester _webRequester;
         private readonly ISessionValueProvider _sessionValueProvider;
 
-        public CoinApiDataService(ILogger logger, IHttpClientFactory httpClientFactory, ISessionValueProvider sessionValueProvider)
+        public CoinApiDataService(ILogger logger, WebRequester webRequester, ISessionValueProvider sessionValueProvider)
         {
             _logger = logger;
-            _httpClientFactory = httpClientFactory;
+            _webRequester = webRequester;
             _sessionValueProvider = sessionValueProvider;
         }
 
@@ -37,12 +37,10 @@ namespace CaptaTrader.Business.Services
             {
                 string url = $"{ENDPOINT}{string.Format(QUERY_FORMAT_OHLCV_LATEST, exchangeID, baseAsset, QUOTE_ASSET)}";
 
-                string? jsonResponse = await WebRequests.SendHTTPJsonRequestAsync(
+                string? jsonResponse = await _webRequester.SendHTTPJsonRequestAsync(
                     url,
-                    _httpClientFactory,
-                    _logger,
-                    requestHeaders: new Dictionary<string, string>() { { "Authorization", apiKey } },
-                    namedClient: Startup.COMPRESSION_CLIENT_NAME); // CoinApi requests that compression be used.
+                    useCompression: true, // CoinApi requests that compression be used.
+                    requestHeaders: new Dictionary<string, string>() { { "Authorization", apiKey } });
 
                 if (!string.IsNullOrEmpty(jsonResponse))
                 {
