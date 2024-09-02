@@ -11,5 +11,6 @@ namespace CaptaTrader.Business.Services
         Task<bool> UpdateBalancesAsync();
         Task<bool> UpdatePriceIntervalsAsync();
         Task<bool> AttemptToInitiateTradeAsync();
+        Task WriteTradeOrdersToCSVAsync();
     }
 }

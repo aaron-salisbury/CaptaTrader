@@ -1,4 +1,5 @@
 ﻿using CaptaTrader.Data.Database;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
@@ -54,7 +55,7 @@ namespace CaptaTrader.Data.Base.Extensions
                 Type dbSetType = typeof(DbSet<>);
                 Type dbSetGenericType = dbSetType.MakeGenericType(entityType);
 
-                properties.Add(new DynamicProperty(entityType.Name, dbSetGenericType));
+                properties.Add(new DynamicProperty(entityType.Name.Pluralize(), dbSetGenericType));
             }
 
             return DynamicClassFactory.CreateType(properties, typeof(T), false);

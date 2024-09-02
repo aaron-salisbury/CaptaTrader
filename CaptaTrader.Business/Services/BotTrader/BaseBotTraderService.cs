@@ -56,6 +56,11 @@ namespace CaptaTrader.Business.Models
         {
             throw new NotImplementedException();
         }
+
+        public virtual Task WriteTradeOrdersToCSVAsync()
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }

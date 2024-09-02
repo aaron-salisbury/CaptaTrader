@@ -1,6 +1,7 @@
 ﻿using CaptaTrader.Business.Jobs;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Data;
+using CaptaTrader.Data.Base;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
@@ -110,7 +111,8 @@ namespace CaptaTrader.Business.Services
 
         public override async Task<bool> AttemptToInitiateTradeAsync()
         {
-            //TODO: Answer whether I should sell, buy, or hold? The following is for testing:
+            //TODO: Temporary for testing.
+            //  Will need to answer whether I should sell, buy, or hold?
 
             await Task.Delay(5000);
             TradeOrder? tradeOrder = _tradeAnalyzerService.AnalyzePotentialTrade();
@@ -172,37 +174,13 @@ namespace CaptaTrader.Business.Services
             await _scheduler.Start();
         }
 
+        public override async Task WriteTradeOrdersToCSVAsync()
+        {
+            IOrderedEnumerable<TradeOrder> trades = _dataAccesor
+                .ReadAll<TradeOrder>()
+                .OrderByDescending(to => to.TimeStamp);
 
-
-
-        //private async Task WriteTransactionToFile(ExchangeTransaction exchangeTransaction)
-        //{
-        //    if (exchangeTransaction != null)
-        //    {
-        //        try
-        //        {
-        //            //TODO: Write to a CSV instead.
-        //            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-        //            string appFolderPath = Path.Combine(documentsPath, AppDomain.CurrentDomain.FriendlyName);
-
-        //            if (!Directory.Exists(appFolderPath))
-        //            {
-        //                Directory.CreateDirectory(appFolderPath);
-        //            }
-
-        //            string filename = $"Transactions_{exchangeTransaction.Date.Year}.txt";
-        //            string filePath = Path.Combine(appFolderPath, filename);
-
-        //            using (StreamWriter writer = File.AppendText(filePath))
-        //            {
-        //                await writer.WriteLineAsync(exchangeTransaction.ToString());
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            _logger.LogError(default, ex, "Failed to write transaction to file.");
-        //        }
-        //    }
-        //}
+            await IO.WriteToCSVAsync(trades, _logger);
+        }
     }
 }

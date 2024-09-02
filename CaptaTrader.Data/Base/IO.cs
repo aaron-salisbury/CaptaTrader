@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Diagnostics;
+﻿using CsvHelper;
+using Humanizer;
+using Microsoft.Extensions.Logging;
+using System.Globalization;
 
 namespace CaptaTrader.Data.Base
 {
@@ -57,9 +59,9 @@ namespace CaptaTrader.Data.Base
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.WriteLine($"Failed to move/delete application data: {e.Message}", "ERROR");
+                logger.LogError(ex, "Failed to move/delete application data.");
             }
         }
 
@@ -84,6 +86,28 @@ namespace CaptaTrader.Data.Base
             Directory.CreateDirectory(appDirectory);
 
             return appDirectory;
+        }
+
+        public static async Task WriteToCSVAsync<T>(IEnumerable<T> objects, ILogger logger, string? writePath = null)
+        {
+            try
+            {
+                writePath ??= GetAppDirectoryPath();
+                string beingWritten = typeof(T).Name.Pluralize().Humanize(LetterCasing.Title);
+                string writeTime = DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss");
+                string fileName = $"{beingWritten} - {writeTime}.csv";
+                string fullPath = Path.Join(writePath, fileName);
+
+                using (StreamWriter writer = new(fullPath))
+                using (CsvWriter csv = new(writer, CultureInfo.InvariantCulture))
+                {
+                    await csv.WriteRecordsAsync(objects);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to write objects to CSV file.");
+            }
         }
     }
 }
