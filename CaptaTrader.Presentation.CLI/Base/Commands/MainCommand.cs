@@ -19,17 +19,17 @@ namespace CaptaTrader.Presentation.CLI.Base.Commands
             // https://spectreconsole.net/cli/settings
 
             [CommandOption("-m|--mock-data")]
-            [Description("Mock data and fake API calls")]
+            [Description("Mock external API calls")]
             [DefaultValue(false)]
-            public bool MockData { get; set; }
+            public bool MockExternalAPICalls { get; set; }
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
         {
             //TODO: Temporary for testing.
-            settings.MockData = true;
+            settings.MockExternalAPICalls = true;
 
-            return await new Application(_loggerFactory, settings.MockData).RunAsync();
+            return await new Application(_loggerFactory.CreateLogger(nameof(Application)), settings.MockExternalAPICalls).RunAsync();
         }
     }
 }

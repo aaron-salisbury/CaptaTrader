@@ -1,4 +1,5 @@
 ﻿using CaptaTrader.Business;
+using CaptaTrader.Business.Base;
 using CaptaTrader.Presentation.CLI.Base;
 using CaptaTrader.Presentation.CLI.Base.Extensions;
 using CaptaTrader.Presentation.CLI.Base.MVP;
@@ -19,12 +20,12 @@ namespace CaptaTrader.Presentation.CLI
 
         private static readonly FigletText _title = SetTitle();
 
-        public Application(ILoggerFactory loggerFactory, bool useMockData)
+        public Application(ILogger logger, bool useMockExternalAPICalls)
         {
-            DomainServices = Startup.RegisterDomainServices(
-                    loggerFactory.CreateLogger(nameof(Application)), 
-                    new Session(), 
-                    useMockData)
+            DomainServices = new ServiceCollection()
+                .AddSingleton(logger)
+                .AddSingleton<ISessionValueProvider>(new Session())
+                .AddBusinessServices(useMockExternalAPICalls)
                 .BuildServiceProvider();
         }
 

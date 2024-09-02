@@ -38,7 +38,7 @@ namespace CaptaTrader.Presentation.CLI
                 .Start<CommandApp<MainCommand>>("[olive]Loading[/]", _ =>
                 {
                     IServiceCollection services = ConfigureServices();
-                    var registrar = new TypeRegistrar(services);
+                    TypeRegistrar registrar = new(services);
                     CommandApp<MainCommand> app = new(registrar);
 
                     app.Configure(config =>

@@ -6,7 +6,7 @@ namespace CaptaTrader.Data
 {
     public class WebRequester
     {
-        public const string COMPRESSION_CLIENT_NAME = "CompressionClient";
+        internal const string COMPRESSION_CLIENT_NAME = "CompressionClient";
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;

@@ -1,28 +1,27 @@
-﻿using CaptaTrader.Business.Base;
-using CaptaTrader.Business.Base.Extensions;
+﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
-using CaptaTrader.Data.Base.Extensions;
+using CaptaTrader.Data;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System.Reflection;
 
 namespace CaptaTrader.Business
 {
     public static class Startup
     {
-        public static IServiceCollection RegisterDomainServices(ILogger logger, ISessionValueProvider sessionValueProvider, bool useMockData)
+        /// <summary>
+        /// Adds all business-tier services.
+        /// Logging and ISessionValueProvider services are expected to have already been injected.
+        /// </summary>
+        /// <returns>A reference to this instance after the operation has completed.</returns>
+        public static IServiceCollection AddBusinessServices(this IServiceCollection services, bool useMockExternalAPICalls)
         {
-            IServiceCollection services = new ServiceCollection();
-
             // Infrastructure services.
-            services.AddSingleton(logger)
-                .AddSingleton(sessionValueProvider)
-                .AddWebRequesting()
+            services.AddWebRequesting()
                 .AddDataAccessEmbedded(Assembly.GetExecutingAssembly().GetEntityTypes());
 
             // External API services.
-            if (useMockData)
+            if (useMockExternalAPICalls)
             {
                 services.AddSingleton<IMarketDataService, MockDataService>()
                     .AddSingleton<IExchangeService, MockExchangeService>();

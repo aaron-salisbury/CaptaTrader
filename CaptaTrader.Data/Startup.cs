@@ -1,12 +1,13 @@
-﻿using CaptaTrader.Data.Database;
+﻿using CaptaTrader.Data.Base;
+using CaptaTrader.Data.Database;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 
-namespace CaptaTrader.Data.Base.Extensions
+namespace CaptaTrader.Data
 {
-    public static class IServiceCollectionExtensions
+    public static class Startup
     {
         private static Type? _dynamicDbContextType;
 
@@ -19,11 +20,11 @@ namespace CaptaTrader.Data.Base.Extensions
         public static IServiceCollection AddWebRequesting(this IServiceCollection services)
         {
             services.AddHttpClient(WebRequester.COMPRESSION_CLIENT_NAME, c => { c.DefaultRequestHeaders.Add("Accept-Encoding", "deflate, gzip"); })
-                    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-                    {
-                        AllowAutoRedirect = false,
-                        AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
-                    });
+                .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+                {
+                    AllowAutoRedirect = false,
+                    AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
 
             services.AddSingleton<WebRequester, WebRequester>();
 
