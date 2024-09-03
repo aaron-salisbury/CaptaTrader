@@ -18,9 +18,9 @@ namespace CaptaTrader.Business.Services
         private readonly IMarketDataService _cryptoDataService;
         private readonly IExchangeService _exchangeService;
         private readonly ITradeAnalyzerService _tradeAnalyzerService;
-        private readonly AppDataAccessor _dataAccessor;
+        private readonly IDataAccess _dataAccessor;
 
-        public BitcoinBotTraderService(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, AppDataAccessor dataAccessor) : base()
+        public BitcoinBotTraderService(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, IDataAccess dataAccessor) : base()
         {
             _cryptoDataService = cryptoDataService;
             _exchangeService = exchangeService;

@@ -20,7 +20,7 @@ namespace CaptaTrader.Business.Base
                 credentials.LoginWorkFactor));
         }
 
-        public static AppCredentials CreateUserCredentials(SecureString password)
+        public static AppCredentials CreateAppCredentials(SecureString password)
         {
             byte[] loginSalt = GenerateSalt();
 

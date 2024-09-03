@@ -8,13 +8,24 @@ namespace CaptaTrader.Business.Services
 {
     public class UserService : IUserService
     {
-        private AppDataAccessor _dataAccessor;
+        private IDataAccess _dataAccessor;
         private ISessionValueProvider _sessionValueProvider;
 
-        public UserService(AppDataAccessor dataAccessor, ISessionValueProvider sessionValueProvider)
+        public UserService(IDataAccess dataAccessor, ISessionValueProvider sessionValueProvider)
         {
             _dataAccessor = dataAccessor;
             _sessionValueProvider = sessionValueProvider;
+        }
+
+        public EndUser CreateNewDefaultUser()
+        {
+            string defaultUserName = Environment.UserName;
+
+            EndUser newUser = new() { UserName = defaultUserName };
+
+            _dataAccessor.Create(newUser);
+
+            return newUser;
         }
 
         public IEnumerable<ValidationResult> Authenticate(NetworkCredential networkCredentials)
@@ -25,7 +36,7 @@ namespace CaptaTrader.Business.Services
                 return [new ValidationResult("User Name not found.")];
             }
 
-            AppCredentials? credentials = _dataAccessor.ReadWhere<AppCredentials>(ac => user.Id == ac.EndUserId).FirstOrDefault();
+            AppCredentials? credentials = user.AppCredentials;
             if (credentials == null || !Security.Login(credentials, networkCredentials.SecurePassword))
             {
                 return [new ValidationResult("Bad credentials.")];
@@ -42,17 +53,18 @@ namespace CaptaTrader.Business.Services
                 return [new ValidationResult("User Name must be unique.")];
             }
 
-            EndUser newUser = new() { UserName = networkCredentials.UserName };
-            IEnumerable<ValidationResult> userModelResults = newUser.Validate();
-            if (userModelResults.Any())
-            {
-                return userModelResults;
-            }
-            _dataAccessor.Create(newUser);
+            EndUser newUser = CreateNewDefaultUser();
+            newUser.UserName = networkCredentials.UserName;
+            newUser.AppCredentials = Security.CreateAppCredentials(networkCredentials.SecurePassword);
 
-            AppCredentials credentials = Security.CreateUserCredentials(networkCredentials.SecurePassword);
-            credentials.EndUserId = newUser.Id;
-            _dataAccessor.Create(credentials);
+            IEnumerable<ValidationResult> validationResults = newUser.Validate();
+            if (validationResults.Any())
+            {
+                _dataAccessor.Delete(newUser);
+                return validationResults;
+            }
+
+            _dataAccessor.Update(newUser);
 
             _sessionValueProvider.SetUser(newUser);
             return [];

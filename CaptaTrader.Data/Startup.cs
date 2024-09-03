@@ -34,7 +34,7 @@ namespace CaptaTrader.Data
         /// <summary>
         /// Adds a scoped DbContext service for an embedded SQLite database whose tables are built against the provided entity types. 
         /// No migrations are run.
-        /// Also adds a scoped service of the type <see cref="AppDataAccessor"/> that is a wrapper for the DbContext.
+        /// Also adds a scoped service of the type <see cref="IDataAccess"/> that is a wrapper for the DbContext.
         /// </summary>
         /// <returns>A reference to this instance after the operation has completed.</returns>
         public static IServiceCollection AddDataAccessEmbedded(this IServiceCollection services, Type[] entityTypes)
@@ -42,7 +42,7 @@ namespace CaptaTrader.Data
             _dynamicDbContextType = BuildDynamicDbContextType<EmbeddedDbContext>(entityTypes);
 
             services.AddScoped(typeof(DbContext), DynamicContextFactory);
-            services.AddScoped<AppDataAccessor>();
+            services.AddScoped<IDataAccess, DynamicEmbeddedDataAccess>();
 
             return services;
         }

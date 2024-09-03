@@ -1,4 +1,5 @@
 ﻿using CaptaTrader.Business.Base;
+using CaptaTrader.Data.DataAnnotations;
 using System.ComponentModel.DataAnnotations;
 
 namespace CaptaTrader.Business.Models
@@ -22,6 +23,7 @@ namespace CaptaTrader.Business.Models
         [Required, Display(Name = "User Name")]
         public required string UserName { get; set; }
 
+        [Relationship]
         public AppCredentials? AppCredentials { get; set; }
 
         //TODO: Move these properties to a one-to-one relationship.

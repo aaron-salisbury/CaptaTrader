@@ -1,16 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CaptaTrader.Data.Base.Extensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace CaptaTrader.Data
 {
-    public class AppDataAccessor
+    /// <summary>
+    /// CRUD wrapper for a DbContext built with dynamic DbSet<> members.
+    /// </summary>
+    public class DynamicEmbeddedDataAccess : IDataAccess
     {
         private ILogger _logger;
         private DbContext _dbContext;
 
-        public AppDataAccessor(ILogger logger, DbContext dbContext)
+        public DynamicEmbeddedDataAccess(ILogger logger, DbContext dbContext)
         {
             _logger = logger;
             _dbContext = dbContext;
@@ -48,12 +52,12 @@ namespace CaptaTrader.Data
 
         public IEnumerable<T> ReadWhere<T>(Expression<Func<T, bool>> predicate) where T : class
         {
-            return _dbContext.Set<T>().Where(predicate);
+            return _dbContext.Set<T>().Where(predicate).IncludeAllRecursively();
         }
 
         public IEnumerable<T> ReadAll<T>() where T : class
         {
-            return _dbContext.Set<T>().ToList();
+            return _dbContext.Set<T>().IncludeAllRecursively();
         }
 
         public void Update<T>(T entity)
@@ -61,6 +65,16 @@ namespace CaptaTrader.Data
             if (entity != null)
             {
                 EntityEntry dbEntry = _dbContext.Update(entity);
+
+                SaveAndReload(dbEntry);
+            }
+        }
+
+        public void Delete<T>(T entity)
+        {
+            if (entity != null)
+            {
+                EntityEntry dbEntry = _dbContext.Remove(entity);
 
                 SaveAndReload(dbEntry);
             }

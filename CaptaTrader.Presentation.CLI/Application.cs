@@ -24,7 +24,7 @@ namespace CaptaTrader.Presentation.CLI
         {
             DomainServices = new ServiceCollection()
                 .AddSingleton(logger)
-                .AddSingleton<ISessionValueProvider>(new Session())
+                .AddSingleton<ISessionValueProvider, Session>()
                 .AddBusinessServices(useMockExternalAPICalls)
                 .BuildServiceProvider();
         }
