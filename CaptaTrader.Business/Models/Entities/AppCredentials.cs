@@ -1,5 +1,6 @@
 ﻿using CaptaTrader.Business.Base;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CaptaTrader.Business.Models
 {
@@ -8,8 +9,10 @@ namespace CaptaTrader.Business.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
-        public long UserId { get; set; }
+        [Required, ForeignKey(nameof(EndUser))]
+        public int EndUserId { get; set; }
+
+        public EndUser? EndUser { get; set; }
 
         [Required]
         public required byte[] LoginSalt { get; set; }

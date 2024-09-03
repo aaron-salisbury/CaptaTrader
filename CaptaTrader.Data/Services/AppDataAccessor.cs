@@ -5,12 +5,12 @@ using System.Linq.Expressions;
 
 namespace CaptaTrader.Data
 {
-    public class DataAccesor
+    public class AppDataAccessor
     {
         private ILogger _logger;
         private DbContext _dbContext;
 
-        public DataAccesor(ILogger logger, DbContext dbContext)
+        public AppDataAccessor(ILogger logger, DbContext dbContext)
         {
             _logger = logger;
             _dbContext = dbContext;

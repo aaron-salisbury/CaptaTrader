@@ -7,7 +7,7 @@ namespace CaptaTrader.Business.Base
 {
     // https://www.mking.net/blog/password-security-best-practices-with-examples-in-csharp
 
-    public static class Security
+    internal static class Security
     {
         private const int SALT_LENGTH = 32;
         private const int NEW_USER_WORK_FACTOR = 10000;
@@ -20,7 +20,7 @@ namespace CaptaTrader.Business.Base
                 credentials.LoginWorkFactor));
         }
 
-        public static AppCredentials CreateAppCredentials(SecureString password)
+        public static AppCredentials CreateUserCredentials(SecureString password)
         {
             byte[] loginSalt = GenerateSalt();
 

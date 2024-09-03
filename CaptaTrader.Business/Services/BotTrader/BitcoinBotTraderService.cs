@@ -18,15 +18,15 @@ namespace CaptaTrader.Business.Services
         private readonly IMarketDataService _cryptoDataService;
         private readonly IExchangeService _exchangeService;
         private readonly ITradeAnalyzerService _tradeAnalyzerService;
-        private readonly DataAccesor _dataAccesor;
+        private readonly AppDataAccessor _dataAccessor;
 
-        public BitcoinBotTraderService(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, DataAccesor dataAccesor) : base()
+        public BitcoinBotTraderService(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, AppDataAccessor dataAccessor) : base()
         {
             _cryptoDataService = cryptoDataService;
             _exchangeService = exchangeService;
             _tradeAnalyzerService = tradeAnalyzerService;
             _logger = logger;
-            _dataAccesor = dataAccesor;
+            _dataAccessor = dataAccessor;
         }
 
         public override async Task<bool> InitializeAsync()
@@ -121,12 +121,12 @@ namespace CaptaTrader.Business.Services
             {
                 if (tradeOrder.TransactionType == TradeOrder.TransactionTypes.Buy && _exchangeService.Buy(tradeOrder))
                 {
-                    _dataAccesor.Create(tradeOrder);
+                    _dataAccessor.Create(tradeOrder);
                     RunningPortfolio.LastCompletedTradeOrder = tradeOrder;
                 }
                 else if (tradeOrder.TransactionType == TradeOrder.TransactionTypes.Sell && _exchangeService.Sell(tradeOrder))
                 {
-                    _dataAccesor.Create(tradeOrder);
+                    _dataAccessor.Create(tradeOrder);
                     RunningPortfolio.LastCompletedTradeOrder = tradeOrder;
                 }
 
@@ -176,7 +176,7 @@ namespace CaptaTrader.Business.Services
 
         public override async Task WriteTradeOrdersToCSVAsync()
         {
-            IOrderedEnumerable<TradeOrder> trades = _dataAccesor
+            IOrderedEnumerable<TradeOrder> trades = _dataAccessor
                 .ReadAll<TradeOrder>()
                 .OrderByDescending(to => to.TimeStamp);
 

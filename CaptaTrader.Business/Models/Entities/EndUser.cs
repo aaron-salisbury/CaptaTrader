@@ -22,6 +22,9 @@ namespace CaptaTrader.Business.Models
         [Required, Display(Name = "User Name")]
         public required string UserName { get; set; }
 
+        public AppCredentials? AppCredentials { get; set; }
+
+        //TODO: Move these properties to a one-to-one relationship.
         [EmailAddress, Display(Name = "E-Mail")]
         public string? Email { get; set; }
 
