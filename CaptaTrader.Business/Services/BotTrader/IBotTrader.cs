@@ -2,9 +2,9 @@
 
 namespace CaptaTrader.Business.Services
 {
-    public interface IBotTraderService
+    public interface IBotTrader
     {
-        Portfolio RunningPortfolio { get; set; }
+        Portfolio Portfolio { get; set; }
 
         Task<bool> InitializeAsync();
         Task ShutdownAsync();

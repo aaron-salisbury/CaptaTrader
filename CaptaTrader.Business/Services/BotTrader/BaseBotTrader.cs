@@ -1,12 +1,12 @@
-﻿using CaptaTrader.Business.Services;
+﻿using CaptaTrader.Business.Models;
 using Quartz;
 using Quartz.Impl;
 
-namespace CaptaTrader.Business.Models
+namespace CaptaTrader.Business.Services
 {
-    public class BaseBotTraderService : IBotTraderService
+    public class BaseBotTrader : IBotTrader
     {
-        public Portfolio RunningPortfolio { get; set; } = new();
+        public Portfolio Portfolio { get; set; } = new();
 
         internal int MinSecondsBetweenTrades { get; set; } = 6;
         internal PriceInterval? PriceIntervalMonth { get; set; }
@@ -14,7 +14,7 @@ namespace CaptaTrader.Business.Models
 
         protected readonly IScheduler _scheduler;
 
-        public BaseBotTraderService()
+        public BaseBotTrader()
         {
             _scheduler = Task.Run(() => new StdSchedulerFactory().GetScheduler()).Result;
             _scheduler.Context.Put(this.GetType().Name, this);

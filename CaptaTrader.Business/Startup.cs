@@ -36,8 +36,9 @@ namespace CaptaTrader.Business
 
             // Business domain services.
             services.AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>() //TODO: Obviously will need a real analyzer.
-                .AddSingleton<IBotTraderService, BitcoinBotTraderService>()
-                .AddScoped<IUserService, UserService>();
+                .AddSingleton<IBotTrader, BitcoinBotTrader>()
+                .AddScoped<IUserService, UserService>()
+                .AddSingleton<ITradingService, TradingService>();
 
             return services;
         }

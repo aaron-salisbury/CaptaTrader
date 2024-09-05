@@ -7,7 +7,7 @@ namespace CaptaTrader.Business.Jobs
     {
         public async Task Execute(IJobExecutionContext context)
         {
-            BitcoinBotTraderService bitcoinTradingBot = (BitcoinBotTraderService)context.Scheduler.Context.Get(nameof(BitcoinBotTraderService));
+            BitcoinBotTrader bitcoinTradingBot = (BitcoinBotTrader)context.Scheduler.Context.Get(nameof(BitcoinBotTrader));
 
             await bitcoinTradingBot.AttemptToInitiateTradeAsync();
         }

@@ -7,7 +7,7 @@ using Quartz;
 
 namespace CaptaTrader.Business.Services
 {
-    public class BitcoinBotTraderService : BaseBotTraderService
+    public class BitcoinBotTrader : BaseBotTrader
     {
         private const string BITCOIN_SYMBOL = "BTC";
         private const string QUOTE_ASSET = "USDT";
@@ -20,7 +20,7 @@ namespace CaptaTrader.Business.Services
         private readonly ITradeAnalyzerService _tradeAnalyzerService;
         private readonly IDataAccess _dataAccessor;
 
-        public BitcoinBotTraderService(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, IDataAccess dataAccessor) : base()
+        public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, IDataAccess dataAccessor) : base()
         {
             _cryptoDataService = cryptoDataService;
             _exchangeService = exchangeService;
@@ -59,11 +59,11 @@ namespace CaptaTrader.Business.Services
                 {
                     if (string.Equals(balances.Asset, QUOTE_ASSET))
                     {
-                        RunningPortfolio.AccountBalance = balances.Available;
+                        Portfolio.AccountBalance = balances.Available;
                     }
                     else if (string.Equals(balances.Asset, BITCOIN_SYMBOL))
                     {
-                        RunningPortfolio.AssetBalance = balances.Available;
+                        Portfolio.AssetBalance = balances.Available;
                     }
                 }
 
@@ -122,12 +122,12 @@ namespace CaptaTrader.Business.Services
                 if (tradeOrder.TransactionType == TradeOrder.TransactionTypes.Buy && _exchangeService.Buy(tradeOrder))
                 {
                     _dataAccessor.Create(tradeOrder);
-                    RunningPortfolio.LastCompletedTradeOrder = tradeOrder;
+                    Portfolio.LastCompletedTradeOrder = tradeOrder;
                 }
                 else if (tradeOrder.TransactionType == TradeOrder.TransactionTypes.Sell && _exchangeService.Sell(tradeOrder))
                 {
                     _dataAccessor.Create(tradeOrder);
-                    RunningPortfolio.LastCompletedTradeOrder = tradeOrder;
+                    Portfolio.LastCompletedTradeOrder = tradeOrder;
                 }
 
 
@@ -141,11 +141,11 @@ namespace CaptaTrader.Business.Services
         {
             #region BitcoinPriceIntervalsJob
             IJobDetail bitcoinPriceIntervalsJob = JobBuilder.Create<BitcoinPriceIntervalsJob>()
-                .WithIdentity(nameof(BitcoinPriceIntervalsJob), nameof(BitcoinBotTraderService))
+                .WithIdentity(nameof(BitcoinPriceIntervalsJob), nameof(BitcoinBotTrader))
                 .Build();
 
             ITrigger bitcoinPriceIntervalsTrigger = TriggerBuilder.Create()
-                .WithIdentity($"{nameof(BitcoinPriceIntervalsJob)}Trigger", nameof(BitcoinBotTraderService))
+                .WithIdentity($"{nameof(BitcoinPriceIntervalsJob)}Trigger", nameof(BitcoinBotTrader))
                 .StartAt(new DateTimeOffset(DateTime.Now.Date.AddDays(1)))
                 .WithSimpleSchedule(x => x
                     .WithIntervalInHours(24)
@@ -157,11 +157,11 @@ namespace CaptaTrader.Business.Services
 
             #region AttemptToInitiateTradeJob
             IJobDetail attemptToInitiateTradeJob = JobBuilder.Create<AttemptToInitiateTradeJob>()
-                .WithIdentity(nameof(AttemptToInitiateTradeJob), nameof(BitcoinBotTraderService))
+                .WithIdentity(nameof(AttemptToInitiateTradeJob), nameof(BitcoinBotTrader))
                 .Build();
 
             ITrigger attemptToInitiateTradeTrigger = TriggerBuilder.Create()
-                .WithIdentity($"{nameof(AttemptToInitiateTradeJob)}Trigger", nameof(BitcoinBotTraderService))
+                .WithIdentity($"{nameof(AttemptToInitiateTradeJob)}Trigger", nameof(BitcoinBotTrader))
                 .StartAt(new DateTimeOffset(DateTime.Now.AddSeconds(MinSecondsBetweenTrades)))
                 .WithSimpleSchedule(x => x
                     .WithIntervalInSeconds(MinSecondsBetweenTrades)

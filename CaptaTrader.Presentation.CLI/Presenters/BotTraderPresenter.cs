@@ -1,5 +1,5 @@
 ﻿using CaptaTrader.Business.Models;
-using CaptaTrader.Business.Services;
+using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +12,7 @@ namespace CaptaTrader.Presentation.CLI.Presenters
     internal class BotTraderPresenter : Presenter
     {
         private BotTraderView? _view;
-        private IBotTraderService _botTrader = Application.DomainServices!.GetRequiredService<IBotTraderService>();
+        private ITradingService _botTrader = Application.DomainServices!.GetRequiredService<ITradingService>();
 
         internal override void Display(View view)
         {
@@ -21,7 +21,7 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             _view = (BotTraderView)view;
             _view.ShutdownRequested += BotTraderView_ShutdownRequested;
 
-            if (_botTrader.InitializeAsync().Result)
+            if (_botTrader.InitializeTradingAsync().Result)
             {
                 _view.Show();
             }
@@ -44,7 +44,7 @@ namespace CaptaTrader.Presentation.CLI.Presenters
 
         private void BotTraderView_ShutdownRequested(object? sender, EventArgs e)
         {
-            Task.Run(_botTrader.ShutdownAsync).Wait();
+            Task.Run(_botTrader.ShutdownTradingAsync).Wait();
 
             Navigator?.NavigateTo(typeof(MainMenuPresenter));
         }
