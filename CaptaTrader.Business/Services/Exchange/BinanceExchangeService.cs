@@ -2,7 +2,6 @@
 using Binance.Net.Clients;
 using Binance.Net.Objects.Models.Spot;
 using Binance.Net.Objects.Options;
-using CaptaTrader.Business.Base;
 using CaptaTrader.Business.Models;
 using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Objects;
@@ -17,14 +16,14 @@ namespace CaptaTrader.Business.Services
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ISessionValueProvider _sessionValueProvider;
+        private readonly ISessionValueResolver _sessionValueResolver;
 
-        public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, ISessionValueProvider sessionValueProvider)
+        public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, ISessionValueResolver sessionValueResolver)
         {
             _logger = logger;
             _loggerFactory = loggerFactory;
             _httpClientFactory = httpClientFactory;
-            _sessionValueProvider = sessionValueProvider;
+            _sessionValueResolver = sessionValueResolver;
         }
 
         public string GetExchangeID() => "BINANCE";
@@ -144,7 +143,7 @@ namespace CaptaTrader.Business.Services
 
         private ApiCredentials? GetApiCredentialsForSessionUser()
         {
-            EndUser? sessionUser = _sessionValueProvider.GetUser();
+            EndUser? sessionUser = _sessionValueResolver.GetSessionUser();
             if (sessionUser?.ExchangeAPIKey != null && sessionUser?.ExchangeSecretKey != null)
             {
                 return new(sessionUser.ExchangeAPIKey, sessionUser.ExchangeSecretKey);

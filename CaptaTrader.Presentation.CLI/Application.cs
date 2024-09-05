@@ -1,5 +1,5 @@
 ﻿using CaptaTrader.Business;
-using CaptaTrader.Business.Base;
+using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Presentation.CLI.Base;
 using CaptaTrader.Presentation.CLI.Base.Extensions;
 using CaptaTrader.Presentation.CLI.Base.MVP;

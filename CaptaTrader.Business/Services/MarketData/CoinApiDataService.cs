@@ -1,5 +1,4 @@
-﻿using CaptaTrader.Business.Base;
-using CaptaTrader.Business.Models;
+﻿using CaptaTrader.Business.Models;
 using CaptaTrader.Data;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
@@ -15,18 +14,18 @@ namespace CaptaTrader.Business.Services
 
         private readonly ILogger _logger;
         private readonly WebRequester _webRequester;
-        private readonly ISessionValueProvider _sessionValueProvider;
+        private readonly ISessionValueResolver _sessionValueResolver;
 
-        public CoinApiDataService(ILogger logger, WebRequester webRequester, ISessionValueProvider sessionValueProvider)
+        public CoinApiDataService(ILogger logger, WebRequester webRequester, ISessionValueResolver sessionValueResolver)
         {
             _logger = logger;
             _webRequester = webRequester;
-            _sessionValueProvider = sessionValueProvider;
+            _sessionValueResolver = sessionValueResolver;
         }
 
         public async Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals(string exchangeID, string baseAsset)
         {
-            string? apiKey = _sessionValueProvider.GetUser()?.MarketDataAPIKey;
+            string? apiKey = _sessionValueResolver.GetSessionUser()?.MarketDataAPIKey;
             if (apiKey == null)
             {
                 _logger.LogError("No API key available to market data service.");

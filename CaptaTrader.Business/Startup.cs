@@ -1,6 +1,7 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
+using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Data;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -18,7 +19,8 @@ namespace CaptaTrader.Business
         {
             // Infrastructure services.
             services.AddWebRequesting()
-                .AddDataAccessEmbedded(Assembly.GetExecutingAssembly().GetEntityTypes());
+                .AddDataAccessEmbedded(Assembly.GetExecutingAssembly().GetEntityTypes())
+                .AddSingleton<ISessionValueResolver, SessionValueResolver>();
 
             // External API services.
             if (useMockExternalAPICalls)

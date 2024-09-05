@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 
-namespace CaptaTrader.Business.Services
+namespace CaptaTrader.Business.Services.Domain
 {
     public interface IUserService
     {
@@ -12,6 +12,8 @@ namespace CaptaTrader.Business.Services
 
         IEnumerable<ValidationResult> Register(NetworkCredential networkCredentials);
 
-        IEnumerable<ValidationResult> Save(EndUser user);
+        EndUser? GetEndUser(int? id);
+
+        IEnumerable<ValidationResult> SaveEndUser(EndUser user);
     }
 }

@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.Services;
+﻿using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
 using Microsoft.Extensions.DependencyInjection;

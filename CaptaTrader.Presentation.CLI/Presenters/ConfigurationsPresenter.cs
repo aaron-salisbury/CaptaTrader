@@ -1,6 +1,5 @@
-﻿using CaptaTrader.Business.Base;
-using CaptaTrader.Business.Models;
-using CaptaTrader.Business.Services;
+﻿using CaptaTrader.Business.Models;
+using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -63,7 +62,7 @@ namespace CaptaTrader.Presentation.CLI.Presenters
 
         private void ConfigurationsView_ConfigurationEntered(object? sender, ConfigViewEventArgs e)
         {
-            if (_session.GetUser() is EndUser user)
+            if (_userService.GetEndUser(_session.GetUserID()) is EndUser user)
             {
                 switch (e.MenuOption)
                 {
@@ -78,7 +77,7 @@ namespace CaptaTrader.Presentation.CLI.Presenters
 
         private void ConfigurationsView_ConfigurationSecretEntered(object? sender, ConfigViewEventArgs e)
         {
-            if (_session.GetUser() is EndUser user)
+            if (_userService.GetEndUser(_session.GetUserID()) is EndUser user)
             {
                 switch (e.MenuOption)
                 {
@@ -100,7 +99,7 @@ namespace CaptaTrader.Presentation.CLI.Presenters
         private void Save()
         {
             IEnumerable<ValidationResult> results;
-            EndUser? user = _session.GetUser();
+            EndUser? user = _userService.GetEndUser(_session.GetUserID());
 
             if (user == null)
             {
@@ -108,12 +107,12 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             }
             else
             {
-                results = _userService.Save(user);
+                results = _userService.SaveEndUser(user);
             }
 
             if (results.Any())
             {
-                _view?.PopupProcessFail(nameof(IUserService.Save), results);
+                _view?.PopupProcessFail(nameof(IUserService.SaveEndUser), results);
             }
 
             Navigator?.NavigateTo(typeof(MainMenuPresenter));

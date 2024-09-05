@@ -1,20 +1,19 @@
-﻿using CaptaTrader.Business.Base;
-using CaptaTrader.Business.Models;
+﻿using CaptaTrader.Business.Services.Domain;
 
 namespace CaptaTrader.Presentation.CLI.Base
 {
     public class Session : ISessionValueProvider
     {
-        private EndUser? _user;
+        private int? _endUser;
 
-        public EndUser? GetUser()
+        public int? GetUserID()
         {
-            return _user;
+            return _endUser;
         }
 
-        public void SetUser(EndUser user)
+        public void SetUserID(int id)
         {
-            _user = user;
+            _endUser = id;
         }
     }
 }

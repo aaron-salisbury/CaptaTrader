@@ -4,17 +4,17 @@ using CaptaTrader.Data;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 
-namespace CaptaTrader.Business.Services
+namespace CaptaTrader.Business.Services.Domain
 {
     public class UserService : IUserService
     {
         private IDataAccess _dataAccessor;
-        private ISessionValueProvider _sessionValueProvider;
+        private ISessionValueResolver _sessionValueResolver;
 
-        public UserService(IDataAccess dataAccessor, ISessionValueProvider sessionValueProvider)
+        public UserService(IDataAccess dataAccessor, ISessionValueResolver sessionValueResolver)
         {
             _dataAccessor = dataAccessor;
-            _sessionValueProvider = sessionValueProvider;
+            _sessionValueResolver = sessionValueResolver;
         }
 
         public EndUser CreateNewDefaultUser()
@@ -42,7 +42,7 @@ namespace CaptaTrader.Business.Services
                 return [new ValidationResult("Bad credentials.")];
             }
 
-            _sessionValueProvider.SetUser(user);
+            _sessionValueResolver.SetSessionUser(user);
             return [];
         }
 
@@ -66,11 +66,21 @@ namespace CaptaTrader.Business.Services
 
             _dataAccessor.Update(newUser);
 
-            _sessionValueProvider.SetUser(newUser);
+            _sessionValueResolver.SetSessionUser(newUser);
             return [];
         }
 
-        public IEnumerable<ValidationResult> Save(EndUser user)
+        public EndUser? GetEndUser(int? id)
+        {
+            if (id == null)
+            {
+                return null;
+            }
+
+            return _dataAccessor.Read<EndUser>(id.Value);
+        }
+
+        public IEnumerable<ValidationResult> SaveEndUser(EndUser user)
         {
             IEnumerable<ValidationResult> results = user.Validate();
 
