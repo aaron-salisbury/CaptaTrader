@@ -24,13 +24,5 @@ namespace CaptaTrader.Business.Services.Domain
         {
             await _botTrader.ShutdownAsync();
         }
-
-        //private void Portfolio_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        //{
-        //    if (sender is Portfolio portfolio)
-        //    {
-        //        RunningPortfolio = portfolio;
-        //    }
-        //}
     }
 }

@@ -20,12 +20,14 @@ namespace CaptaTrader.Presentation.CLI
 
         private static readonly FigletText _title = SetTitle();
 
-        public Application(ILogger logger, bool useMockExternalAPICalls)
+        public Application(ILogger applicationLogger, bool useMockExternalAPICalls)
         {
+            ISessionValueProvider applicationSession = new Session();
+
             DomainServices = new ServiceCollection()
-                .AddSingleton(logger)
-                .AddSingleton<ISessionValueProvider, Session>()
-                .AddBusinessServices(useMockExternalAPICalls)
+                .AddSingleton(applicationLogger)
+                .AddSingleton(applicationSession)
+                .AddBusinessServices(applicationLogger, applicationSession, useMockExternalAPICalls)
                 .BuildServiceProvider();
         }
 
