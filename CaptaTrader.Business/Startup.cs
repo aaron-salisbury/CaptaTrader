@@ -33,12 +33,14 @@ namespace CaptaTrader.Business
             if (useMockExternalAPICalls)
             {
                 internalServices.AddSingleton<IMarketDataService, MockDataService>()
-                    .AddSingleton<IExchangeService, MockExchangeService>();
+                    .AddSingleton<IExchangeService, MockExchangeService>()
+                    .AddSingleton<ICryptoFearAndGreedIndex, MockCFGIService>();
             }
             else
             {
-                internalServices.AddSingleton<IMarketDataService, CoinApiDataService>()
-                    .AddSingleton<IExchangeService, BinanceExchangeService>();
+                internalServices.AddSingleton<IMarketDataService, CoinApiDataService>() //TODO: Potential alternate if limit is reached: https://openapi.coinstats.app/
+                    .AddSingleton<IExchangeService, BinanceExchangeService>()
+                    .AddSingleton<ICryptoFearAndGreedIndex, AlternativeCFGI>();
             }
 
             // Internal business domain logic.

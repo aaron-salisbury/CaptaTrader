@@ -36,26 +36,22 @@ namespace CaptaTrader.Business.Services
             {
                 string url = $"{ENDPOINT}{string.Format(QUERY_FORMAT_OHLCV_LATEST, exchangeID, baseAsset, QUOTE_ASSET)}";
 
-                string? jsonResponse = await _webRequester.SendHTTPJsonRequestAsync(
+                string? json = await _webRequester.SendHTTPJsonRequestAsync(
                     url,
                     useCompression: true, // CoinApi requests that compression be used.
                     requestHeaders: new Dictionary<string, string>() { { "Authorization", apiKey } });
 
-                if (!string.IsNullOrEmpty(jsonResponse))
+                if (!string.IsNullOrEmpty(json) &&
+                    JsonSerializer.Deserialize<List<CoinApiOhlcv>>(json) is List<CoinApiOhlcv> intervals)
                 {
-                    List<CoinApiOhlcv>? priceHistories = JsonSerializer.Deserialize<List<CoinApiOhlcv>>(jsonResponse);
-
-                    if (priceHistories != null)
+                    return intervals.Select(cao => new PriceInterval()
                     {
-                        return priceHistories.Select(cao => new PriceInterval()
-                        {
-                            Symbol = baseAsset,
-                            StartDate = cao.TimePeriodStart,
-                            EndDate = cao.TimePeriodEnd,
-                            StartPrice = Convert.ToDecimal(cao.PriceOpen),
-                            EndPrice = Convert.ToDecimal(cao.PriceClose)
-                        }).OrderByDescending(ph => ph.StartDate);
-                    }
+                        Symbol = baseAsset,
+                        StartDate = cao.TimePeriodStart,
+                        EndDate = cao.TimePeriodEnd,
+                        StartPrice = Convert.ToDecimal(cao.PriceOpen),
+                        EndPrice = Convert.ToDecimal(cao.PriceClose)
+                    }).OrderByDescending(ph => ph.StartDate);
                 }
                 else
                 {
@@ -64,7 +60,7 @@ namespace CaptaTrader.Business.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to update historical price data.");
+                _logger.LogError(ex, "Failed to request historical price data.");
             }
 
             return null;
