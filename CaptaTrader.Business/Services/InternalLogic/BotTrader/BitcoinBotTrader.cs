@@ -19,6 +19,7 @@ namespace CaptaTrader.Business.Services
         private readonly IExchangeService _exchangeService;
         private readonly ITradeAnalyzerService _tradeAnalyzerService;
         private readonly IDataAccess _dataAccessor;
+        private bool isInitialized;
 
         public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, IDataAccess dataAccessor) : base()
         {
@@ -31,20 +32,21 @@ namespace CaptaTrader.Business.Services
 
         public override async Task<bool> InitializeAsync()
         {
-            bool initialized = false;
-
-            if (UpdateBalancesAsync().Result && UpdatePriceIntervalsAsync().Result)
+            if (!isInitialized)
             {
-                await ScheduleJobsAsync();
-
-                initialized = true;
+                if (UpdateBalancesAsync().Result && UpdatePriceIntervalsAsync().Result)
+                {
+                    isInitialized = true;
+                    await ScheduleJobsAsync();
+                }
             }
 
-            return initialized;
+            return true;
         }
 
         public override async Task ShutdownAsync()
         {
+            isInitialized = false;
             await UnscheduleJobsAsync();
         }
 
