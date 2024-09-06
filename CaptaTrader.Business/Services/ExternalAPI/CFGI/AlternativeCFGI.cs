@@ -1,6 +1,5 @@
 ﻿using CaptaTrader.Business.Models;
 using CaptaTrader.Data;
-using CryptoExchange.Net.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
@@ -32,7 +31,8 @@ namespace CaptaTrader.Business.Services
                 if (!string.IsNullOrEmpty(json) && 
                     JsonSerializer.Deserialize<AlternativeCFGIResult>(json) is AlternativeCFGIResult result)
                 {
-                    return result.Data.Select(d => d.Value);
+                    return result.Data.Where(d => !string.IsNullOrEmpty(d.Value) && d.Value.All(char.IsDigit))
+                        .Select(d => Convert.ToInt32(d.Value));
                 }
                 else
                 {

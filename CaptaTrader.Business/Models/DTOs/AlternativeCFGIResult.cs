@@ -5,20 +5,27 @@ namespace CaptaTrader.Business.Models
     [Serializable]
     public class AlternativeCFGIResult
     {
-        public required string Name { get; set; }
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+
+        [JsonPropertyName("data")]
         public required List<AlternativeCFGIResultDatum> Data { get; set; }
-        public required AlternativeCFGIResultMetadata Metadata { get; set; }
+
+        [JsonPropertyName("metadata")]
+        public AlternativeCFGIResultMetadata? Metadata { get; set; }
     }
 
     [Serializable]
     public class AlternativeCFGIResultDatum
     {
-        public required int Value { get; set; }
+        [JsonPropertyName("value")]
+        public required string Value { get; set; }
 
         [JsonPropertyName("value_classification")]
-        public required string ValueClassification { get; set; }
+        public string? ValueClassification { get; set; }
 
-        public required string Timestamp { get; set; }
+        [JsonPropertyName("timestamp")]
+        public string? Timestamp { get; set; }
 
         [JsonPropertyName("time_until_update")]
         public string? TimeUntilUpdate { get; set; }
@@ -27,6 +34,7 @@ namespace CaptaTrader.Business.Models
     [Serializable]
     public class AlternativeCFGIResultMetadata
     {
+        [JsonPropertyName("error")]
         public object? Error { get; set; }
     }
 }
