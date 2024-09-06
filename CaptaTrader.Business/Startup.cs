@@ -12,17 +12,18 @@ namespace CaptaTrader.Business
     public static class Startup
     {
         /// <summary>
-        /// Initializes and adds business-tier services.
+        /// Initializes and adds public-facing business-tier services.
         /// Dependant on application ILogger and ISessionValueProvider.
         /// </summary>
         /// <returns>A reference to this instance after the operation has completed.</returns>
-        public static IServiceCollection AddBusinessServices(this IServiceCollection services, ILogger logger, ISessionValueProvider session, bool useMockExternalAPICalls)
+        public static IServiceCollection AddBusinessServices(this IServiceCollection services, bool useMockExternalAPICalls)
         {
             IServiceCollection internalServices = new ServiceCollection();
 
             // Application services.
-            internalServices.AddSingleton(logger);
-            internalServices.AddSingleton(session);
+            IServiceProvider applicationServiceProvider = services.BuildServiceProvider();
+            internalServices.AddSingleton(applicationServiceProvider.GetRequiredService<ILogger>());
+            internalServices.AddSingleton(applicationServiceProvider.GetRequiredService<ISessionValueProvider>());
 
             // Infrastructure services.
             internalServices.AddWebRequesting()

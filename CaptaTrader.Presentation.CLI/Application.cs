@@ -22,12 +22,10 @@ namespace CaptaTrader.Presentation.CLI
 
         public Application(ILogger applicationLogger, bool useMockExternalAPICalls)
         {
-            ISessionValueProvider applicationSession = new Session();
-
             DomainServices = new ServiceCollection()
                 .AddSingleton(applicationLogger)
-                .AddSingleton(applicationSession)
-                .AddBusinessServices(applicationLogger, applicationSession, useMockExternalAPICalls)
+                .AddSingleton<ISessionValueProvider>(new Session())
+                .AddBusinessServices(useMockExternalAPICalls)
                 .BuildServiceProvider();
         }
 
