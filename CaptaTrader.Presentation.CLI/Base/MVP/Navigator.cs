@@ -12,7 +12,7 @@ namespace CaptaTrader.Presentation.CLI.Base.MVP
         {
             bool isPresenter = typeof(Presenter).IsAssignableFrom(nextPresenterType);
 
-            if (isPresenter && Activator.CreateInstance(nextPresenterType) is Presenter nextPresenter)
+            if (isPresenter && Application.ServiceProvider!.GetService(nextPresenterType) is Presenter nextPresenter)
             {
                 NavigateTo(nextPresenter);
             }

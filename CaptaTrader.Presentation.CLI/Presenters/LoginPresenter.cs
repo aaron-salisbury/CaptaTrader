@@ -1,7 +1,6 @@
 ﻿using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
-using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,7 +11,12 @@ namespace CaptaTrader.Presentation.CLI.Presenters
     internal class LoginPresenter : Presenter
     {
         private LoginView? _view;
-        private IUserService _userService = Application.DomainServices!.GetRequiredService<IUserService>();
+        private IUserService _userService;
+
+        public LoginPresenter(IUserService userService)
+        {
+            _userService = userService;
+        }
 
         internal override void Display(View view)
         {

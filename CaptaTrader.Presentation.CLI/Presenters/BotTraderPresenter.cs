@@ -2,7 +2,6 @@
 using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
@@ -12,12 +11,16 @@ namespace CaptaTrader.Presentation.CLI.Presenters
     internal class BotTraderPresenter : Presenter
     {
         private BotTraderView? _view;
-        private ITradingService _botTrader = Application.DomainServices!.GetRequiredService<ITradingService>();
+        private ITradingService _botTrader;
+
+        public BotTraderPresenter(ITradingService botTrader)
+        {
+            _botTrader = botTrader;
+            _botTrader.RunningPortfolio.PropertyChanged += Portfolio_PropertyChanged;
+        }
 
         internal override void Display(View view)
         {
-            _botTrader.RunningPortfolio.PropertyChanged += Portfolio_PropertyChanged;
-
             _view = (BotTraderView)view;
             _view.ShutdownRequested += BotTraderView_ShutdownRequested;
 
