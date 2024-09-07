@@ -3,6 +3,7 @@ using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
 using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Data;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
@@ -12,50 +13,45 @@ namespace CaptaTrader.Business
     public static class Startup
     {
         /// <summary>
-        /// Initializes and adds public-facing business-tier services.
-        /// Dependant on application ILogger and ISessionValueProvider.
+        /// Initializes and adds public-facing business-tier services, including <see cref="IBusControl"/> for messaging.
+        /// Dependent on application <see cref="ILogger"/> and <see cref="ISessionValueProvider"/>.
         /// </summary>
         /// <returns>A reference to this instance after the operation has completed.</returns>
-        public static IServiceCollection AddBusinessServices(this IServiceCollection services, bool useMockExternalAPICalls)
+        public static IServiceCollection AddBusinessServices(this IServiceCollection services, bool useMockExternalAPICalls, params Type[] massTransitConsumerTypes)
         {
-            IServiceCollection internalServices = new ServiceCollection();
-
-            // Application services.
-            IServiceProvider applicationServiceProvider = services.BuildServiceProvider();
-            internalServices.AddSingleton(applicationServiceProvider.GetRequiredService<ILogger>());
-            internalServices.AddSingleton(applicationServiceProvider.GetRequiredService<ISessionValueProvider>());
-
             // Infrastructure services.
-            internalServices.AddWebRequesting()
+            services.AddWebRequesting()
                 .AddDataAccessEmbedded(Assembly.GetExecutingAssembly().GetEntityTypes())
-                .AddSingleton<ISessionValueResolver, SessionValueResolver>();
+                .AddSingleton<ISessionValueResolver, SessionValueResolver>()
+                .AddMassTransit(x =>
+                {
+                    x.AddConsumers(massTransitConsumerTypes);
+                    x.UsingInMemory((context, cfg) => { cfg.ConfigureEndpoints(context); });
+                });
 
             // External API services.
             if (useMockExternalAPICalls)
             {
-                internalServices.AddSingleton<IMarketDataService, MockDataService>()
+                services.AddSingleton<IMarketDataService, MockDataService>()
                     .AddSingleton<IExchangeService, MockExchangeService>()
                     .AddSingleton<ICryptoFearAndGreedIndex, MockCFGIService>();
             }
             else
             {
-                internalServices.AddSingleton<IMarketDataService, CoinApiDataService>() //TODO: Potential alternate if limit is reached: https://openapi.coinstats.app/
+                services.AddSingleton<IMarketDataService, CoinApiDataService>() //TODO: Potential alternate if limit is reached: https://openapi.coinstats.app/
                     .AddSingleton<IExchangeService, BinanceExchangeService>()
                     .AddSingleton<ICryptoFearAndGreedIndex, AlternativeCFGI>();
             }
 
             // Internal business domain logic.
-            internalServices.AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>() //TODO: Obviously will need a real analyzer.
+            services.AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>() //TODO: Obviously will need a real analyzer.
                 .AddSingleton<IBotTrader, BitcoinBotTrader>();
 
             // Orchestrated public facing services.
-            internalServices.AddSingleton<IUserService, UserService>()
+            services.AddSingleton<IUserService, UserService>()
                 .AddSingleton<ITradingService, TradingService>();
 
-            IServiceProvider internalProvider = internalServices.BuildServiceProvider();
-
-            return services.AddSingleton(internalProvider.GetRequiredService<IUserService>())
-                .AddSingleton(internalProvider.GetRequiredService<ITradingService>());
+            return services;
         }
     }
 }

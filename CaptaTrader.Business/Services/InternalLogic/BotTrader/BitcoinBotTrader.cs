@@ -2,6 +2,7 @@
 using CaptaTrader.Business.Models;
 using CaptaTrader.Data;
 using CaptaTrader.Data.Base;
+using MassTransit;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
@@ -14,6 +15,7 @@ namespace CaptaTrader.Business.Services
         private const decimal TRADING_FEE_SPOT = 0.001M;
         private const decimal TRADING_FEE_INSTANT = 0.005M;
 
+        private readonly IBus _bus;
         private readonly ILogger _logger;
         private readonly IMarketDataService _cryptoDataService;
         private readonly IExchangeService _exchangeService;
@@ -21,8 +23,9 @@ namespace CaptaTrader.Business.Services
         private readonly IDataAccess _dataAccessor;
         private bool isInitialized;
 
-        public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, IDataAccess dataAccessor) : base()
+        public BitcoinBotTrader(IBus bus, IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, IDataAccess dataAccessor) : base()
         {
+            _bus = bus;
             _cryptoDataService = cryptoDataService;
             _exchangeService = exchangeService;
             _tradeAnalyzerService = tradeAnalyzerService;
@@ -131,6 +134,11 @@ namespace CaptaTrader.Business.Services
                     _dataAccessor.Create(tradeOrder);
                     Portfolio.LastCompletedTradeOrder = tradeOrder;
                 }
+
+                //TODO: This is a test. I expect to publish trade order contracts.
+                await _bus.Publish(new Contracts.Ping { Value = DateTimeOffset.Now.ToString() });
+
+
 
 
                 //await UpdateBalancesAsync();

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Binance.Net" Version="10.2.1" />
+    <PackageReference Include="MassTransit" Version="8.2.5" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="Quartz" Version="3.13.0" />

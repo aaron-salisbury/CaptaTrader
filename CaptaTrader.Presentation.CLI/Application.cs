@@ -3,7 +3,9 @@ using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Presentation.CLI.Base;
 using CaptaTrader.Presentation.CLI.Base.Extensions;
 using CaptaTrader.Presentation.CLI.Base.MVP;
+using CaptaTrader.Presentation.CLI.Consumers;
 using CaptaTrader.Presentation.CLI.Presenters;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
@@ -25,7 +27,7 @@ namespace CaptaTrader.Presentation.CLI
             IServiceCollection services = new ServiceCollection()
                 .AddSingleton(applicationLogger)
                 .AddSingleton<ISessionValueProvider>(new Session())
-                .AddBusinessServices(useMockExternalAPICalls);
+                .AddBusinessServices(useMockExternalAPICalls, [typeof(PingConsumer)]);
 
             foreach (Type appType in Assembly.GetExecutingAssembly().GetTypes())
             {
@@ -42,6 +44,8 @@ namespace CaptaTrader.Presentation.CLI
 
         public async Task<int> RunAsync()
         {
+            await ServiceProvider!.GetRequiredService<IBusControl>().StartAsync();
+
             await Task.Run(() => new Navigator().NavigateTo(typeof(LoginPresenter)));
 
             return ExitCode;
@@ -66,6 +70,7 @@ namespace CaptaTrader.Presentation.CLI
         private void Application_ProcessExit(object? sender, EventArgs e)
         {
             ServiceProvider!.GetRequiredService<ITradingService>().ShutdownTradingAsync();
+            ServiceProvider!.GetRequiredService<IBusControl>().Stop();
 
             AnsiConsole.Clear();
             AnsiConsole.WriteLine("Capta Trader application exited.");
