@@ -19,6 +19,8 @@ namespace CaptaTrader.Business
         /// <returns>A reference to this instance after the operation has completed.</returns>
         public static IServiceCollection AddBusinessServices(this IServiceCollection services, bool useMockExternalAPICalls, params Type[] massTransitConsumerTypes)
         {
+            //TODO: Look into https://code-maze.com/schedule-jobs-with-quartz-net/
+
             // Infrastructure services.
             services.AddWebRequesting()
                 .AddDataAccessEmbedded(Assembly.GetExecutingAssembly().GetEntityTypes())
