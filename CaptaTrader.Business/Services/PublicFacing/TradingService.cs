@@ -1,28 +1,25 @@
 ﻿using CaptaTrader.Business.Models;
+using Quartz;
 
 namespace CaptaTrader.Business.Services.Domain
 {
     public class TradingService : ITradingService
     {
-        public Portfolio RunningPortfolio { get; set; }
+        private readonly IScheduler _scheduler;
 
-        private readonly IBotTrader _botTrader;
-
-        public TradingService(IBotTrader botTrader)
+        public TradingService(IScheduler scheduler)
         {
-            _botTrader = botTrader;
-
-            RunningPortfolio = _botTrader.Portfolio;
+            _scheduler = scheduler;
         }
 
-        public async Task<bool> InitializeTradingAsync()
+        public async Task InitializeTradingAsync()
         {
-            return await _botTrader.InitializeAsync();
+            await _scheduler.Start();
         }
 
         public async Task ShutdownTradingAsync()
         {
-            await _botTrader.ShutdownAsync();
+            await _scheduler.Standby();
         }
     }
 }

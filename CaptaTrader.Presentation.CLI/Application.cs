@@ -3,13 +3,13 @@ using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Presentation.CLI.Base;
 using CaptaTrader.Presentation.CLI.Base.Extensions;
 using CaptaTrader.Presentation.CLI.Base.MVP;
-using CaptaTrader.Presentation.CLI.Consumers;
 using CaptaTrader.Presentation.CLI.Presenters;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -26,16 +26,27 @@ namespace CaptaTrader.Presentation.CLI
         {
             IServiceCollection services = new ServiceCollection()
                 .AddSingleton(applicationLogger)
-                .AddSingleton<ISessionValueProvider>(new Session())
-                .AddBusinessServices(useMockExternalAPICalls, [typeof(PingConsumer)]);
+                .AddSingleton<ISessionValueProvider>(new Session());
 
+            List<Type> massTransitConsumerTypes = [];
             foreach (Type appType in Assembly.GetExecutingAssembly().GetTypes())
             {
-                if (appType.Name.EndsWith("Presenter") && !appType.Name.Equals("Presenter"))
+                if (typeof(IConsumer).IsAssignableFrom(appType))
+                {
+                    massTransitConsumerTypes.Add(appType);
+                    if (appType.Name.EndsWith("Presenter") && !appType.Name.Equals("Presenter"))
+                    {
+                        // Consumers have to be singletons if their Consume method uses instance properties.
+                        services.AddSingleton(appType);
+                    }
+                }
+                else if (appType.Name.EndsWith("Presenter") && !appType.Name.Equals("Presenter"))
                 {
                     services.AddScoped(appType);
                 }
             }
+
+            services.AddBusinessServices(useMockExternalAPICalls, [.. massTransitConsumerTypes]);
 
             ServiceProvider = services.BuildServiceProvider();
 

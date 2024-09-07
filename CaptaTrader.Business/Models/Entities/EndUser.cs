@@ -26,6 +26,8 @@ namespace CaptaTrader.Business.Models
         [Relationship]
         public AppCredentials? AppCredentials { get; set; }
 
+        public IEnumerable<TradeOrder>? TradeOrders { get; set; }
+
         //TODO: Move these properties to a one-to-one relationship.
         [EmailAddress, Display(Name = "E-Mail")]
         public string? Email { get; set; }

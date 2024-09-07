@@ -2,6 +2,7 @@
 using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Base.ValidationAttributes;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 
 namespace CaptaTrader.Business.Models
@@ -16,6 +17,11 @@ namespace CaptaTrader.Business.Models
 
         [Key]
         public int Id { get; set; }
+
+        [Required, ForeignKey(nameof(EndUser))]
+        public int EndUserId { get; set; }
+
+        public EndUser? EndUser { get; set; }
 
         [Required, Display(Name = "Time Stamp")]
         public required DateTime TimeStamp { get; set; }

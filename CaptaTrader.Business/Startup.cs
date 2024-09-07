@@ -1,4 +1,5 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
+using CaptaTrader.Business.Jobs;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
 using CaptaTrader.Business.Services.Domain;
@@ -6,6 +7,7 @@ using CaptaTrader.Data;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Quartz;
 using System.Reflection;
 
 namespace CaptaTrader.Business
@@ -19,12 +21,20 @@ namespace CaptaTrader.Business
         /// <returns>A reference to this instance after the operation has completed.</returns>
         public static IServiceCollection AddBusinessServices(this IServiceCollection services, bool useMockExternalAPICalls, params Type[] massTransitConsumerTypes)
         {
-            //TODO: Look into https://code-maze.com/schedule-jobs-with-quartz-net/
+            //TODO: Look into:
+            // https://unplu.gg/test_api.html
+            // https://site.financialmodelingprep.com/developer/docs
+            // https://www.browsercat.com/pricing
+            // https://alternative.me/crypto/api/
+            // https://stackoverflow.com/questions/249760/how-can-i-convert-a-unix-timestamp-to-datetime-and-vice-versa
+
+            // TODO: Should be able to set non-infrastructure services as Scoped.
 
             // Infrastructure services.
             services.AddWebRequesting()
                 .AddDataAccessEmbedded(Assembly.GetExecutingAssembly().GetEntityTypes())
                 .AddSingleton<ISessionValueResolver, SessionValueResolver>()
+                .AddScheduling()
                 .AddMassTransit(x =>
                 {
                     x.AddConsumers(massTransitConsumerTypes);
@@ -54,6 +64,64 @@ namespace CaptaTrader.Business
                 .AddSingleton<ITradingService, TradingService>();
 
             return services;
+        }
+
+        private static IServiceCollection AddScheduling(this IServiceCollection services)
+        {
+            services.AddQuartz(ConfigureScheduler)
+                .AddSingleton(sp => sp.GetRequiredService<ISchedulerFactory>().GetScheduler().Result);
+
+            return services;
+        }
+
+        private static void ConfigureScheduler(IServiceCollectionQuartzConfigurator configure)
+        {
+            const int MIN_SEC_BETWEEN_TRADES = 6;
+
+            configure.UseSimpleTypeLoader();
+            configure.UseInMemoryStore();
+
+            #region SeekTradeJob
+            configure.ScheduleJob<SeekTradeJob>(trigger => trigger
+                .WithIdentity($"{nameof(SeekTradeJob)}Trigger", nameof(BitcoinBotTrader))
+                .StartNow()
+                .WithSimpleSchedule(x => x
+                    .WithIntervalInSeconds(MIN_SEC_BETWEEN_TRADES)
+                    .RepeatForever())
+                .WithDescription($"Trigger configured for a job that seeks to make a trade every {MIN_SEC_BETWEEN_TRADES} seconds."));
+            #endregion
+
+            #region BitcoinPriceIntervalsJob
+            //IJobDetail bitcoinPriceIntervalsJob = JobBuilder.Create<BitcoinPriceIntervalsJob>()
+            //    .WithIdentity(nameof(BitcoinPriceIntervalsJob), nameof(BitcoinBotTrader))
+            //    .Build();
+
+            //ITrigger bitcoinPriceIntervalsTrigger = TriggerBuilder.Create()
+            //    .WithIdentity($"{nameof(BitcoinPriceIntervalsJob)}Trigger", nameof(BitcoinBotTrader))
+            //    .StartAt(new DateTimeOffset(DateTime.Now.Date.AddDays(1)))
+            //    .WithSimpleSchedule(x => x
+            //        .WithIntervalInHours(24)
+            //        .RepeatForever())
+            //    .Build();
+
+            //await scheduler.ScheduleJob(bitcoinPriceIntervalsJob, bitcoinPriceIntervalsTrigger);
+            #endregion
+
+            #region AttemptToInitiateTradeJob
+            //IJobDetail attemptToInitiateTradeJob = JobBuilder.Create<AttemptToInitiateTradeJob>()
+            //    .WithIdentity(nameof(AttemptToInitiateTradeJob), nameof(BitcoinBotTrader))
+            //    .Build();
+
+            //ITrigger attemptToInitiateTradeTrigger = TriggerBuilder.Create()
+            //    .WithIdentity($"{nameof(AttemptToInitiateTradeJob)}Trigger", nameof(BitcoinBotTrader))
+            //    .StartNow()
+            //    .WithSimpleSchedule(x => x
+            //        .WithIntervalInSeconds(MIN_SEC_BETWEEN_TRADES)
+            //        .RepeatForever())
+            //    .Build();
+
+            //await scheduler.ScheduleJob(attemptToInitiateTradeJob, attemptToInitiateTradeTrigger);
+            #endregion
         }
     }
 }

@@ -1,22 +1,21 @@
-﻿using CaptaTrader.Business.Models;
+﻿using CaptaTrader.Business.MessageContracts;
 using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
+using MassTransit;
 using System;
-using System.ComponentModel;
 using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation.CLI.Presenters
 {
-    internal class BotTraderPresenter : Presenter
+    internal class BotTraderPresenter : Presenter, IConsumer<TradeExecuted>
     {
         private BotTraderView? _view;
-        private ITradingService _botTrader;
+        private ITradingService _tradingService;
 
-        public BotTraderPresenter(ITradingService botTrader)
+        public BotTraderPresenter(ITradingService tradingService)
         {
-            _botTrader = botTrader;
-            _botTrader.RunningPortfolio.PropertyChanged += Portfolio_PropertyChanged;
+            _tradingService = tradingService;
         }
 
         internal override void Display(View view)
@@ -24,15 +23,8 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             _view = (BotTraderView)view;
             _view.ShutdownRequested += BotTraderView_ShutdownRequested;
 
-            if (_botTrader.InitializeTradingAsync().Result)
-            {
-                _view.Show();
-            }
-            else
-            {
-                _view?.PopupProcessFail("Bot activation");
-                Navigator?.NavigateTo(typeof(MainMenuPresenter));
-            }
+            _tradingService.InitializeTradingAsync();
+            _view.Show();
         }
 
         internal override void Dismiss()
@@ -41,28 +33,20 @@ namespace CaptaTrader.Presentation.CLI.Presenters
             {
                 _view.ShutdownRequested -= BotTraderView_ShutdownRequested;
             }
-
-            _botTrader.RunningPortfolio.PropertyChanged -= Portfolio_PropertyChanged;
         }
 
         private void BotTraderView_ShutdownRequested(object? sender, EventArgs e)
         {
-            Task.Run(_botTrader.ShutdownTradingAsync).Wait();
+            Task.Run(_tradingService.ShutdownTradingAsync).Wait();
 
             Navigator?.NavigateTo(typeof(MainMenuPresenter));
         }
 
-        private void Portfolio_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        public Task Consume(ConsumeContext<TradeExecuted> context)
         {
-            if (sender is Portfolio portfolio)
-            {
-                switch (e.PropertyName)
-                {
-                    case nameof(Portfolio.LastCompletedTradeOrder):
-                        if (portfolio.LastCompletedTradeOrder != null) { _view?.PopupTradeOrder(portfolio.LastCompletedTradeOrder); }
-                        break;
-                }
-            }
+            _view?.PopupTradeOrder(context.Message.TradeOrder);
+
+            return Task.CompletedTask;
         }
     }
 }

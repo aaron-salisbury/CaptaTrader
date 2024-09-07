@@ -1,12 +1,10 @@
-﻿using CaptaTrader.Business.Models;
+﻿using System;
 
 namespace CaptaTrader.Business.Services.Domain
 {
     public interface ITradingService
     {
-        Portfolio RunningPortfolio { get; set; }
-
-        Task<bool> InitializeTradingAsync();
+        Task InitializeTradingAsync();
         Task ShutdownTradingAsync();
     }
 }

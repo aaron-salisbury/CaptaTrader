@@ -1,59 +1,41 @@
-﻿using CaptaTrader.Business.Jobs;
-using CaptaTrader.Business.Models;
+﻿using CaptaTrader.Business.Models;
+using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Data;
 using CaptaTrader.Data.Base;
-using MassTransit;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
 namespace CaptaTrader.Business.Services
 {
-    public class BitcoinBotTrader : BaseBotTrader
+    public class BitcoinBotTrader : IBotTrader
     {
         private const string BITCOIN_SYMBOL = "BTC";
         private const string QUOTE_ASSET = "USDT";
         private const decimal TRADING_FEE_SPOT = 0.001M;
         private const decimal TRADING_FEE_INSTANT = 0.005M;
 
-        private readonly IBus _bus;
+        internal int MinSecondsBetweenTrades { get; set; } = 6;
+        internal PriceInterval? PriceIntervalMonth { get; set; }
+        internal PriceInterval? PriceIntervalDay { get; set; }
+
         private readonly ILogger _logger;
         private readonly IMarketDataService _cryptoDataService;
         private readonly IExchangeService _exchangeService;
         private readonly ITradeAnalyzerService _tradeAnalyzerService;
         private readonly IDataAccess _dataAccessor;
-        private bool isInitialized;
+        private readonly ISessionValueProvider _sessionValueProvider;
 
-        public BitcoinBotTrader(IBus bus, IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, IDataAccess dataAccessor) : base()
+        public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, IDataAccess dataAccessor, IScheduler scheduler, ISessionValueProvider sessionValueProvider)
         {
-            _bus = bus;
             _cryptoDataService = cryptoDataService;
             _exchangeService = exchangeService;
             _tradeAnalyzerService = tradeAnalyzerService;
             _logger = logger;
             _dataAccessor = dataAccessor;
+            _sessionValueProvider = sessionValueProvider;
         }
 
-        public override async Task<bool> InitializeAsync()
-        {
-            if (!isInitialized)
-            {
-                if (UpdateBalancesAsync().Result && UpdatePriceIntervalsAsync().Result)
-                {
-                    isInitialized = true;
-                    await ScheduleJobsAsync();
-                }
-            }
-
-            return true;
-        }
-
-        public override async Task ShutdownAsync()
-        {
-            isInitialized = false;
-            await UnscheduleJobsAsync();
-        }
-
-        public override async Task<bool> UpdateBalancesAsync()
+        public async Task<bool> UpdateBalancesAsync()
         {
             bool successful = false;
             IEnumerable<AssetBalance>? assetBalances = await _exchangeService.GetAccountBalancesAsync(new List<string>() { QUOTE_ASSET, BITCOIN_SYMBOL });
@@ -64,11 +46,11 @@ namespace CaptaTrader.Business.Services
                 {
                     if (string.Equals(balances.Asset, QUOTE_ASSET))
                     {
-                        Portfolio.AccountBalance = balances.Available;
+                        //Portfolio.AccountBalance = balances.Available;
                     }
                     else if (string.Equals(balances.Asset, BITCOIN_SYMBOL))
                     {
-                        Portfolio.AssetBalance = balances.Available;
+                        //Portfolio.AssetBalance = balances.Available;
                     }
                 }
 
@@ -78,7 +60,7 @@ namespace CaptaTrader.Business.Services
             return successful;
         }
 
-        public override async Task<bool> UpdatePriceIntervalsAsync()
+        public async Task<bool> UpdatePriceIntervalsAsync()
         {
             bool successful = false;
 
@@ -114,77 +96,29 @@ namespace CaptaTrader.Business.Services
             return successful;
         }
 
-        public override async Task<bool> AttemptToInitiateTradeAsync()
+        public async Task<TradeOrder?> AttemptToInitiateTradeAsync()
         {
             //TODO: Temporary for testing.
             //  Will need to answer whether I should sell, buy, or hold?
 
-            await Task.Delay(5000);
             TradeOrder? tradeOrder = _tradeAnalyzerService.AnalyzePotentialTrade();
+            int? userId = _sessionValueProvider.GetUserID();
 
-            if (tradeOrder != null)
+            if (tradeOrder != null 
+                && userId != null
+                && ((tradeOrder.TransactionType == TradeOrder.TransactionTypes.Buy && _exchangeService.Buy(tradeOrder))
+                    || (tradeOrder.TransactionType == TradeOrder.TransactionTypes.Sell && _exchangeService.Sell(tradeOrder))))
             {
-                if (tradeOrder.TransactionType == TradeOrder.TransactionTypes.Buy && _exchangeService.Buy(tradeOrder))
-                {
-                    _dataAccessor.Create(tradeOrder);
-                    Portfolio.LastCompletedTradeOrder = tradeOrder;
-                }
-                else if (tradeOrder.TransactionType == TradeOrder.TransactionTypes.Sell && _exchangeService.Sell(tradeOrder))
-                {
-                    _dataAccessor.Create(tradeOrder);
-                    Portfolio.LastCompletedTradeOrder = tradeOrder;
-                }
-
-                //TODO: This is a test. I expect to publish trade order contracts.
-                await _bus.Publish(new Contracts.Ping { Value = DateTimeOffset.Now.ToString() });
-
-
-
+                tradeOrder.EndUserId = userId.Value;
+                _dataAccessor.Create(tradeOrder);
 
                 //await UpdateBalancesAsync();
             }
 
-            return true;
+            return tradeOrder;
         }
 
-        protected override async Task ScheduleJobsAsync()
-        {
-            #region BitcoinPriceIntervalsJob
-            IJobDetail bitcoinPriceIntervalsJob = JobBuilder.Create<BitcoinPriceIntervalsJob>()
-                .WithIdentity(nameof(BitcoinPriceIntervalsJob), nameof(BitcoinBotTrader))
-                .Build();
-
-            ITrigger bitcoinPriceIntervalsTrigger = TriggerBuilder.Create()
-                .WithIdentity($"{nameof(BitcoinPriceIntervalsJob)}Trigger", nameof(BitcoinBotTrader))
-                .StartAt(new DateTimeOffset(DateTime.Now.Date.AddDays(1)))
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInHours(24)
-                    .RepeatForever())
-                .Build();
-
-            await _scheduler.ScheduleJob(bitcoinPriceIntervalsJob, bitcoinPriceIntervalsTrigger);
-            #endregion
-
-            #region AttemptToInitiateTradeJob
-            IJobDetail attemptToInitiateTradeJob = JobBuilder.Create<AttemptToInitiateTradeJob>()
-                .WithIdentity(nameof(AttemptToInitiateTradeJob), nameof(BitcoinBotTrader))
-                .Build();
-
-            ITrigger attemptToInitiateTradeTrigger = TriggerBuilder.Create()
-                .WithIdentity($"{nameof(AttemptToInitiateTradeJob)}Trigger", nameof(BitcoinBotTrader))
-                .StartAt(new DateTimeOffset(DateTime.Now.AddSeconds(MinSecondsBetweenTrades)))
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInSeconds(MinSecondsBetweenTrades)
-                    .RepeatForever())
-                .Build();
-
-            await _scheduler.ScheduleJob(attemptToInitiateTradeJob, attemptToInitiateTradeTrigger);
-            #endregion
-
-            await _scheduler.Start();
-        }
-
-        public override async Task WriteTradeOrdersToCSVAsync()
+        public async Task WriteTradeOrdersToCSVAsync()
         {
             IOrderedEnumerable<TradeOrder> trades = _dataAccessor
                 .ReadAll<TradeOrder>()
