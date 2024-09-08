@@ -15,7 +15,7 @@ namespace CaptaTrader.Data.Base.Extensions
         /// <param name="sourceQueryable">The source query.</param>
         /// <param name="relationships">Strings of '.' separated navigation property names to be included.</param>
         /// <returns>A new query with the related data included.</returns>
-        internal static IQueryable<TEntity> IncludeRelationshipsRecursively<TEntity>(this IQueryable<TEntity> sourceQueryable, Stack<string> relationships) where TEntity : class
+        internal static IQueryable<TEntity> IncludeRelationships<TEntity>(this IQueryable<TEntity> sourceQueryable, Stack<string> relationships) where TEntity : class
         {
             string relationship = relationships.Pop();
 
@@ -23,7 +23,7 @@ namespace CaptaTrader.Data.Base.Extensions
 
             if (relationships.Count != 0)
             {
-                return IncludeRelationshipsRecursively(newQueryable, relationships);
+                return IncludeRelationships(newQueryable, relationships);
             }
             else
             {

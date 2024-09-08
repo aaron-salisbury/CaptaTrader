@@ -24,7 +24,7 @@ namespace CaptaTrader.Business.Services
                 return null;
             }
 
-            return _context.GetEndUser(endUserId.Value, relationships);
+            return _context.GetEntityByKey<EndUser>(endUserId.Value, relationships);
         }
 
         private IQueryable<T> Something<T>(IQueryable<T> previousQueryable, Stack<string> relationships) where T : class

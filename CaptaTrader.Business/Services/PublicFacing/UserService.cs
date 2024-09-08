@@ -78,7 +78,7 @@ namespace CaptaTrader.Business.Services.Domain
                 return null;
             }
 
-            return _context.GetEndUser(id.Value, relationships);
+            return _context.GetEntityByKey<EndUser>(id.Value, relationships);
         }
 
         public IEnumerable<ValidationResult> SaveEndUser(EndUser user)

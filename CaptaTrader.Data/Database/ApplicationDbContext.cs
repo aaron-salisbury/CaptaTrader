@@ -73,16 +73,17 @@ namespace CaptaTrader.Data.Database
         }
 
         //TODO: Test this.
-        public EndUser? GetEndUser(int id, params string[] relationships)
+        public TEntity? GetEntityByKey<TEntity>(int id, params string[] relationships) where TEntity : class, IEntity
         {
             if (relationships.Length != 0)
             {
-                return EndUsers.Where(eu => eu.Id == id)
-                    .IncludeRelationshipsRecursively(new Stack<string>(relationships))
+                return Set<TEntity>()
+                    .Where(e => e.Id == id)
+                    .IncludeRelationships(new Stack<string>(relationships))
                     .SingleOrDefault();
             }
 
-            return EndUsers.Find(id);
+            return Find<TEntity>(id);
         }
     }
 }
