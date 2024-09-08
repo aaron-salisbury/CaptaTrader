@@ -1,5 +1,4 @@
-﻿using CaptaTrader.Business.Models;
-using Quartz;
+﻿using Quartz;
 
 namespace CaptaTrader.Business.Services.Domain
 {

@@ -1,6 +1,6 @@
-﻿using CaptaTrader.Business.Base;
+﻿using System;
 
-namespace CaptaTrader.Business.Models
+namespace CaptaTrader.Models
 {
     public class Portfolio : Model
     {

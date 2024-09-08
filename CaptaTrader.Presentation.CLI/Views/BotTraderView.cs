@@ -1,7 +1,8 @@
-﻿using CaptaTrader.Business.Models;
+﻿using CaptaTrader.Models;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using Spectre.Console;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace CaptaTrader.Presentation.CLI.Views
@@ -14,7 +15,7 @@ namespace CaptaTrader.Presentation.CLI.Views
 
         internal override void Show()
         {
-            Application.ClearConsole();
+            ClearConsole();
 
             AnsiConsole.MarkupLine("Bot is [lime]active[/], press any key to shutdown..." + Environment.NewLine);
             Console.ReadKey();
@@ -27,7 +28,7 @@ namespace CaptaTrader.Presentation.CLI.Views
             Grid transactionGrid = new();
             transactionGrid.AddColumns(_tradeOrderColumnHeaders.Length);
             transactionGrid.AddRow(_tradeOrderColumnHeaders);
-            transactionGrid.AddRow(trade.AsDataRow());
+            transactionGrid.AddRow(GetTradeOrderAsDataRow(trade));
 
             string headerColor = trade.TransactionType == TradeOrder.TransactionTypes.Sell ? "green" : "purple";
 
@@ -41,11 +42,32 @@ namespace CaptaTrader.Presentation.CLI.Views
             AnsiConsole.Write(transactionPanel);
         }
 
+        public static string[] GetTradeOrderAsDataRow(TradeOrder tradeOrder)
+        {
+            return
+                [
+                    tradeOrder.TimeStamp.ToString(),
+                    tradeOrder.TransactionType.ToString(),
+                    tradeOrder.Symbol,
+                    tradeOrder.PriceUSDT.ToString(),
+                    tradeOrder.Amount.ToString()
+                ];
+        }
+
         private static Text[] BuildTradeOrderColumnHeaders()
         {
+            IEnumerable<string> columnNames = 
+                [
+                    nameof(TradeOrder.TimeStamp),
+                    nameof(TradeOrder.TransactionType),
+                    nameof(TradeOrder.Symbol),
+                    nameof(TradeOrder.PriceUSDT),
+                    nameof(TradeOrder.Amount)
+                ];
+
             Style columnsHeaderStyle = new(decoration: Decoration.Bold);
 
-            return TradeOrder.GetColumnNames()
+            return columnNames
                 .Select(ttc => new Text(ttc, columnsHeaderStyle))
                 .ToArray();
         }

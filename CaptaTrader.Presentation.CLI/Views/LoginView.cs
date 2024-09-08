@@ -26,7 +26,7 @@ namespace CaptaTrader.Presentation.CLI.Views
 
         internal override void Show()
         {
-            Application.ClearConsole();
+            ClearConsole();
 
             IEnumerable<LoginMenuOptions> options = Enum.GetValues(typeof(LoginMenuOptions)).Cast<LoginMenuOptions>();
             List<string> readableOptions = options.Select(mmo => mmo.GetDisplayName()).ToList();

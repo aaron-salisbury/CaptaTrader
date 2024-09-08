@@ -2,7 +2,7 @@
 using Binance.Net.Clients;
 using Binance.Net.Objects.Models.Spot;
 using Binance.Net.Objects.Options;
-using CaptaTrader.Business.Models;
+using CaptaTrader.Models;
 using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Objects;
 using Microsoft.Extensions.Logging;

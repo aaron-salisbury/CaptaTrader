@@ -1,8 +1,6 @@
-﻿using CaptaTrader.Business.Base;
-using CaptaTrader.Data.DataAnnotations;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace CaptaTrader.Business.Models
+namespace CaptaTrader.Models
 {
     public class EndUser : Model, IEntity
     {
@@ -23,12 +21,11 @@ namespace CaptaTrader.Business.Models
         [Required, Display(Name = "User Name")]
         public required string UserName { get; set; }
 
-        [Relationship]
         public AppCredentials? AppCredentials { get; set; }
 
-        public IEnumerable<TradeOrder>? TradeOrders { get; set; }
+        public IList<ExecutedTrade>? ExecutedTrades { get; set; }
 
-        //TODO: Move these properties to a one-to-one relationship.
+        //TODO: Move these properties to a one-to-one relationship. Where they're used will need to start passing navigation paths.
         [EmailAddress, Display(Name = "E-Mail")]
         public string? Email { get; set; }
 

@@ -1,14 +1,13 @@
-﻿using CaptaTrader.Business.Base.Extensions;
-using CaptaTrader.Business.Jobs;
+﻿using CaptaTrader.Business.Jobs;
 using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
 using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Data;
+using CaptaTrader.Data.Database;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Quartz;
-using System.Reflection;
 
 namespace CaptaTrader.Business
 {
@@ -32,7 +31,7 @@ namespace CaptaTrader.Business
 
             // Infrastructure services.
             services.AddWebRequesting()
-                .AddDataAccessEmbedded(Assembly.GetExecutingAssembly().GetEntityTypes())
+                .AddDbContext<ApplicationDbContext>()
                 .AddSingleton<ISessionValueResolver, SessionValueResolver>()
                 .AddScheduling()
                 .AddMassTransit(x =>

@@ -1,6 +1,6 @@
 ﻿using CaptaTrader.Business.MessageContracts;
-using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
+using CaptaTrader.Models;
 using MassTransit;
 using Quartz;
 
@@ -23,8 +23,6 @@ namespace CaptaTrader.Business.Jobs
 
             if (tradeOrder != null)
             {
-                //TODO: The enum on TradeOrder is getting set to defualt during serialization/deserialization.
-                // The user ID too.
                 await _bus.Publish<TradeExecuted>(new { TradeOrder = tradeOrder });
             }
         }

@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.Models;
+﻿using CaptaTrader.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 
@@ -12,7 +12,7 @@ namespace CaptaTrader.Business.Services.Domain
 
         IEnumerable<ValidationResult> Register(NetworkCredential networkCredentials);
 
-        EndUser? GetEndUser(int? id);
+        EndUser? GetEndUser(int? id, params string[] relationships);
 
         IEnumerable<ValidationResult> SaveEndUser(EndUser user);
     }

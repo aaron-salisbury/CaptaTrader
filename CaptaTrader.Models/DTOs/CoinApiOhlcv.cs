@@ -1,9 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace CaptaTrader.Business.Models
+namespace CaptaTrader.Models
 {
     [Serializable]
-    public class CoinApiOhlcv
+    public record CoinApiOhlcv
     {
         [JsonPropertyName("time_period_start")]
         public DateTime TimePeriodStart { get; set; }

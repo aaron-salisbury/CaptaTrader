@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CaptaTrader.Data.Database
 {
-    public class EmbeddedDbContext : DbContext
+    public class DynamicEmbeddedDbContext : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
@@ -14,7 +14,7 @@ namespace CaptaTrader.Data.Database
         {
             string appFolderPath = IO.GetAppDirectoryPath();
             string appName = new DirectoryInfo(appFolderPath).Name;
-            string dbPath = Path.Join(appFolderPath, $"{appName}.db");
+            string dbPath = Path.Join(appFolderPath, $"{appName}-Dynamic.db");
 
             options.UseSqlite($"Data Source={dbPath}");
         }

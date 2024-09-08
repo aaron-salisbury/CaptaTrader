@@ -1,6 +1,7 @@
 ﻿using CaptaTrader.Business.Base;
-using CaptaTrader.Business.Models;
-using CaptaTrader.Data;
+using CaptaTrader.Data.Database;
+using CaptaTrader.Models;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 
@@ -8,12 +9,12 @@ namespace CaptaTrader.Business.Services.Domain
 {
     public class UserService : IUserService
     {
-        private IDataAccess _dataAccessor;
+        private ApplicationDbContext _context;
         private ISessionValueResolver _sessionValueResolver;
 
-        public UserService(IDataAccess dataAccessor, ISessionValueResolver sessionValueResolver)
+        public UserService(ApplicationDbContext context, ISessionValueResolver sessionValueResolver)
         {
-            _dataAccessor = dataAccessor;
+            _context = context;
             _sessionValueResolver = sessionValueResolver;
         }
 
@@ -23,14 +24,14 @@ namespace CaptaTrader.Business.Services.Domain
 
             EndUser newUser = new() { UserName = defaultUserName };
 
-            _dataAccessor.Create(newUser);
+            _context.SaveAndReload(_context.EndUsers.Add(newUser));
 
             return newUser;
         }
 
         public IEnumerable<ValidationResult> Authenticate(NetworkCredential networkCredentials)
         {
-            EndUser? user = _dataAccessor.ReadWhere<EndUser>(u => string.Equals(networkCredentials.UserName, u.UserName)).FirstOrDefault();
+            EndUser? user = _context.EndUsers.Where(u => string.Equals(networkCredentials.UserName, u.UserName)).Include(eu => eu.AppCredentials).FirstOrDefault();
             if (user == null)
             {
                 return [new ValidationResult("User Name not found.")];
@@ -48,7 +49,7 @@ namespace CaptaTrader.Business.Services.Domain
 
         public IEnumerable<ValidationResult> Register(NetworkCredential networkCredentials)
         {
-            if (string.IsNullOrEmpty(networkCredentials.UserName) || _dataAccessor.ReadAll<EndUser>().Any(u => string.Equals(networkCredentials.UserName, u.UserName)))
+            if (string.IsNullOrEmpty(networkCredentials.UserName) || _context.EndUsers.Any(u => string.Equals(networkCredentials.UserName, u.UserName)))
             {
                 return [new ValidationResult("User Name must be unique.")];
             }
@@ -60,24 +61,24 @@ namespace CaptaTrader.Business.Services.Domain
             IEnumerable<ValidationResult> validationResults = newUser.Validate();
             if (validationResults.Any())
             {
-                _dataAccessor.Delete(newUser);
+                _context.SaveAndReload(_context.EndUsers.Remove(newUser));
                 return validationResults;
             }
 
-            _dataAccessor.Update(newUser);
+            _context.SaveAndReload(_context.Update(newUser));
 
             _sessionValueResolver.SetSessionUser(newUser);
             return [];
         }
 
-        public EndUser? GetEndUser(int? id)
+        public EndUser? GetEndUser(int? id, params string[] relationships)
         {
             if (id == null)
             {
                 return null;
             }
 
-            return _dataAccessor.Read<EndUser>(id.Value);
+            return _context.GetEndUser(id.Value, relationships);
         }
 
         public IEnumerable<ValidationResult> SaveEndUser(EndUser user)
@@ -86,7 +87,7 @@ namespace CaptaTrader.Business.Services.Domain
 
             if (!results.Any())
             {
-                _dataAccessor.Update(user);
+                _context.SaveAndReload(_context.EndUsers.Update(user));
             }
             
             return results;

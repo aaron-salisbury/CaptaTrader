@@ -1,5 +1,6 @@
 ﻿using CaptaTrader.Business;
 using CaptaTrader.Business.Services.Domain;
+using CaptaTrader.Data.Database;
 using CaptaTrader.Presentation.CLI.Base;
 using CaptaTrader.Presentation.CLI.Base.Extensions;
 using CaptaTrader.Presentation.CLI.Base.MVP;
@@ -17,65 +18,40 @@ namespace CaptaTrader.Presentation.CLI
 {
     public class Application
     {
+        internal static readonly FigletText AppTitle = SetTitle();
         internal static IServiceProvider? ServiceProvider { get; set; }
         internal static int ExitCode { get; set; } = 0;
 
-        private static readonly FigletText _title = SetTitle();
-
         public Application(ILogger applicationLogger, bool useMockExternalAPICalls)
         {
-            IServiceCollection services = new ServiceCollection()
-                .AddSingleton(applicationLogger)
-                .AddSingleton<ISessionValueProvider>(new Session());
-
-            List<Type> massTransitConsumerTypes = [];
-            foreach (Type appType in Assembly.GetExecutingAssembly().GetTypes())
-            {
-                if (typeof(IConsumer).IsAssignableFrom(appType))
-                {
-                    massTransitConsumerTypes.Add(appType);
-                    if (appType.Name.EndsWith("Presenter") && !appType.Name.Equals("Presenter"))
-                    {
-                        // Consumers have to be singletons if their Consume method uses instance properties.
-                        services.AddSingleton(appType);
-                    }
-                }
-                else if (appType.Name.EndsWith("Presenter") && !appType.Name.Equals("Presenter"))
-                {
-                    services.AddScoped(appType);
-                }
-            }
-
-            services.AddBusinessServices(useMockExternalAPICalls, [.. massTransitConsumerTypes]);
-
-            ServiceProvider = services.BuildServiceProvider();
+            ServiceProvider = ConfigureServices(applicationLogger, useMockExternalAPICalls);
 
             AppDomain.CurrentDomain.ProcessExit += Application_ProcessExit;
         }
 
         public async Task<int> RunAsync()
         {
-            await ServiceProvider!.GetRequiredService<IBusControl>().StartAsync();
-
             await Task.Run(() => new Navigator().NavigateTo(typeof(LoginPresenter)));
 
             return ExitCode;
         }
 
-        private static FigletText SetTitle()
+        private IServiceProvider ConfigureServices(ILogger applicationLogger, bool useMockExternalAPICalls)
         {
-            // https://github.com/xero/figlet-fonts
-            string? font = Assembly.GetExecutingAssembly().ReadResource("Ogre.flf");
-            FigletFont figletFont = font != null ? FigletFont.Parse(font) : FigletFont.Default;
+            IServiceCollection services = new ServiceCollection()
+                .AddSingleton(applicationLogger)
+                .AddSingleton<ISessionValueProvider>(new Session());
 
-            return new FigletText(figletFont, "Capta Trader").Color(Color.Green);
-        }
+            List<Type> massTransitConsumerTypes = [];
+            AddPresentersAndConsumers(services, massTransitConsumerTypes);
 
-        internal static void ClearConsole()
-        {
-            AnsiConsole.Clear();
-            AnsiConsole.Write(_title);
-            AnsiConsole.Write(Environment.NewLine);
+            services.AddBusinessServices(useMockExternalAPICalls, [.. massTransitConsumerTypes]);
+
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            serviceProvider.GetRequiredService<ApplicationDbContext>().Database.EnsureCreatedAsync(); //TODO: Replace with MigrateAsync() after starting to use migrations.
+            serviceProvider.GetRequiredService<IBusControl>().StartAsync();
+
+            return serviceProvider;
         }
 
         private void Application_ProcessExit(object? sender, EventArgs e)
@@ -85,6 +61,35 @@ namespace CaptaTrader.Presentation.CLI
 
             AnsiConsole.Clear();
             AnsiConsole.WriteLine("Capta Trader application exited.");
+        }
+
+        private static void AddPresentersAndConsumers(IServiceCollection services, List<Type> massTransitConsumerTypes)
+        {
+            foreach (Type assemblyType in Assembly.GetExecutingAssembly().GetTypes())
+            {
+                if (typeof(IConsumer).IsAssignableFrom(assemblyType))
+                {
+                    massTransitConsumerTypes.Add(assemblyType);
+                    if (assemblyType.Name.EndsWith("Presenter") && !assemblyType.Name.Equals("Presenter"))
+                    {
+                        // Consumers have to be singletons if their Consume method uses instance values.
+                        services.AddSingleton(assemblyType);
+                    }
+                }
+                else if (assemblyType.Name.EndsWith("Presenter") && !assemblyType.Name.Equals("Presenter"))
+                {
+                    services.AddScoped(assemblyType);
+                }
+            }
+        }
+
+        private static FigletText SetTitle()
+        {
+            // https://github.com/xero/figlet-fonts
+            string? font = Assembly.GetExecutingAssembly().ReadResource("Ogre.flf");
+            FigletFont figletFont = font != null ? FigletFont.Parse(font) : FigletFont.Default;
+
+            return new FigletText(figletFont, "Capta Trader").Color(Color.Green);
         }
     }
 }

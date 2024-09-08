@@ -11,7 +11,7 @@ namespace CaptaTrader.Presentation.CLI.Base.MVP
 
         internal virtual void Show() { throw new NotImplementedException(); }
 
-        internal virtual void PopupProcessFail(string processName, IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult>? results = null)
+        internal void PopupProcessFail(string processName, IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult>? results = null)
         {
             if (results != null)
             {
@@ -29,6 +29,13 @@ namespace CaptaTrader.Presentation.CLI.Base.MVP
             AnsiConsole.Write("Press any key to return...");
 
             Console.ReadKey();
+        }
+
+        internal static void ClearConsole()
+        {
+            AnsiConsole.Clear();
+            AnsiConsole.Write(Application.AppTitle);
+            AnsiConsole.Write(Environment.NewLine);
         }
     }
 }

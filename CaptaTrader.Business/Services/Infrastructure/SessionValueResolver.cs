@@ -1,21 +1,22 @@
-﻿using CaptaTrader.Business.Models;
-using CaptaTrader.Business.Services.Domain;
-using CaptaTrader.Data;
+﻿using CaptaTrader.Business.Services.Domain;
+using CaptaTrader.Data.Database;
+using CaptaTrader.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CaptaTrader.Business.Services
 {
     public class SessionValueResolver : ISessionValueResolver
     {
-        private readonly IDataAccess _dataAccessor;
+        private readonly ApplicationDbContext _context;
         private readonly ISessionValueProvider _sessionValueProvider;
 
-        public SessionValueResolver(IDataAccess dataAccessor, ISessionValueProvider sessionValueProvider)
+        public SessionValueResolver(ApplicationDbContext context, ISessionValueProvider sessionValueProvider)
         {
-            _dataAccessor = dataAccessor;
+            _context = context;
             _sessionValueProvider = sessionValueProvider;
         }
 
-        public EndUser? GetSessionUser()
+        public EndUser? GetSessionUser(params string[] relationships)
         {
             int? endUserId = _sessionValueProvider.GetUserID();
             if (endUserId == null)
@@ -23,7 +24,23 @@ namespace CaptaTrader.Business.Services
                 return null;
             }
 
-            return _dataAccessor.Read<EndUser>(endUserId.Value);
+            return _context.GetEndUser(endUserId.Value, relationships);
+        }
+
+        private IQueryable<T> Something<T>(IQueryable<T> previousQueryable, Stack<string> relationships) where T : class
+        {
+            string relationship = relationships.Pop();
+
+            IQueryable<T> newQueryable = previousQueryable.Include(relationship);
+
+            if (relationships.Count != 0)
+            {
+                return Something(newQueryable, relationships);
+            }
+            else
+            {
+                return newQueryable;
+            }
         }
 
         public void SetSessionUser(EndUser user)

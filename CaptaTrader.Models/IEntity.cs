@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CaptaTrader.Business.Base
+namespace CaptaTrader.Models
 {
     public interface IEntity
     {

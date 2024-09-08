@@ -1,7 +1,7 @@
-﻿using CaptaTrader.Business.Models;
-using CaptaTrader.Business.Services.Domain;
-using CaptaTrader.Data;
+﻿using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Data.Base;
+using CaptaTrader.Data.Database;
+using CaptaTrader.Models;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
@@ -22,16 +22,16 @@ namespace CaptaTrader.Business.Services
         private readonly IMarketDataService _cryptoDataService;
         private readonly IExchangeService _exchangeService;
         private readonly ITradeAnalyzerService _tradeAnalyzerService;
-        private readonly IDataAccess _dataAccessor;
+        private readonly ApplicationDbContext _context;
         private readonly ISessionValueProvider _sessionValueProvider;
 
-        public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, IDataAccess dataAccessor, IScheduler scheduler, ISessionValueProvider sessionValueProvider)
+        public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, ApplicationDbContext context, IScheduler scheduler, ISessionValueProvider sessionValueProvider)
         {
             _cryptoDataService = cryptoDataService;
             _exchangeService = exchangeService;
             _tradeAnalyzerService = tradeAnalyzerService;
             _logger = logger;
-            _dataAccessor = dataAccessor;
+            _context = context;
             _sessionValueProvider = sessionValueProvider;
         }
 
@@ -109,8 +109,12 @@ namespace CaptaTrader.Business.Services
                 && ((tradeOrder.TransactionType == TradeOrder.TransactionTypes.Buy && _exchangeService.Buy(tradeOrder))
                     || (tradeOrder.TransactionType == TradeOrder.TransactionTypes.Sell && _exchangeService.Sell(tradeOrder))))
             {
-                tradeOrder.EndUserId = userId.Value;
-                _dataAccessor.Create(tradeOrder);
+                _context.ExecutedTrades.Add(new ExecutedTrade()
+                {
+                    EndUserId = userId.Value,
+                    TradeOrder = tradeOrder
+                });
+                _context.Save();
 
                 //await UpdateBalancesAsync();
             }
@@ -120,9 +124,10 @@ namespace CaptaTrader.Business.Services
 
         public async Task WriteTradeOrdersToCSVAsync()
         {
-            IOrderedEnumerable<TradeOrder> trades = _dataAccessor
-                .ReadAll<TradeOrder>()
-                .OrderByDescending(to => to.TimeStamp);
+            List<TradeOrder> trades = [.. _context.ExecutedTrades
+                .Where(et => et.EndUserId == _sessionValueProvider.GetUserID())
+                .Select(et => et.TradeOrder)
+                .OrderByDescending(to => to.TimeStamp)];
 
             await IO.WriteToCSVAsync(trades, _logger);
         }

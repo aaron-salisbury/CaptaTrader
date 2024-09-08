@@ -31,7 +31,7 @@ namespace CaptaTrader.Presentation.CLI.Views
 
         internal override void Show()
         {
-            Application.ClearConsole();
+            ClearConsole();
 
             IEnumerable<ConfigurationOptions> options = Enum.GetValues(typeof(ConfigurationOptions)).Cast<ConfigurationOptions>();
             List<string> readableOptions = options.Select(co => co.GetDisplayName()).ToList();

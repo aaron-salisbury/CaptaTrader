@@ -1,5 +1,5 @@
-﻿using CaptaTrader.Business.Models;
-using CaptaTrader.Data;
+﻿using CaptaTrader.Data;
+using CaptaTrader.Models;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 

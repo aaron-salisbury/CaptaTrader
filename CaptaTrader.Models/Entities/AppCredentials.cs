@@ -1,8 +1,7 @@
-﻿using CaptaTrader.Business.Base;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CaptaTrader.Business.Models
+namespace CaptaTrader.Models
 {
     public class AppCredentials : IEntity
     {

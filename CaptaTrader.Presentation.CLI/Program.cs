@@ -37,8 +37,7 @@ namespace CaptaTrader.Presentation.CLI
                 .SpinnerStyle(new Style(foreground: Color.Olive))
                 .Start<CommandApp<MainCommand>>("[olive]Loading[/]", _ =>
                 {
-                    IServiceCollection services = ConfigureServices();
-                    TypeRegistrar registrar = new(services);
+                    TypeRegistrar registrar = new(ConfigureServices());
                     CommandApp<MainCommand> app = new(registrar);
 
                     app.Configure(config =>
@@ -52,16 +51,16 @@ namespace CaptaTrader.Presentation.CLI
 
         private static IServiceCollection ConfigureServices()
         {
-            IServiceCollection services = new ServiceCollection();
+            IServiceCollection registrations = new ServiceCollection();
 
             Serilog.Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.ControlledBy(CommandInterceptor.LogLevel) // https://github.com/spectreconsole/examples/tree/main/examples/Cli/Logging
+                .MinimumLevel.ControlledBy(CommandInterceptor.LogLevel) // https://github.com/spectreconsole/examples/blob/main/examples/Cli/Logging/Program.cs
                 .WriteTo.Console()
                 .CreateLogger();
 
-            services.AddLogging(configure => configure.AddSerilog(Serilog.Log.Logger));
+            registrations.AddLogging(configure => configure.AddSerilog(Serilog.Log.Logger));
 
-            return services;
+            return registrations;
         }
     }
 }

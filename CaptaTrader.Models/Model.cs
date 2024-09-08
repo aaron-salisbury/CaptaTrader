@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-namespace CaptaTrader.Business.Base
+namespace CaptaTrader.Models
 {
-    public class Model : INotifyPropertyChanged
+    public abstract class Model : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 

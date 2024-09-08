@@ -1,9 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace CaptaTrader.Business.Models
+namespace CaptaTrader.Models
 {
     [Serializable]
-    public class AlternativeCFGIResult
+    public record AlternativeCFGIResult
     {
         [JsonPropertyName("name")]
         public string? Name { get; set; }
@@ -12,11 +12,11 @@ namespace CaptaTrader.Business.Models
         public required List<AlternativeCFGIResultDatum> Data { get; set; }
 
         [JsonPropertyName("metadata")]
-        public AlternativeCFGIResultMetadata? Metadata { get; set; }
+        public AlternativeCFGIResultMetaData? MetaData { get; set; }
     }
 
     [Serializable]
-    public class AlternativeCFGIResultDatum
+    public record AlternativeCFGIResultDatum
     {
         [JsonPropertyName("value")]
         public required string Value { get; set; }
@@ -25,14 +25,14 @@ namespace CaptaTrader.Business.Models
         public string? ValueClassification { get; set; }
 
         [JsonPropertyName("timestamp")]
-        public string? Timestamp { get; set; }
+        public string? TimeStamp { get; set; }
 
         [JsonPropertyName("time_until_update")]
         public string? TimeUntilUpdate { get; set; }
     }
 
     [Serializable]
-    public class AlternativeCFGIResultMetadata
+    public record AlternativeCFGIResultMetaData
     {
         [JsonPropertyName("error")]
         public object? Error { get; set; }

@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptaTrader.Business", "Cap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptaTrader.Presentation.CLI", "CaptaTrader.Presentation.CLI\CaptaTrader.Presentation.CLI.csproj", "{6D9F5F44-1D4C-4E51-B779-8CC61BF1C64A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaptaTrader.Models", "CaptaTrader.Models\CaptaTrader.Models.csproj", "{60071CB9-CCAA-4237-8443-FB53FF315511}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{6D9F5F44-1D4C-4E51-B779-8CC61BF1C64A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D9F5F44-1D4C-4E51-B779-8CC61BF1C64A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D9F5F44-1D4C-4E51-B779-8CC61BF1C64A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60071CB9-CCAA-4237-8443-FB53FF315511}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60071CB9-CCAA-4237-8443-FB53FF315511}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60071CB9-CCAA-4237-8443-FB53FF315511}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60071CB9-CCAA-4237-8443-FB53FF315511}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

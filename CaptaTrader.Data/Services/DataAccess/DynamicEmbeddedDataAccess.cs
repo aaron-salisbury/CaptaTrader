@@ -11,8 +11,8 @@ namespace CaptaTrader.Data
     /// </summary>
     public class DynamicEmbeddedDataAccess : IDataAccess
     {
-        private ILogger _logger;
-        private DbContext _dbContext;
+        private readonly ILogger _logger;
+        private readonly DbContext _dbContext;
 
         public DynamicEmbeddedDataAccess(ILogger logger, DbContext dbContext)
         {

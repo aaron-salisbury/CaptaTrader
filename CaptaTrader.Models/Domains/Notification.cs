@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CaptaTrader.Business.Models
+namespace CaptaTrader.Models
 {
     public class Notification
     {

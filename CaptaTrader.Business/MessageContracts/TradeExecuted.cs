@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.Models;
+﻿using CaptaTrader.Models;
 
 namespace CaptaTrader.Business.MessageContracts
 {

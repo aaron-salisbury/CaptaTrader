@@ -1,5 +1,5 @@
-﻿using CaptaTrader.Business.Models;
-using CaptaTrader.Business.Services.Domain;
+﻿using CaptaTrader.Business.Services.Domain;
+using CaptaTrader.Models;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
 using System.Collections.Generic;
