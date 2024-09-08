@@ -1,6 +1,4 @@
-﻿using CaptaTrader.Data.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
-using System.Collections;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace CaptaTrader.Data.Base.Extensions
 {
