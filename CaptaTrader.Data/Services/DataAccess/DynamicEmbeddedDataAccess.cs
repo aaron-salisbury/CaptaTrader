@@ -52,12 +52,12 @@ namespace CaptaTrader.Data
 
         public IEnumerable<T> ReadWhere<T>(Expression<Func<T, bool>> predicate) where T : class
         {
-            return _dbContext.Set<T>().Where(predicate).IncludeAllRecursively();
+            return _dbContext.Set<T>().Where(predicate);
         }
 
         public IEnumerable<T> ReadAll<T>() where T : class
         {
-            return _dbContext.Set<T>().IncludeAllRecursively();
+            return _dbContext.Set<T>();
         }
 
         public void Update<T>(T entity)
