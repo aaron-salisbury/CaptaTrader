@@ -1,7 +1,6 @@
 ﻿using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Data.Database;
 using CaptaTrader.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace CaptaTrader.Business.Services
 {
@@ -25,22 +24,6 @@ namespace CaptaTrader.Business.Services
             }
 
             return _context.GetEntityByKey<EndUser>(endUserId.Value, relationships);
-        }
-
-        private IQueryable<T> Something<T>(IQueryable<T> previousQueryable, Stack<string> relationships) where T : class
-        {
-            string relationship = relationships.Pop();
-
-            IQueryable<T> newQueryable = previousQueryable.Include(relationship);
-
-            if (relationships.Count != 0)
-            {
-                return Something(newQueryable, relationships);
-            }
-            else
-            {
-                return newQueryable;
-            }
         }
 
         public void SetSessionUser(EndUser user)
