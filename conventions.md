@@ -7,7 +7,7 @@ Architecture
 4. There can be more than one presentation for the set of given business functionality (i.e., a mobile app and a desktop application). Name each presentation project with the target platform postfix (e.g., MyCoolApp.Presentation.Web).
 5. GUI app projects that target desktop or mobile should follow the [MVVM Design Pattern](https://dev.to/mochafreddo/mastering-mvvm-a-comprehensive-guide-to-the-model-view-viewmodel-architecture-221g).
 6. CLI app projects should follow a Model–View–Presenter design pattern.
-7. Desing pattern naming conventions:
+7. Design pattern naming conventions:
      * View class names always end with the word "View".
      * Presenter class names always end with the Word "Presenter".
      * ViewModel class names always end with the Word "ViewModel".
