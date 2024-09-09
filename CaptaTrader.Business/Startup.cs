@@ -75,52 +75,11 @@ namespace CaptaTrader.Business
 
         private static void ConfigureScheduler(IServiceCollectionQuartzConfigurator configure)
         {
-            const int MIN_SEC_BETWEEN_TRADES = 6;
-
+            configure.InterruptJobsOnShutdown = true;
             configure.UseSimpleTypeLoader();
             configure.UseInMemoryStore();
 
-            #region SeekTradeJob
-            configure.ScheduleJob<SeekTradeJob>(trigger => trigger
-                .WithIdentity($"{nameof(SeekTradeJob)}Trigger", nameof(BitcoinBotTrader))
-                .StartNow()
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInSeconds(MIN_SEC_BETWEEN_TRADES)
-                    .RepeatForever())
-                .WithDescription($"Trigger configured for a job that seeks to make a trade every {MIN_SEC_BETWEEN_TRADES} seconds."));
-            #endregion
-
-            #region BitcoinPriceIntervalsJob
-            //IJobDetail bitcoinPriceIntervalsJob = JobBuilder.Create<BitcoinPriceIntervalsJob>()
-            //    .WithIdentity(nameof(BitcoinPriceIntervalsJob), nameof(BitcoinBotTrader))
-            //    .Build();
-
-            //ITrigger bitcoinPriceIntervalsTrigger = TriggerBuilder.Create()
-            //    .WithIdentity($"{nameof(BitcoinPriceIntervalsJob)}Trigger", nameof(BitcoinBotTrader))
-            //    .StartAt(new DateTimeOffset(DateTime.Now.Date.AddDays(1)))
-            //    .WithSimpleSchedule(x => x
-            //        .WithIntervalInHours(24)
-            //        .RepeatForever())
-            //    .Build();
-
-            //await scheduler.ScheduleJob(bitcoinPriceIntervalsJob, bitcoinPriceIntervalsTrigger);
-            #endregion
-
-            #region AttemptToInitiateTradeJob
-            //IJobDetail attemptToInitiateTradeJob = JobBuilder.Create<AttemptToInitiateTradeJob>()
-            //    .WithIdentity(nameof(AttemptToInitiateTradeJob), nameof(BitcoinBotTrader))
-            //    .Build();
-
-            //ITrigger attemptToInitiateTradeTrigger = TriggerBuilder.Create()
-            //    .WithIdentity($"{nameof(AttemptToInitiateTradeJob)}Trigger", nameof(BitcoinBotTrader))
-            //    .StartNow()
-            //    .WithSimpleSchedule(x => x
-            //        .WithIntervalInSeconds(MIN_SEC_BETWEEN_TRADES)
-            //        .RepeatForever())
-            //    .Build();
-
-            //await scheduler.ScheduleJob(attemptToInitiateTradeJob, attemptToInitiateTradeTrigger);
-            #endregion
+            TradingService.ConfigureJobs(configure);
         }
     }
 }

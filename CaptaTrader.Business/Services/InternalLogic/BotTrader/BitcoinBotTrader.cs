@@ -3,7 +3,6 @@ using CaptaTrader.Data.Base;
 using CaptaTrader.Data.Database;
 using CaptaTrader.Models;
 using Microsoft.Extensions.Logging;
-using Quartz;
 
 namespace CaptaTrader.Business.Services
 {
@@ -25,7 +24,7 @@ namespace CaptaTrader.Business.Services
         private readonly ApplicationDbContext _context;
         private readonly ISessionValueProvider _sessionValueProvider;
 
-        public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, ApplicationDbContext context, IScheduler scheduler, ISessionValueProvider sessionValueProvider)
+        public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, ApplicationDbContext context, ISessionValueProvider sessionValueProvider)
         {
             _cryptoDataService = cryptoDataService;
             _exchangeService = exchangeService;

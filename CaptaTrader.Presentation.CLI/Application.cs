@@ -8,6 +8,7 @@ using CaptaTrader.Presentation.CLI.Presenters;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Quartz;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -50,13 +51,14 @@ namespace CaptaTrader.Presentation.CLI
             IServiceProvider serviceProvider = services.BuildServiceProvider();
             serviceProvider.GetRequiredService<ApplicationDbContext>().Database.EnsureCreatedAsync(); //TODO: Replace with MigrateAsync() after starting to use migrations.
             serviceProvider.GetRequiredService<IBusControl>().StartAsync();
+            serviceProvider.GetRequiredService<IScheduler>().Start();
 
             return serviceProvider;
         }
 
         private void Application_ProcessExit(object? sender, EventArgs e)
         {
-            ServiceProvider!.GetRequiredService<ITradingService>().ShutdownTradingAsync();
+            ServiceProvider!.GetRequiredService<IScheduler>().Shutdown();
             ServiceProvider!.GetRequiredService<IBusControl>().Stop();
 
             AnsiConsole.Clear();
