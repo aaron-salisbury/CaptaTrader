@@ -2,7 +2,7 @@
 using System.Security;
 using System.Text;
 
-namespace CaptaTrader.Data.Base.Extensions
+namespace CaptaTrader.Business.Base.Extensions
 {
     public static class SecureStringExtensions
     {
