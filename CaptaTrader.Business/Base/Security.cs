@@ -47,7 +47,7 @@ namespace CaptaTrader.Business.Base
 
         private static byte[] GenerateHash(byte[] password, byte[] salt, int workFactor)
         {
-            using (Rfc2898DeriveBytes deriveBytes = new(password, salt, workFactor, HashAlgorithmName.SHA1))
+            using (Rfc2898DeriveBytes deriveBytes = new(password, salt, workFactor, HashAlgorithmName.SHA256))
             {
                 return deriveBytes.GetBytes(SALT_LENGTH);
             }
