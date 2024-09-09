@@ -58,7 +58,7 @@ namespace CaptaTrader.Business
             services.AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>() //TODO: Obviously will need a real analyzer.
                 .AddSingleton<IBotTrader, BitcoinBotTrader>();
 
-            // Orchestrated public facing services.
+            // Orchestrated public-facing services.
             services.AddSingleton<IUserService, UserService>()
                 .AddSingleton<ITradingService, TradingService>();
 
@@ -67,19 +67,18 @@ namespace CaptaTrader.Business
 
         private static IServiceCollection AddScheduling(this IServiceCollection services)
         {
-            services.AddQuartz(ConfigureScheduler)
-                .AddSingleton(sp => sp.GetRequiredService<ISchedulerFactory>().GetScheduler().Result);
+            services.AddQuartz(c =>
+            {
+                c.InterruptJobsOnShutdown = true;
+                c.UseSimpleTypeLoader();
+                c.UseInMemoryStore();
+
+                TradingService.ConfigureJobs(c);
+            });
+
+            services.AddSingleton(sp => sp.GetRequiredService<ISchedulerFactory>().GetScheduler().Result);
 
             return services;
-        }
-
-        private static void ConfigureScheduler(IServiceCollectionQuartzConfigurator configure)
-        {
-            configure.InterruptJobsOnShutdown = true;
-            configure.UseSimpleTypeLoader();
-            configure.UseInMemoryStore();
-
-            TradingService.ConfigureJobs(configure);
         }
     }
 }
