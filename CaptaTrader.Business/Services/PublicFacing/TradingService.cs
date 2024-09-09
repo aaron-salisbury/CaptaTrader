@@ -15,7 +15,11 @@ namespace CaptaTrader.Business.Services.Domain
 
         public async Task InitializeTradingAsync()
         {
-            await ScheduleJobsAsync(_scheduler);
+            IReadOnlyCollection<string> triggerGroupsNames = await _scheduler.GetTriggerGroupNames();
+            if (!triggerGroupsNames.Any(tgn => string.Equals(tgn, nameof(TradingService))))
+            {
+                await ScheduleJobsAsync(_scheduler);
+            }
         }
 
         public async Task ShutdownTradingAsync()
