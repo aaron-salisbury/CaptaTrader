@@ -49,7 +49,7 @@ namespace CaptaTrader.Business.Services.Domain
             await scheduler.ScheduleJob(seekTradeTrigger);
             #endregion
 
-            #region SeekTradeJob
+            #region BitcoinPriceIntervalsJob
             //ITrigger bitcoinPriceIntervalsTrigger = TriggerBuilder.Create()
             //    .WithIdentity($"{nameof(BitcoinPriceIntervalsJob)}Trigger", nameof(TradingService))
             //    .ForJob(new JobKey(nameof(BitcoinPriceIntervalsJob), nameof(TradingService)))
