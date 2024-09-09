@@ -13,6 +13,7 @@ namespace CaptaTrader.Business.Services
     // Helper Library: https://github.com/JKorf/Binance.Net
     public class BinanceExchangeService : IExchangeService
     {
+        //TODO: Could probably write my own API access methods and remove my dependency on both Binance.Net and Microsoft.Extensions.Http.
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IHttpClientFactory _httpClientFactory;
