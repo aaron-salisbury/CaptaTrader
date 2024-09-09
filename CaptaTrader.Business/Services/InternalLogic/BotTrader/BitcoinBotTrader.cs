@@ -13,7 +13,7 @@ namespace CaptaTrader.Business.Services
         private const decimal TRADING_FEE_SPOT = 0.001M;
         private const decimal TRADING_FEE_INSTANT = 0.005M;
 
-        internal int MinSecondsBetweenTrades { get; set; } = 6;
+        //TODO: Save price history to DB and only call API to update once stale.
         internal PriceInterval? PriceIntervalMonth { get; set; }
         internal PriceInterval? PriceIntervalDay { get; set; }
 

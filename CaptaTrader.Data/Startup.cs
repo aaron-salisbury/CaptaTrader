@@ -14,7 +14,7 @@ namespace CaptaTrader.Data
         /// <summary>
         /// Adds the <see cref="IHttpClientFactory"/> and related services to the <see cref="IServiceCollection"/> and configures
         /// a named <see cref="HttpClient"/> used for compression.
-        /// Also adds a singleton service of the type <see cref="WebRequester"/> that is a wrapper for web requests.
+        /// Also adds a scoped service of the type <see cref="WebRequester"/> that is a wrapper for web requests.
         /// </summary>
         /// <returns>A reference to this instance after the operation has completed.</returns>
         public static IServiceCollection AddWebRequesting(this IServiceCollection services)
@@ -26,7 +26,7 @@ namespace CaptaTrader.Data
                     AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
                 });
 
-            services.AddSingleton<WebRequester, WebRequester>();
+            services.AddScoped<WebRequester, WebRequester>();
 
             return services;
         }

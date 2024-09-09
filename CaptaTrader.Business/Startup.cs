@@ -1,5 +1,4 @@
-﻿using CaptaTrader.Business.Jobs;
-using CaptaTrader.Business.Models;
+﻿using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
 using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Data;
@@ -32,7 +31,7 @@ namespace CaptaTrader.Business
             // Infrastructure services.
             services.AddWebRequesting()
                 .AddDbContext<ApplicationDbContext>()
-                .AddSingleton<ISessionValueResolver, SessionValueResolver>()
+                .AddScoped<ISessionValueResolver, SessionValueResolver>()
                 .AddScheduling()
                 .AddMassTransit(x =>
                 {
@@ -43,24 +42,24 @@ namespace CaptaTrader.Business
             // External API services.
             if (useMockExternalAPICalls)
             {
-                services.AddSingleton<IMarketDataService, MockDataService>()
-                    .AddSingleton<IExchangeService, MockExchangeService>()
-                    .AddSingleton<ICryptoFearAndGreedIndex, MockCFGIService>();
+                services.AddScoped<IMarketDataService, MockDataService>()
+                    .AddScoped<IExchangeService, MockExchangeService>()
+                    .AddScoped<ICryptoFearAndGreedIndex, MockCFGIService>();
             }
             else
             {
-                services.AddSingleton<IMarketDataService, CoinApiDataService>() //TODO: Potential alternate if limit is reached: https://openapi.coinstats.app/
-                    .AddSingleton<IExchangeService, BinanceExchangeService>()
-                    .AddSingleton<ICryptoFearAndGreedIndex, AlternativeCFGI>();
+                services.AddScoped<IMarketDataService, CoinApiDataService>() //TODO: Potential alternate if limit is reached: https://openapi.coinstats.app/
+                    .AddScoped<IExchangeService, BinanceExchangeService>()
+                    .AddScoped<ICryptoFearAndGreedIndex, AlternativeCFGI>();
             }
 
             // Internal business domain logic.
-            services.AddSingleton<ITradeAnalyzerService, MockTradeAnalyzerService>() //TODO: Obviously will need a real analyzer.
-                .AddSingleton<IBotTrader, BitcoinBotTrader>();
+            services.AddScoped<ITradeAnalyzerService, MockTradeAnalyzerService>() //TODO: Obviously will need a real analyzer.
+                .AddScoped<IBotTrader, BitcoinBotTrader>();
 
             // Orchestrated public-facing services.
-            services.AddSingleton<IUserService, UserService>()
-                .AddSingleton<ITradingService, TradingService>();
+            services.AddScoped<IUserService, UserService>()
+                .AddScoped<ITradingService, TradingService>();
 
             return services;
         }
