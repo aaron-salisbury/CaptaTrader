@@ -9,8 +9,8 @@ namespace CaptaTrader.Business.Services.Domain
 {
     public class UserService : IUserService
     {
-        private ApplicationDbContext _context;
-        private ISessionValueResolver _sessionValueResolver;
+        private readonly ApplicationDbContext _context;
+        private readonly ISessionValueResolver _sessionValueResolver;
 
         public UserService(ApplicationDbContext context, ISessionValueResolver sessionValueResolver)
         {
