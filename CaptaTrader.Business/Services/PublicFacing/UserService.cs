@@ -20,9 +20,7 @@ namespace CaptaTrader.Business.Services.Domain
 
         public EndUser CreateNewDefaultUser()
         {
-            string defaultUserName = Environment.UserName;
-
-            EndUser newUser = new() { UserName = defaultUserName };
+            EndUser newUser = new(Environment.UserName);
 
             _context.SaveAndReload(_context.EndUsers.Add(newUser));
 

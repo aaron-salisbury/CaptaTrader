@@ -19,7 +19,7 @@ namespace CaptaTrader.Models
         public int Id { get; set; }
 
         [Required, Display(Name = "User Name")]
-        public required string UserName { get; set; }
+        public string UserName { get; set; }
 
         public AppCredentials? AppCredentials { get; set; }
 
@@ -38,5 +38,10 @@ namespace CaptaTrader.Models
         public string? ExchangeAPIKey { get; set; }
 
         public string? ExchangeSecretKey { get; set; }
+
+        public EndUser(string userName)
+        {
+            UserName = userName;
+        }
     }
 }

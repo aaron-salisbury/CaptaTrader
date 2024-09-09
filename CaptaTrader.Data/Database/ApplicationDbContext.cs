@@ -45,18 +45,11 @@ namespace CaptaTrader.Data.Database
 
         public void SaveAndReload(IEnumerable<EntityEntry> dbEntries)
         {
-            try
-            {
-                Save();
+            Save();
 
-                foreach (EntityEntry dbEntry in dbEntries)
-                {
-                    dbEntry.Reload();
-                }
-            }
-            catch (DbUpdateException e)
+            foreach (EntityEntry dbEntry in dbEntries)
             {
-                _logger.LogError(e, "Database save failed.");
+                dbEntry.Reload();
             }
         }
 

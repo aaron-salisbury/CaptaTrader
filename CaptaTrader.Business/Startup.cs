@@ -14,7 +14,7 @@ namespace CaptaTrader.Business
     public static class Startup
     {
         /// <summary>
-        /// Initializes and adds public-facing business-tier services, including <see cref="IBusControl"/> for messaging.
+        /// Adds business-tier services, including <see cref="IBusControl"/> for messaging.
         /// Dependent on application <see cref="ILogger"/> and <see cref="ISessionValueProvider"/>.
         /// </summary>
         /// <returns>A reference to this instance after the operation has completed.</returns>
