@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
-namespace CaptaTrader.Business;
+namespace CaptaTrader.Business
 {
     public static class Startup
     {
