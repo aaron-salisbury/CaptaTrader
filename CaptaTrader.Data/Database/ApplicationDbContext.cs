@@ -7,7 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace CaptaTrader.Data.Database
 {
-    //TODO: Read and apply: https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
+    //TODO: Read and apply:
+    //  https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
+    //  https://learn.microsoft.com/en-us/ef/core/modeling/indexes?tabs=data-annotations
 
     public class ApplicationDbContext : DbContext
     {
@@ -24,6 +26,7 @@ namespace CaptaTrader.Data.Database
             string appName = new DirectoryInfo(appFolderPath).Name;
             string dbPath = Path.Join(appFolderPath, $"{appName}.db");
 
+            //TODO: Don't hard-code connection strings; should be stored in configuration.
             options.UseSqlite($"Data Source={dbPath}");
         }
 

@@ -8,7 +8,7 @@ namespace CaptaTrader.Business.Services
     // API Documentation: https://docs.coinapi.io/
     public class CoinApiDataService : IMarketDataService
     {
-        private const string ENDPOINT = "https://rest.coinapi.io/";
+        private const string ENDPOINT = "https://rest.coinapi.io/"; //TODO: Don't hard-code URLs; should be stored in configuration.
         private const string QUERY_FORMAT_OHLCV_LATEST = "v1/ohlcv/{0}_SPOT_{1}_{2}/latest?period_id=1DAY&limit=30"; // {0} = Exchange ID, {1} = Base Asset, {2} = Quote Asset
         private const string QUOTE_ASSET = "USDT";
 

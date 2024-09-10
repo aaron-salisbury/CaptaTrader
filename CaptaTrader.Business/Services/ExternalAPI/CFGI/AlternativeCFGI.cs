@@ -8,7 +8,7 @@ namespace CaptaTrader.Business.Services
     // API Documentation: https://alternative.me/crypto/fear-and-greed-index/#api
     public class AlternativeCFGI : ICryptoFearAndGreedIndex
     {
-        private const string ENDPOINT = "https://api.alternative.me/";
+        private const string ENDPOINT = "https://api.alternative.me/"; //TODO: Don't hard-code URLs; should be stored in configuration.
         private const string QUERY_FORMAT = "fng/?limit={0}&format=json&date_format=us";
 
         private readonly ILogger _logger;
