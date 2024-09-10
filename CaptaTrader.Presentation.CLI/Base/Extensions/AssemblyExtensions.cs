@@ -2,29 +2,28 @@
 using System.Linq;
 using System.Reflection;
 
-namespace CaptaTrader.Presentation.CLI.Base.Extensions
+namespace CaptaTrader.Presentation.CLI.Base.Extensions;
+
+public static class AssemblyExtensions
 {
-    public static class AssemblyExtensions
+    public static string? ReadResource(this Assembly assembly, string name)
     {
-        public static string? ReadResource(this Assembly assembly, string name)
+        // https://stackoverflow.com/a/3314213
+
+        string resourcePath = assembly.GetManifestResourceNames()
+                .Single(str => str.EndsWith(name));
+
+        using (Stream? stream = assembly.GetManifestResourceStream(resourcePath))
         {
-            // https://stackoverflow.com/a/3314213
-
-            string resourcePath = assembly.GetManifestResourceNames()
-                    .Single(str => str.EndsWith(name));
-
-            using (Stream? stream = assembly.GetManifestResourceStream(resourcePath))
+            if (stream != null)
             {
-                if (stream != null)
+                using (StreamReader reader = new(stream))
                 {
-                    using (StreamReader reader = new(stream))
-                    {
-                        return reader.ReadToEnd();
-                    }
+                    return reader.ReadToEnd();
                 }
             }
-
-            return null;
         }
+
+        return null;
     }
 }

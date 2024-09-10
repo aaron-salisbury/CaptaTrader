@@ -6,47 +6,46 @@ using MassTransit;
 using System;
 using System.Threading.Tasks;
 
-namespace CaptaTrader.Presentation.CLI.Presenters
+namespace CaptaTrader.Presentation.CLI.Presenters;
+
+internal class BotTraderPresenter : Presenter, IConsumer<TradeExecuted>
 {
-    internal class BotTraderPresenter : Presenter, IConsumer<TradeExecuted>
+    private BotTraderView? _view;
+    private ITradingService _tradingService;
+
+    public BotTraderPresenter(ITradingService tradingService)
     {
-        private BotTraderView? _view;
-        private ITradingService _tradingService;
+        _tradingService = tradingService;
+    }
 
-        public BotTraderPresenter(ITradingService tradingService)
+    internal override void Display(View view)
+    {
+        _view = (BotTraderView)view;
+        _view.ShutdownRequested += BotTraderView_ShutdownRequested;
+
+        _tradingService.InitializeTradingAsync();
+        _view.Show();
+    }
+
+    internal override void Dismiss()
+    {
+        if (_view != null)
         {
-            _tradingService = tradingService;
+            _view.ShutdownRequested -= BotTraderView_ShutdownRequested;
         }
+    }
 
-        internal override void Display(View view)
-        {
-            _view = (BotTraderView)view;
-            _view.ShutdownRequested += BotTraderView_ShutdownRequested;
+    private void BotTraderView_ShutdownRequested(object? sender, EventArgs e)
+    {
+        Task.Run(_tradingService.ShutdownTradingAsync).Wait();
 
-            _tradingService.InitializeTradingAsync();
-            _view.Show();
-        }
+        Navigator?.NavigateTo(typeof(MainMenuPresenter));
+    }
 
-        internal override void Dismiss()
-        {
-            if (_view != null)
-            {
-                _view.ShutdownRequested -= BotTraderView_ShutdownRequested;
-            }
-        }
+    public Task Consume(ConsumeContext<TradeExecuted> context)
+    {
+        _view?.PopupTradeOrder(context.Message.TradeOrder);
 
-        private void BotTraderView_ShutdownRequested(object? sender, EventArgs e)
-        {
-            Task.Run(_tradingService.ShutdownTradingAsync).Wait();
-
-            Navigator?.NavigateTo(typeof(MainMenuPresenter));
-        }
-
-        public Task Consume(ConsumeContext<TradeExecuted> context)
-        {
-            _view?.PopupTradeOrder(context.Message.TradeOrder);
-
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }

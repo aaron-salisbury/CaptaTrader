@@ -1,9 +1,8 @@
 ﻿using CaptaTrader.Models;
 
-namespace CaptaTrader.Business.MessageContracts
+namespace CaptaTrader.Business.MessageContracts;
+
+public record TradeExecuted()
 {
-    public record TradeExecuted()
-    {
-        public required TradeOrder TradeOrder { get; init; }
-    }
+    public required TradeOrder TradeOrder { get; init; }
 }

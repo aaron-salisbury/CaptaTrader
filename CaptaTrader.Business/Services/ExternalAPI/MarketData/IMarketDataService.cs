@@ -1,9 +1,8 @@
 ﻿using CaptaTrader.Models;
 
-namespace CaptaTrader.Business.Services
+namespace CaptaTrader.Business.Services;
+
+public interface IMarketDataService
 {
-    public interface IMarketDataService
-    {
-        Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals(string exchangeID, string baseAsset);
-    }
+    Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals(string exchangeID, string baseAsset);
 }

@@ -1,25 +1,24 @@
 using Spectre.Console.Cli;
 using System;
 
-namespace CaptaTrader.Presentation.CLI.Base.Infrastructure
+namespace CaptaTrader.Presentation.CLI.Base.Infrastructure;
+
+public sealed class TypeResolver : ITypeResolver
 {
-    public sealed class TypeResolver : ITypeResolver
+    private readonly IServiceProvider _provider;
+
+    public TypeResolver(IServiceProvider provider)
     {
-        private readonly IServiceProvider _provider;
+        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+    }
 
-        public TypeResolver(IServiceProvider provider)
+    public object? Resolve(Type? type)
+    {
+        if (type == null)
         {
-            _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+            return null;
         }
 
-        public object? Resolve(Type? type)
-        {
-            if (type == null)
-            {
-                return null;
-            }
-
-            return _provider.GetService(type);
-        }
+        return _provider.GetService(type);
     }
 }

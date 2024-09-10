@@ -2,33 +2,32 @@
 using CaptaTrader.Data.Database;
 using CaptaTrader.Models;
 
-namespace CaptaTrader.Business.Services
+namespace CaptaTrader.Business.Services;
+
+public class SessionValueResolver : ISessionValueResolver
 {
-    public class SessionValueResolver : ISessionValueResolver
+    private readonly ApplicationDbContext _context;
+    private readonly ISessionValueProvider _sessionValueProvider;
+
+    public SessionValueResolver(ApplicationDbContext context, ISessionValueProvider sessionValueProvider)
     {
-        private readonly ApplicationDbContext _context;
-        private readonly ISessionValueProvider _sessionValueProvider;
+        _context = context;
+        _sessionValueProvider = sessionValueProvider;
+    }
 
-        public SessionValueResolver(ApplicationDbContext context, ISessionValueProvider sessionValueProvider)
+    public EndUser? GetSessionUser(params string[] relationships)
+    {
+        int? endUserId = _sessionValueProvider.GetUserID();
+        if (endUserId == null)
         {
-            _context = context;
-            _sessionValueProvider = sessionValueProvider;
+            return null;
         }
 
-        public EndUser? GetSessionUser(params string[] relationships)
-        {
-            int? endUserId = _sessionValueProvider.GetUserID();
-            if (endUserId == null)
-            {
-                return null;
-            }
+        return _context.GetEntityByKey<EndUser>(endUserId.Value, relationships);
+    }
 
-            return _context.GetEntityByKey<EndUser>(endUserId.Value, relationships);
-        }
-
-        public void SetSessionUser(EndUser user)
-        {
-            _sessionValueProvider.SetUserID(user.Id);
-        }
+    public void SetSessionUser(EndUser user)
+    {
+        _sessionValueProvider.SetUserID(user.Id);
     }
 }

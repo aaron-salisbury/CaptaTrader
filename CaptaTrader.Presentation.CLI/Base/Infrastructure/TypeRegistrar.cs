@@ -2,40 +2,39 @@ using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
 using System;
 
-namespace CaptaTrader.Presentation.CLI.Base.Infrastructure
+namespace CaptaTrader.Presentation.CLI.Base.Infrastructure;
+
+public sealed class TypeRegistrar : ITypeRegistrar
 {
-    public sealed class TypeRegistrar : ITypeRegistrar
+    private readonly IServiceCollection _builder;
+
+    public TypeRegistrar(IServiceCollection builder)
     {
-        private readonly IServiceCollection _builder;
+        _builder = builder;
+    }
 
-        public TypeRegistrar(IServiceCollection builder)
+    public ITypeResolver Build()
+    {
+        return new TypeResolver(_builder.BuildServiceProvider());
+    }
+
+    public void Register(Type service, Type implementation)
+    {
+        _builder.AddSingleton(service, implementation);
+    }
+
+    public void RegisterInstance(Type service, object implementation)
+    {
+        _builder.AddSingleton(service, implementation);
+    }
+
+    public void RegisterLazy(Type service, Func<object> func)
+    {
+        if (func is null)
         {
-            _builder = builder;
+            throw new ArgumentNullException(nameof(func));
         }
 
-        public ITypeResolver Build()
-        {
-            return new TypeResolver(_builder.BuildServiceProvider());
-        }
-
-        public void Register(Type service, Type implementation)
-        {
-            _builder.AddSingleton(service, implementation);
-        }
-
-        public void RegisterInstance(Type service, object implementation)
-        {
-            _builder.AddSingleton(service, implementation);
-        }
-
-        public void RegisterLazy(Type service, Func<object> func)
-        {
-            if (func is null)
-            {
-                throw new ArgumentNullException(nameof(func));
-            }
-
-            _builder.AddSingleton(service, _ => func());
-        }
+        _builder.AddSingleton(service, _ => func());
     }
 }

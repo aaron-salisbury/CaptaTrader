@@ -5,71 +5,70 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CaptaTrader.Presentation.CLI.Views
+namespace CaptaTrader.Presentation.CLI.Views;
+
+internal class BotTraderView : View
 {
-    internal class BotTraderView : View
+    internal event EventHandler? ShutdownRequested;
+
+    private static readonly Text[] _tradeOrderColumnHeaders = BuildTradeOrderColumnHeaders();
+
+    internal override void Show()
     {
-        internal event EventHandler? ShutdownRequested;
+        ClearConsole();
 
-        private static readonly Text[] _tradeOrderColumnHeaders = BuildTradeOrderColumnHeaders();
+        AnsiConsole.MarkupLine("Bot is [lime]active[/], press any key to shutdown..." + Environment.NewLine);
+        Console.ReadKey();
 
-        internal override void Show()
+        ShutdownRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    internal void PopupTradeOrder(TradeOrder trade)
+    {
+        Grid transactionGrid = new();
+        transactionGrid.AddColumns(_tradeOrderColumnHeaders.Length);
+        transactionGrid.AddRow(_tradeOrderColumnHeaders);
+        transactionGrid.AddRow(GetTradeOrderAsDataRow(trade));
+
+        string headerColor = trade.TransactionType == TradeOrder.TransactionTypes.Sell ? "green" : "purple";
+
+        Panel transactionPanel = new(transactionGrid)
         {
-            ClearConsole();
+            Header = new PanelHeader($"[{headerColor}]{trade.TransactionType} Order[/]"),
+            Border = BoxBorder.Ascii,
+            Expand = false
+        };
 
-            AnsiConsole.MarkupLine("Bot is [lime]active[/], press any key to shutdown..." + Environment.NewLine);
-            Console.ReadKey();
+        AnsiConsole.Write(transactionPanel);
+    }
 
-            ShutdownRequested?.Invoke(this, EventArgs.Empty);
-        }
+    public static string[] GetTradeOrderAsDataRow(TradeOrder tradeOrder)
+    {
+        return
+            [
+                tradeOrder.TimeStamp.ToString(),
+                tradeOrder.TransactionType.ToString(),
+                tradeOrder.Symbol,
+                tradeOrder.PriceUSDT.ToString(),
+                tradeOrder.Amount.ToString()
+            ];
+    }
 
-        internal void PopupTradeOrder(TradeOrder trade)
-        {
-            Grid transactionGrid = new();
-            transactionGrid.AddColumns(_tradeOrderColumnHeaders.Length);
-            transactionGrid.AddRow(_tradeOrderColumnHeaders);
-            transactionGrid.AddRow(GetTradeOrderAsDataRow(trade));
+    private static Text[] BuildTradeOrderColumnHeaders()
+    {
+        IEnumerable<string> columnNames = 
+            [
+                nameof(TradeOrder.TimeStamp),
+                nameof(TradeOrder.TransactionType),
+                nameof(TradeOrder.Symbol),
+                nameof(TradeOrder.PriceUSDT),
+                nameof(TradeOrder.Amount)
+            ];
 
-            string headerColor = trade.TransactionType == TradeOrder.TransactionTypes.Sell ? "green" : "purple";
+        Style columnsHeaderStyle = new(decoration: Decoration.Bold);
 
-            Panel transactionPanel = new(transactionGrid)
-            {
-                Header = new PanelHeader($"[{headerColor}]{trade.TransactionType} Order[/]"),
-                Border = BoxBorder.Ascii,
-                Expand = false
-            };
-
-            AnsiConsole.Write(transactionPanel);
-        }
-
-        public static string[] GetTradeOrderAsDataRow(TradeOrder tradeOrder)
-        {
-            return
-                [
-                    tradeOrder.TimeStamp.ToString(),
-                    tradeOrder.TransactionType.ToString(),
-                    tradeOrder.Symbol,
-                    tradeOrder.PriceUSDT.ToString(),
-                    tradeOrder.Amount.ToString()
-                ];
-        }
-
-        private static Text[] BuildTradeOrderColumnHeaders()
-        {
-            IEnumerable<string> columnNames = 
-                [
-                    nameof(TradeOrder.TimeStamp),
-                    nameof(TradeOrder.TransactionType),
-                    nameof(TradeOrder.Symbol),
-                    nameof(TradeOrder.PriceUSDT),
-                    nameof(TradeOrder.Amount)
-                ];
-
-            Style columnsHeaderStyle = new(decoration: Decoration.Bold);
-
-            return columnNames
-                .Select(ttc => new Text(ttc, columnsHeaderStyle))
-                .ToArray();
-        }
+        return columnNames
+            .Select(ttc => new Text(ttc, columnsHeaderStyle))
+            .ToArray();
     }
 }

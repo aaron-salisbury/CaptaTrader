@@ -1,37 +1,36 @@
 ﻿using System;
 
-namespace CaptaTrader.Models
+namespace CaptaTrader.Models;
+
+public class Portfolio : Model
 {
-    public class Portfolio : Model
+    private decimal? _accountBalance;
+    public decimal? AccountBalance
     {
-        private decimal? _accountBalance;
-        public decimal? AccountBalance
+        get => _accountBalance;
+        set
         {
-            get => _accountBalance;
-            set
-            {
-                SetProperty(ref _accountBalance, value);
-            }
+            SetProperty(ref _accountBalance, value);
         }
+    }
 
-        private decimal? _assetBalance;
-        public decimal? AssetBalance
+    private decimal? _assetBalance;
+    public decimal? AssetBalance
+    {
+        get => _assetBalance;
+        set
         {
-            get => _assetBalance;
-            set
-            {
-                SetProperty(ref _assetBalance, value);
-            }
+            SetProperty(ref _assetBalance, value);
         }
+    }
 
-        private TradeOrder? _lastCompletedTradeOrder;
-        public TradeOrder? LastCompletedTradeOrder
+    private TradeOrder? _lastCompletedTradeOrder;
+    public TradeOrder? LastCompletedTradeOrder
+    {
+        get => _lastCompletedTradeOrder;
+        set
         {
-            get => _lastCompletedTradeOrder;
-            set
-            {
-                SetProperty(ref _lastCompletedTradeOrder, value);
-            }
+            SetProperty(ref _lastCompletedTradeOrder, value);
         }
     }
 }

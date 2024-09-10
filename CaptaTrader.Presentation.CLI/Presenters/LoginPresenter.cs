@@ -6,90 +6,89 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using static CaptaTrader.Presentation.CLI.Views.LoginView;
 
-namespace CaptaTrader.Presentation.CLI.Presenters
+namespace CaptaTrader.Presentation.CLI.Presenters;
+
+internal class LoginPresenter : Presenter
 {
-    internal class LoginPresenter : Presenter
+    private LoginView? _view;
+    private IUserService _userService;
+
+    public LoginPresenter(IUserService userService)
     {
-        private LoginView? _view;
-        private IUserService _userService;
+        _userService = userService;
+    }
 
-        public LoginPresenter(IUserService userService)
+    internal override void Display(View view)
+    {
+        _view = (LoginView)view;
+
+        _view.LoginOptionSelected += LoginView_LoginOptionSelected;
+        _view.LoginCredentialsEntered += LoginView_LoginCredentialsEntered;
+        _view.RegisterNewCredentialsEntered += LoginView_RegisterNewCredentialsEntered;
+
+        _view.Show();
+    }
+
+    internal override void Dismiss()
+    {
+        if (_view != null)
         {
-            _userService = userService;
+            _view.LoginOptionSelected -= LoginView_LoginOptionSelected;
+            _view.LoginCredentialsEntered -= LoginView_LoginCredentialsEntered;
+            _view.LoginCredentialsEntered -= LoginView_RegisterNewCredentialsEntered;
         }
+    }
 
-        internal override void Display(View view)
+    private void LoginView_LoginOptionSelected(object? sender, LoginViewEventArgs e)
+    {
+        switch (e.MenuOption)
         {
-            _view = (LoginView)view;
-
-            _view.LoginOptionSelected += LoginView_LoginOptionSelected;
-            _view.LoginCredentialsEntered += LoginView_LoginCredentialsEntered;
-            _view.RegisterNewCredentialsEntered += LoginView_RegisterNewCredentialsEntered;
-
-            _view.Show();
-        }
-
-        internal override void Dismiss()
-        {
-            if (_view != null)
-            {
-                _view.LoginOptionSelected -= LoginView_LoginOptionSelected;
-                _view.LoginCredentialsEntered -= LoginView_LoginCredentialsEntered;
-                _view.LoginCredentialsEntered -= LoginView_RegisterNewCredentialsEntered;
-            }
-        }
-
-        private void LoginView_LoginOptionSelected(object? sender, LoginViewEventArgs e)
-        {
-            switch (e.MenuOption)
-            {
-                case LoginMenuOptions.Login:
-                    _view?.PopupAuthenticate();
-                    break;
-                case LoginMenuOptions.CreateNewUser:
-                    _view?.PopupRegister();
-                    break;
-                case LoginMenuOptions.Exit:
-                    return;
-                default:
-                    Serilog.Log.Warning("Invalid login option selected.");
-                    Navigator?.NavigateTo(typeof(LoginPresenter));
-                    break;
-            }
-        }
-
-        private void LoginView_LoginCredentialsEntered(object? sender, LoginViewEventArgs e)
-        {
-            IEnumerable<ValidationResult> results = e.NetworkCredential == null
-                ? [new ValidationResult("No credentials found.")]
-                : _userService.Authenticate(e.NetworkCredential);
-                
-            if (!results.Any())
-            {
-                Navigator?.NavigateTo(typeof(MainMenuPresenter));
-            }
-            else
-            {
-                _view?.PopupProcessFail(nameof(IUserService.Authenticate), results);
+            case LoginMenuOptions.Login:
+                _view?.PopupAuthenticate();
+                break;
+            case LoginMenuOptions.CreateNewUser:
+                _view?.PopupRegister();
+                break;
+            case LoginMenuOptions.Exit:
+                return;
+            default:
+                Serilog.Log.Warning("Invalid login option selected.");
                 Navigator?.NavigateTo(typeof(LoginPresenter));
-            }
+                break;
         }
+    }
 
-        private void LoginView_RegisterNewCredentialsEntered(object? sender, LoginViewEventArgs e)
+    private void LoginView_LoginCredentialsEntered(object? sender, LoginViewEventArgs e)
+    {
+        IEnumerable<ValidationResult> results = e.NetworkCredential == null
+            ? [new ValidationResult("No credentials found.")]
+            : _userService.Authenticate(e.NetworkCredential);
+            
+        if (!results.Any())
         {
-            IEnumerable<ValidationResult> results = e.NetworkCredential == null
-                ? [new ValidationResult("No credentials found.")]
-                : _userService.Register(e.NetworkCredential);
-                
-            if (!results.Any())
-            {
-                Navigator?.NavigateTo(typeof(MainMenuPresenter));
-            }
-            else
-            {
-                _view?.PopupProcessFail(nameof(IUserService.Register), results);
-                Navigator?.NavigateTo(typeof(LoginPresenter));
-            }
+            Navigator?.NavigateTo(typeof(MainMenuPresenter));
+        }
+        else
+        {
+            _view?.PopupProcessFail(nameof(IUserService.Authenticate), results);
+            Navigator?.NavigateTo(typeof(LoginPresenter));
+        }
+    }
+
+    private void LoginView_RegisterNewCredentialsEntered(object? sender, LoginViewEventArgs e)
+    {
+        IEnumerable<ValidationResult> results = e.NetworkCredential == null
+            ? [new ValidationResult("No credentials found.")]
+            : _userService.Register(e.NetworkCredential);
+            
+        if (!results.Any())
+        {
+            Navigator?.NavigateTo(typeof(MainMenuPresenter));
+        }
+        else
+        {
+            _view?.PopupProcessFail(nameof(IUserService.Register), results);
+            Navigator?.NavigateTo(typeof(LoginPresenter));
         }
     }
 }

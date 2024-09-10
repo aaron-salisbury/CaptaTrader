@@ -2,28 +2,27 @@
 using System.Security;
 using System.Text;
 
-namespace CaptaTrader.Business.Base.Extensions
+namespace CaptaTrader.Business.Base.Extensions;
+
+public static class SecureStringExtensions
 {
-    public static class SecureStringExtensions
+    /// <summary>
+    /// Convert to plain string.
+    /// </summary>
+    public static string ToPlainString(this SecureString secureString)
     {
-        /// <summary>
-        /// Convert to plain string.
-        /// </summary>
-        public static string ToPlainString(this SecureString secureString)
-        {
-            // https://stackoverflow.com/a/38016279
+        // https://stackoverflow.com/a/38016279
 
-            NetworkCredential secureStringAsNetworkCredential = new(string.Empty, secureString);
+        NetworkCredential secureStringAsNetworkCredential = new(string.Empty, secureString);
 
-            return secureStringAsNetworkCredential.Password;
-        }
+        return secureStringAsNetworkCredential.Password;
+    }
 
-        /// <summary>
-        /// Convert to byte array.
-        /// </summary>
-        public static byte[] ToBytes(this SecureString secureString)
-        {
-            return Encoding.ASCII.GetBytes(secureString.ToPlainString());
-        }
+    /// <summary>
+    /// Convert to byte array.
+    /// </summary>
+    public static byte[] ToBytes(this SecureString secureString)
+    {
+        return Encoding.ASCII.GetBytes(secureString.ToPlainString());
     }
 }

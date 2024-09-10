@@ -7,42 +7,41 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using static CaptaTrader.Presentation.CLI.Views.MainMenuView;
 
-namespace CaptaTrader.Presentation.CLI.Views
+namespace CaptaTrader.Presentation.CLI.Views;
+
+internal class MainMenuView : View
 {
-    internal class MainMenuView : View
+    internal event EventHandler<MainMenuViewEventArgs>? MainMenuOptionSelected;
+
+    internal enum MainMenuOptions
     {
-        internal event EventHandler<MainMenuViewEventArgs>? MainMenuOptionSelected;
-
-        internal enum MainMenuOptions
-        {
-            [Display(Name = "Enter Configurations")]
-            EnterConfigurations,
-            [Display(Name = "Launch Bot")]
-            LaunchBot,
-            Exit
-        }
-
-        internal override void Show()
-        {
-            ClearConsole();
-
-            IEnumerable<MainMenuOptions> options = Enum.GetValues(typeof(MainMenuOptions)).Cast<MainMenuOptions>();
-            List<string> readableOptions = options.Select(mmo => mmo.GetDisplayName()).ToList();
-
-            string choice = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("Main Menu")
-                    .PageSize(10)
-                    .AddChoices(readableOptions));
-
-            MainMenuOptions selectedOption = options.Where(mmo => string.Equals(mmo.GetDisplayName(), choice)).FirstOrDefault();
-
-            MainMenuOptionSelected?.Invoke(this, new MainMenuViewEventArgs(selectedOption));
-        }
+        [Display(Name = "Enter Configurations")]
+        EnterConfigurations,
+        [Display(Name = "Launch Bot")]
+        LaunchBot,
+        Exit
     }
 
-    internal class MainMenuViewEventArgs(MainMenuOptions mainMenuOption) : EventArgs
+    internal override void Show()
     {
-        internal MainMenuOptions MenuOption { get; set; } = mainMenuOption;
+        ClearConsole();
+
+        IEnumerable<MainMenuOptions> options = Enum.GetValues(typeof(MainMenuOptions)).Cast<MainMenuOptions>();
+        List<string> readableOptions = options.Select(mmo => mmo.GetDisplayName()).ToList();
+
+        string choice = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Main Menu")
+                .PageSize(10)
+                .AddChoices(readableOptions));
+
+        MainMenuOptions selectedOption = options.Where(mmo => string.Equals(mmo.GetDisplayName(), choice)).FirstOrDefault();
+
+        MainMenuOptionSelected?.Invoke(this, new MainMenuViewEventArgs(selectedOption));
     }
+}
+
+internal class MainMenuViewEventArgs(MainMenuOptions mainMenuOption) : EventArgs
+{
+    internal MainMenuOptions MenuOption { get; set; } = mainMenuOption;
 }

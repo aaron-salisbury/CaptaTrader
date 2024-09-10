@@ -1,10 +1,9 @@
 ﻿using System;
 
-namespace CaptaTrader.Business.Services.Domain
+namespace CaptaTrader.Business.Services.Domain;
+
+public interface ITradingService
 {
-    public interface ITradingService
-    {
-        Task InitializeTradingAsync();
-        Task ShutdownTradingAsync();
-    }
+    Task InitializeTradingAsync();
+    Task ShutdownTradingAsync();
 }

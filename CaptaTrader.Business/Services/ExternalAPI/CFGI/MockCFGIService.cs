@@ -1,24 +1,23 @@
 ﻿using System;
 
-namespace CaptaTrader.Business.Services
+namespace CaptaTrader.Business.Services;
+
+public class MockCFGIService : ICryptoFearAndGreedIndex
 {
-    public class MockCFGIService : ICryptoFearAndGreedIndex
+    private readonly Random _random = new();
+
+    public async Task<IEnumerable<int>?> GetCryptoFearAndGreedIndexAsync(int limit)
     {
-        private readonly Random _random = new();
+        List<int> indicies = [];
 
-        public async Task<IEnumerable<int>?> GetCryptoFearAndGreedIndexAsync(int limit)
+        await Task.Run(() =>
         {
-            List<int> indicies = [];
-
-            await Task.Run(() =>
+            for (int i = 0; i < limit; i++)
             {
-                for (int i = 0; i < limit; i++)
-                {
-                    indicies.Add(_random.Next(1, 101));
-                }
-            });
+                indicies.Add(_random.Next(1, 101));
+            }
+        });
 
-            return indicies;
-        }
+        return indicies;
     }
 }

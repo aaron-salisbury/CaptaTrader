@@ -3,41 +3,40 @@ using Humanizer;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 
-namespace CaptaTrader.Data.Base
+namespace CaptaTrader.Data.Base;
+
+public static class IO
 {
-    public static class IO
+    public static string GetAppDirectoryPath()
     {
-        public static string GetAppDirectoryPath()
+        string localAppDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        string thisAppName = AppDomain.CurrentDomain.FriendlyName;
+        string appDirectory = Path.Combine(localAppDirectory, thisAppName);
+
+        Directory.CreateDirectory(appDirectory);
+
+        return appDirectory;
+    }
+
+    public static async Task WriteToCSVAsync<T>(IEnumerable<T> objects, ILogger logger, string? writePath = null)
+    {
+        try
         {
-            string localAppDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string thisAppName = AppDomain.CurrentDomain.FriendlyName;
-            string appDirectory = Path.Combine(localAppDirectory, thisAppName);
+            writePath ??= GetAppDirectoryPath();
+            string beingWritten = typeof(T).Name.Pluralize().Humanize(LetterCasing.Title);
+            string writeTime = DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss");
+            string fileName = $"{beingWritten} - {writeTime}.csv";
+            string fullPath = Path.Join(writePath, fileName);
 
-            Directory.CreateDirectory(appDirectory);
-
-            return appDirectory;
+            using (StreamWriter writer = new(fullPath))
+            using (CsvWriter csv = new(writer, CultureInfo.InvariantCulture))
+            {
+                await csv.WriteRecordsAsync(objects);
+            }
         }
-
-        public static async Task WriteToCSVAsync<T>(IEnumerable<T> objects, ILogger logger, string? writePath = null)
+        catch (Exception ex)
         {
-            try
-            {
-                writePath ??= GetAppDirectoryPath();
-                string beingWritten = typeof(T).Name.Pluralize().Humanize(LetterCasing.Title);
-                string writeTime = DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss");
-                string fileName = $"{beingWritten} - {writeTime}.csv";
-                string fullPath = Path.Join(writePath, fileName);
-
-                using (StreamWriter writer = new(fullPath))
-                using (CsvWriter csv = new(writer, CultureInfo.InvariantCulture))
-                {
-                    await csv.WriteRecordsAsync(objects);
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Failed to write objects to CSV file.");
-            }
+            logger.LogError(ex, "Failed to write objects to CSV file.");
         }
     }
 }

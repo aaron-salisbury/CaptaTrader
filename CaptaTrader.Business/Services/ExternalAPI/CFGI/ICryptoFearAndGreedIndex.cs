@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace CaptaTrader.Business.Services
+namespace CaptaTrader.Business.Services;
+
+public interface ICryptoFearAndGreedIndex
 {
-    public interface ICryptoFearAndGreedIndex
-    {
-        Task<IEnumerable<int>?> GetCryptoFearAndGreedIndexAsync(int limit);
-    }
+    Task<IEnumerable<int>?> GetCryptoFearAndGreedIndexAsync(int limit);
 }

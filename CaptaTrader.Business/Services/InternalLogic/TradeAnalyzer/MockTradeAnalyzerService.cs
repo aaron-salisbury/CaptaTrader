@@ -2,50 +2,49 @@
 using CaptaTrader.Business.Services;
 using CaptaTrader.Models;
 
-namespace CaptaTrader.Business.Models
+namespace CaptaTrader.Business.Models;
+
+public class MockTradeAnalyzerService : ITradeAnalyzerService
 {
-    public class MockTradeAnalyzerService : ITradeAnalyzerService
+    private readonly Random _random = new();
+
+    public TradeOrder? AnalyzePotentialTrade()
     {
-        private readonly Random _random = new();
-
-        public TradeOrder? AnalyzePotentialTrade()
+        if (_random.Next(3) == 0)
         {
-            if (_random.Next(3) == 0)
-            {
-                // Simulate a third of the time no good trade being found.
-                return null;
-            }
-
-            return CreateMockTradeTransaction();
+            // Simulate a third of the time no good trade being found.
+            return null;
         }
 
-        private TradeOrder CreateMockTradeTransaction()
+        return CreateMockTradeTransaction();
+    }
+
+    private TradeOrder CreateMockTradeTransaction()
+    {
+        TradeOrder.TransactionTypes transactionType;
+        string symbol;
+
+        if (_random.Next(2) == 1)
         {
-            TradeOrder.TransactionTypes transactionType;
-            string symbol;
-
-            if (_random.Next(2) == 1)
-            {
-                transactionType = TradeOrder.TransactionTypes.Buy;
-                symbol = "BTC";
-            }
-            else
-            {
-                transactionType = TradeOrder.TransactionTypes.Sell;
-                symbol = "USDT";
-            }
-
-            decimal quantity = _random.NextDecimal(0.001M, 0.01M).PrecisionTruncate(3);
-            decimal price = _random.NextDecimal(55000.00M, 60000.00M).PrecisionTruncate(2);
-
-            return new TradeOrder()
-            {
-                TimeStamp = DateTime.Now,
-                TransactionType = transactionType,
-                Symbol = symbol,
-                PriceUSDT = price,
-                Amount = quantity
-            };
+            transactionType = TradeOrder.TransactionTypes.Buy;
+            symbol = "BTC";
         }
+        else
+        {
+            transactionType = TradeOrder.TransactionTypes.Sell;
+            symbol = "USDT";
+        }
+
+        decimal quantity = _random.NextDecimal(0.001M, 0.01M).PrecisionTruncate(3);
+        decimal price = _random.NextDecimal(55000.00M, 60000.00M).PrecisionTruncate(2);
+
+        return new TradeOrder()
+        {
+            TimeStamp = DateTime.Now,
+            TransactionType = transactionType,
+            Symbol = symbol,
+            PriceUSDT = price,
+            Amount = quantity
+        };
     }
 }

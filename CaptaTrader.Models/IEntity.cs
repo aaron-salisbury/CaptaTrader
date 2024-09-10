@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace CaptaTrader.Models
+namespace CaptaTrader.Models;
+
+public interface IEntity
 {
-    public interface IEntity
-    {
-        int Id { get; set; }
-    }
+    int Id { get; set; }
 }

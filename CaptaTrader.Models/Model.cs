@@ -3,39 +3,38 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-namespace CaptaTrader.Models
+namespace CaptaTrader.Models;
+
+public abstract class Model : INotifyPropertyChanged
 {
-    public abstract class Model : INotifyPropertyChanged
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public virtual void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
     {
-        public event PropertyChangedEventHandler? PropertyChanged;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 
-        public virtual void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+    protected bool SetProperty<T>([NotNullIfNotNull(nameof(newValue))] ref T field, T newValue, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, newValue))
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            return false;
         }
 
-        protected bool SetProperty<T>([NotNullIfNotNull(nameof(newValue))] ref T field, T newValue, [CallerMemberName] string? propertyName = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, newValue))
-            {
-                return false;
-            }
+        field = newValue;
 
-            field = newValue;
+        RaisePropertyChanged(propertyName);
 
-            RaisePropertyChanged(propertyName);
+        return true;
+    }
 
-            return true;
-        }
+    public IEnumerable<ValidationResult> Validate()
+    {
+        ValidationContext context = new(this, serviceProvider: null, items: null);
+        List<ValidationResult> results = [];
 
-        public IEnumerable<ValidationResult> Validate()
-        {
-            ValidationContext context = new(this, serviceProvider: null, items: null);
-            List<ValidationResult> results = [];
+        Validator.TryValidateObject(this, context, results, validateAllProperties: true);
 
-            Validator.TryValidateObject(this, context, results, validateAllProperties: true);
-
-            return results;
-        }
+        return results;
     }
 }

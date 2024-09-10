@@ -2,18 +2,17 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 
-namespace CaptaTrader.Business.Services.Domain
+namespace CaptaTrader.Business.Services.Domain;
+
+public interface IUserService
 {
-    public interface IUserService
-    {
-        EndUser CreateNewDefaultUser();
+    EndUser CreateNewDefaultUser();
 
-        IEnumerable<ValidationResult> Authenticate(NetworkCredential networkCredentials);
+    IEnumerable<ValidationResult> Authenticate(NetworkCredential networkCredentials);
 
-        IEnumerable<ValidationResult> Register(NetworkCredential networkCredentials);
+    IEnumerable<ValidationResult> Register(NetworkCredential networkCredentials);
 
-        EndUser? GetEndUser(int? id, params string[] relationships);
+    EndUser? GetEndUser(int? id, params string[] relationships);
 
-        IEnumerable<ValidationResult> SaveEndUser(EndUser user);
-    }
+    IEnumerable<ValidationResult> SaveEndUser(EndUser user);
 }

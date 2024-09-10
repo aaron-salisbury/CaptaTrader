@@ -1,9 +1,8 @@
 ﻿using CaptaTrader.Models;
 
-namespace CaptaTrader.Business.Services
+namespace CaptaTrader.Business.Services;
+
+public interface ITradeAnalyzerService
 {
-    public interface ITradeAnalyzerService
-    {
-        TradeOrder? AnalyzePotentialTrade();
-    }
+    TradeOrder? AnalyzePotentialTrade();
 }

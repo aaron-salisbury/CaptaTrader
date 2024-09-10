@@ -7,60 +7,59 @@ using Spectre.Console.Cli;
 using System;
 using System.Threading.Tasks;
 
-namespace CaptaTrader.Presentation.CLI
+namespace CaptaTrader.Presentation.CLI;
+
+public class Program
 {
-    public class Program
+    public static async Task<int> Main(string[] args)
     {
-        public static async Task<int> Main(string[] args)
-        {
-            CommandApp<MainCommand> app = RegisterApp();
+        CommandApp<MainCommand> app = RegisterApp();
 
-            try
-            {
-                return await app.RunAsync(args);
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Fatal(ex, "Application terminated unexpectedly.");
-                return 1;
-            }
-            finally
-            {
-                Serilog.Log.CloseAndFlush();
-            }
+        try
+        {
+            return await app.RunAsync(args);
         }
-
-        private static CommandApp<MainCommand> RegisterApp()
+        catch (Exception ex)
         {
-            return AnsiConsole.Status()
-                .Spinner(Spinner.Known.SimpleDotsScrolling)
-                .SpinnerStyle(new Style(foreground: Color.Olive))
-                .Start<CommandApp<MainCommand>>("[olive]Loading[/]", _ =>
+            Serilog.Log.Fatal(ex, "Application terminated unexpectedly.");
+            return 1;
+        }
+        finally
+        {
+            Serilog.Log.CloseAndFlush();
+        }
+    }
+
+    private static CommandApp<MainCommand> RegisterApp()
+    {
+        return AnsiConsole.Status()
+            .Spinner(Spinner.Known.SimpleDotsScrolling)
+            .SpinnerStyle(new Style(foreground: Color.Olive))
+            .Start<CommandApp<MainCommand>>("[olive]Loading[/]", _ =>
+            {
+                TypeRegistrar registrar = new(ConfigureServices());
+                CommandApp<MainCommand> app = new(registrar);
+
+                app.Configure(config =>
                 {
-                    TypeRegistrar registrar = new(ConfigureServices());
-                    CommandApp<MainCommand> app = new(registrar);
-
-                    app.Configure(config =>
-                    {
-                        config.SetInterceptor(new CommandInterceptor());
-                    });
-
-                    return app;
+                    config.SetInterceptor(new CommandInterceptor());
                 });
-        }
 
-        private static IServiceCollection ConfigureServices()
-        {
-            IServiceCollection registrations = new ServiceCollection();
+                return app;
+            });
+    }
 
-            Serilog.Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.ControlledBy(CommandInterceptor.LogLevel) // https://github.com/spectreconsole/examples/blob/main/examples/Cli/Logging/Program.cs
-                .WriteTo.Console()
-                .CreateLogger();
+    private static IServiceCollection ConfigureServices()
+    {
+        IServiceCollection registrations = new ServiceCollection();
 
-            registrations.AddLogging(configure => configure.AddSerilog(Serilog.Log.Logger));
+        Serilog.Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.ControlledBy(CommandInterceptor.LogLevel) // https://github.com/spectreconsole/examples/blob/main/examples/Cli/Logging/Program.cs
+            .WriteTo.Console()
+            .CreateLogger();
 
-            return registrations;
-        }
+        registrations.AddLogging(configure => configure.AddSerilog(Serilog.Log.Logger));
+
+        return registrations;
     }
 }

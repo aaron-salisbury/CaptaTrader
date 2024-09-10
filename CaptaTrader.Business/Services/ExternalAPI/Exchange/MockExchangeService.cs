@@ -1,98 +1,97 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Models;
 
-namespace CaptaTrader.Business.Services
+namespace CaptaTrader.Business.Services;
+
+public class MockExchangeService : IExchangeService
 {
-    public class MockExchangeService : IExchangeService
+    private readonly Random _random = new();
+
+    private Dictionary<string, AssetBalance> _balancesByAssets = new()
+    { 
+        { "USDT", new AssetBalance()
+            {
+                Asset = "USDT",
+                Available = 250000.00M,
+                Locked = 0.0M,
+                Total = 250000.00M
+            }
+        } 
+    };
+
+    public string GetExchangeID() => "MockExchange";
+
+    public async Task<IEnumerable<AssetBalance>?> GetAccountBalancesAsync(IEnumerable<string> assets)
     {
-        private readonly Random _random = new();
+        List<AssetBalance> assetBalances = [];
 
-        private Dictionary<string, AssetBalance> _balancesByAssets = new()
-        { 
-            { "USDT", new AssetBalance()
+        await Task.Run(() =>
+        {
+            foreach (string asset in assets)
+            {
+                string uppercaseAsset = asset.ToUpper();
+                AssetBalance balancesForAsset;
+
+                if (_balancesByAssets.TryGetValue(uppercaseAsset, out AssetBalance? existingAssetBalance))
                 {
-                    Asset = "USDT",
-                    Available = 250000.00M,
-                    Locked = 0.0M,
-                    Total = 250000.00M
+                    balancesForAsset = existingAssetBalance;
                 }
-            } 
-        };
-
-        public string GetExchangeID() => "MockExchange";
-
-        public async Task<IEnumerable<AssetBalance>?> GetAccountBalancesAsync(IEnumerable<string> assets)
-        {
-            List<AssetBalance> assetBalances = [];
-
-            await Task.Run(() =>
-            {
-                foreach (string asset in assets)
+                else
                 {
-                    string uppercaseAsset = asset.ToUpper();
-                    AssetBalance balancesForAsset;
-
-                    if (_balancesByAssets.TryGetValue(uppercaseAsset, out AssetBalance? existingAssetBalance))
+                    decimal balance = _random.NextDecimal(0.001M, 0.02M).PrecisionTruncate(3);
+                    balancesForAsset = new AssetBalance()
                     {
-                        balancesForAsset = existingAssetBalance;
-                    }
-                    else
-                    {
-                        decimal balance = _random.NextDecimal(0.001M, 0.02M).PrecisionTruncate(3);
-                        balancesForAsset = new AssetBalance()
-                        {
-                            Asset = uppercaseAsset,
-                            Available = balance,
-                            Locked = 0.0M,
-                            Total = balance
-                        };
-                        _balancesByAssets[uppercaseAsset] = balancesForAsset;
-                    }
-
-                    assetBalances.Add(balancesForAsset);
+                        Asset = uppercaseAsset,
+                        Available = balance,
+                        Locked = 0.0M,
+                        Total = balance
+                    };
+                    _balancesByAssets[uppercaseAsset] = balancesForAsset;
                 }
-            });
 
-            return assetBalances;
-        }
-
-        public async Task<decimal?> GetSpotPriceAsync(string symbol, string quoteAsset)
-        {
-            decimal price = await Task.Run(() => { return _random.NextDecimal(55000.00M, 60000.00M).PrecisionTruncate(2); });
-            
-            return price;
-        }
-
-        public bool Buy(TradeOrder tradeOrder)
-        {
-            decimal totalPrice = tradeOrder.Amount * tradeOrder.PriceUSDT;
-            AssetBalance usd = _balancesByAssets["USDT"];
-
-            if (usd.Available >= totalPrice && _balancesByAssets.TryGetValue(tradeOrder.Symbol.ToUpper(), out AssetBalance? asset))
-            {
-                usd.Available -= totalPrice;
-                asset.Available += tradeOrder.Amount;
-
-                return true;
+                assetBalances.Add(balancesForAsset);
             }
+        });
 
-            return false;
-        }
+        return assetBalances;
+    }
 
-        public bool Sell(TradeOrder tradeOrder)
+    public async Task<decimal?> GetSpotPriceAsync(string symbol, string quoteAsset)
+    {
+        decimal price = await Task.Run(() => { return _random.NextDecimal(55000.00M, 60000.00M).PrecisionTruncate(2); });
+        
+        return price;
+    }
+
+    public bool Buy(TradeOrder tradeOrder)
+    {
+        decimal totalPrice = tradeOrder.Amount * tradeOrder.PriceUSDT;
+        AssetBalance usd = _balancesByAssets["USDT"];
+
+        if (usd.Available >= totalPrice && _balancesByAssets.TryGetValue(tradeOrder.Symbol.ToUpper(), out AssetBalance? asset))
         {
-            decimal totalPrice = tradeOrder.Amount * tradeOrder.PriceUSDT;
-            AssetBalance usd = _balancesByAssets["USDT"];
+            usd.Available -= totalPrice;
+            asset.Available += tradeOrder.Amount;
 
-            if (_balancesByAssets.TryGetValue(tradeOrder.Symbol.ToUpper(), out AssetBalance? asset) && asset.Available >= tradeOrder.Amount)
-            {
-                usd.Available += totalPrice;
-                asset.Available -= tradeOrder.Amount;
-
-                return true;
-            }
-
-            return false;
+            return true;
         }
+
+        return false;
+    }
+
+    public bool Sell(TradeOrder tradeOrder)
+    {
+        decimal totalPrice = tradeOrder.Amount * tradeOrder.PriceUSDT;
+        AssetBalance usd = _balancesByAssets["USDT"];
+
+        if (_balancesByAssets.TryGetValue(tradeOrder.Symbol.ToUpper(), out AssetBalance? asset) && asset.Available >= tradeOrder.Amount)
+        {
+            usd.Available += totalPrice;
+            asset.Available -= tradeOrder.Amount;
+
+            return true;
+        }
+
+        return false;
     }
 }
