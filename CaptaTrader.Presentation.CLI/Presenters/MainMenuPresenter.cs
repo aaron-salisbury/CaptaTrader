@@ -8,6 +8,8 @@ internal class MainMenuPresenter : Presenter
 {
     private MainMenuView? _view;
 
+    public MainMenuPresenter(Navigator navigator) : base(navigator) { }
+
     internal override void Display(View view)
     {
         _view = (MainMenuView)view;
@@ -29,11 +31,11 @@ internal class MainMenuPresenter : Presenter
     {
         switch (e.MenuOption)
         {
-            case MainMenuOptions.EnterConfigurations:
-                Navigator?.NavigateTo(typeof(ConfigurationsPresenter));
-                break;
             case MainMenuOptions.LaunchBot:
-                Navigator?.NavigateTo(typeof(BotTraderPresenter));
+                Navigator.NavigateTo(typeof(BotTraderPresenter));
+                break;
+            case MainMenuOptions.EnterConfigurations:
+                Navigator.NavigateTo(typeof(ConfigurationsPresenter));
                 break;
             case MainMenuOptions.Exit:
                 return;

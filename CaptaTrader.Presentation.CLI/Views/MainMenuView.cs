@@ -15,10 +15,10 @@ internal class MainMenuView : View
 
     internal enum MainMenuOptions
     {
-        [Display(Name = "Enter Configurations")]
-        EnterConfigurations,
         [Display(Name = "Launch Bot")]
         LaunchBot,
+        [Display(Name = "Enter Configurations")]
+        EnterConfigurations,
         Exit
     }
 

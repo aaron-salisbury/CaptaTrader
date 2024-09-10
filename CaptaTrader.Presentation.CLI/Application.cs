@@ -6,6 +6,7 @@ using CaptaTrader.Presentation.CLI.Base.Extensions;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Presenters;
 using MassTransit;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Quartz;
@@ -32,7 +33,11 @@ public class Application
 
     public async Task<int> RunAsync()
     {
-        await Task.Run(() => new Navigator().NavigateTo(typeof(LoginPresenter)));
+        await Task.Run(() =>
+        {
+            ServiceProvider!.GetRequiredService<Navigator>()
+                .NavigateTo(typeof(LoginPresenter));
+        });
 
         return ExitCode;
     }
@@ -41,7 +46,8 @@ public class Application
     {
         IServiceCollection services = new ServiceCollection()
             .AddSingleton(applicationLogger)
-            .AddSingleton<ISessionValueProvider>(new Session());
+        .AddSingleton<ISessionValueProvider>(new Session())
+        .AddSingleton(new Navigator());
 
         List<Type> massTransitConsumerTypes = [];
         AddPresentersAndConsumers(services, massTransitConsumerTypes);

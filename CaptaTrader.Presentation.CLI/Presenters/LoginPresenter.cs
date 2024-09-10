@@ -13,7 +13,7 @@ internal class LoginPresenter : Presenter
     private LoginView? _view;
     private IUserService _userService;
 
-    public LoginPresenter(IUserService userService)
+    public LoginPresenter(IUserService userService, Navigator navigator) : base(navigator)
     {
         _userService = userService;
     }
@@ -53,7 +53,7 @@ internal class LoginPresenter : Presenter
                 return;
             default:
                 Serilog.Log.Warning("Invalid login option selected.");
-                Navigator?.NavigateTo(typeof(LoginPresenter));
+                Navigator.NavigateTo(typeof(LoginPresenter));
                 break;
         }
     }
@@ -66,12 +66,12 @@ internal class LoginPresenter : Presenter
             
         if (!results.Any())
         {
-            Navigator?.NavigateTo(typeof(MainMenuPresenter));
+            Navigator.NavigateTo(typeof(MainMenuPresenter));
         }
         else
         {
             _view?.PopupProcessFail(nameof(IUserService.Authenticate), results);
-            Navigator?.NavigateTo(typeof(LoginPresenter));
+            Navigator.NavigateTo(typeof(LoginPresenter));
         }
     }
 
@@ -83,12 +83,12 @@ internal class LoginPresenter : Presenter
             
         if (!results.Any())
         {
-            Navigator?.NavigateTo(typeof(MainMenuPresenter));
+            Navigator.NavigateTo(typeof(MainMenuPresenter));
         }
         else
         {
             _view?.PopupProcessFail(nameof(IUserService.Register), results);
-            Navigator?.NavigateTo(typeof(LoginPresenter));
+            Navigator.NavigateTo(typeof(LoginPresenter));
         }
     }
 }

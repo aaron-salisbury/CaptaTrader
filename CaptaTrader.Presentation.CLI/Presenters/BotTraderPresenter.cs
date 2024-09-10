@@ -13,7 +13,7 @@ internal class BotTraderPresenter : Presenter, IConsumer<TradeExecuted>
     private BotTraderView? _view;
     private ITradingService _tradingService;
 
-    public BotTraderPresenter(ITradingService tradingService)
+    public BotTraderPresenter(ITradingService tradingService, Navigator navigator) : base(navigator)
     {
         _tradingService = tradingService;
     }
@@ -39,7 +39,7 @@ internal class BotTraderPresenter : Presenter, IConsumer<TradeExecuted>
     {
         Task.Run(_tradingService.ShutdownTradingAsync).Wait();
 
-        Navigator?.NavigateTo(typeof(MainMenuPresenter));
+        Navigator.NavigateTo(typeof(MainMenuPresenter));
     }
 
     public Task Consume(ConsumeContext<TradeExecuted> context)

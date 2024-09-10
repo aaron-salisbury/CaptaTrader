@@ -42,7 +42,7 @@ internal class BotTraderView : View
         AnsiConsole.Write(transactionPanel);
     }
 
-    public static string[] GetTradeOrderAsDataRow(TradeOrder tradeOrder)
+    private static string[] GetTradeOrderAsDataRow(TradeOrder tradeOrder)
     {
         return
             [

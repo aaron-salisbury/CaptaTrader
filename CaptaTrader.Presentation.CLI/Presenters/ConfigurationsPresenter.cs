@@ -15,7 +15,7 @@ internal class ConfigurationsPresenter : Presenter
     private ISessionValueProvider _session;
     private IUserService _userService;
 
-    public ConfigurationsPresenter(ISessionValueProvider session, IUserService userService)
+    public ConfigurationsPresenter(ISessionValueProvider session, IUserService userService, Navigator navigator) : base(navigator)
     {
         _session = session;
         _userService = userService;
@@ -60,7 +60,7 @@ internal class ConfigurationsPresenter : Presenter
             case ConfigurationOptions.Return:
             default:
                 Serilog.Log.Warning("Invalid configuration option selected.");
-                Navigator?.NavigateTo(typeof(MainMenuPresenter));
+                Navigator.NavigateTo(typeof(MainMenuPresenter));
                 break;
         }
     }
@@ -77,7 +77,7 @@ internal class ConfigurationsPresenter : Presenter
             }
         }
 
-        Navigator?.NavigateTo(typeof(ConfigurationsPresenter));
+        Navigator.NavigateTo(typeof(ConfigurationsPresenter));
     }
 
     private void ConfigurationsView_ConfigurationSecretEntered(object? sender, ConfigViewEventArgs e)
@@ -98,7 +98,7 @@ internal class ConfigurationsPresenter : Presenter
             }
         }
 
-        Navigator?.NavigateTo(typeof(ConfigurationsPresenter));
+        Navigator.NavigateTo(typeof(ConfigurationsPresenter));
     }
 
     private void Save()
@@ -120,6 +120,6 @@ internal class ConfigurationsPresenter : Presenter
             _view?.PopupProcessFail(nameof(IUserService.SaveEndUser), results);
         }
 
-        Navigator?.NavigateTo(typeof(MainMenuPresenter));
+        Navigator.NavigateTo(typeof(MainMenuPresenter));
     }
 }

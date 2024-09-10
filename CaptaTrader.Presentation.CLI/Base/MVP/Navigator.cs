@@ -23,7 +23,6 @@ internal class Navigator
         _current?.Dismiss();
 
         _current = nextPresenter;
-        _current.Navigator = this;
         _current.Display(FindView(nextPresenter));
     }
 
