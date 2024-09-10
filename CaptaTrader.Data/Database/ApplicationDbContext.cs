@@ -68,7 +68,6 @@ public class ApplicationDbContext : DbContext
         }
     }
 
-    //TODO: Test this.
     public TEntity? GetEntityByKey<TEntity>(int id, params string[] relationships) where TEntity : class, IEntity
     {
         if (relationships.Length != 0)
