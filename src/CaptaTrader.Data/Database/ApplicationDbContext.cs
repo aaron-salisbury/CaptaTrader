@@ -38,7 +38,7 @@ public class ApplicationDbContext : DbContext
     }
 
     public DbSet<EndUser> EndUsers { get; set; }
-    public DbSet<AppCredentials> AppCredentials { get; set; }
+    public DbSet<AppCredential> AppCredentials { get; set; }
     public DbSet<ExecutedTrade> ExecutedTrades { get; set; }
 
     public void SaveAndReload(EntityEntry dbEntry)

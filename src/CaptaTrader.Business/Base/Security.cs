@@ -13,19 +13,19 @@ internal static class Security
     private const int SALT_LENGTH = 32;
     private const int NEW_USER_WORK_FACTOR = 10000;
 
-    public static bool Login(AppCredentials credentials, SecureString password)
+    public static bool Login(AppCredential credential, SecureString password)
     {
-        return credentials.LoginHash.EqualsByteArray(GenerateHash(
+        return credential.LoginHash.EqualsByteArray(GenerateHash(
             password.ToBytes(),
-            credentials.LoginSalt,
-            credentials.LoginWorkFactor));
+            credential.LoginSalt,
+            credential.LoginWorkFactor));
     }
 
-    public static AppCredentials CreateAppCredentials(SecureString password)
+    public static AppCredential CreateAppCredential(SecureString password)
     {
         byte[] loginSalt = GenerateSalt();
 
-        return new AppCredentials()
+        return new AppCredential()
         {
             LoginSalt = loginSalt,
             LoginHash = GenerateHash(password.ToBytes(), loginSalt, NEW_USER_WORK_FACTOR),

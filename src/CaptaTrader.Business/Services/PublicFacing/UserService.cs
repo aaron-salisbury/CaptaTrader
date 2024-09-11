@@ -29,14 +29,14 @@ public class UserService : IUserService
 
     public IEnumerable<ValidationResult> Authenticate(NetworkCredential networkCredentials)
     {
-        EndUser? user = _context.EndUsers.Where(u => string.Equals(networkCredentials.UserName, u.UserName)).Include(eu => eu.AppCredentials).FirstOrDefault();
+        EndUser? user = _context.EndUsers.Where(u => string.Equals(networkCredentials.UserName, u.UserName)).Include(eu => eu.AppCredential).FirstOrDefault();
         if (user == null)
         {
             return [new ValidationResult("User Name not found.")];
         }
 
-        AppCredentials? credentials = user.AppCredentials;
-        if (credentials == null || !Security.Login(credentials, networkCredentials.SecurePassword))
+        AppCredential? userAppCredential = user.AppCredential;
+        if (userAppCredential == null || !Security.Login(userAppCredential, networkCredentials.SecurePassword))
         {
             return [new ValidationResult("Bad credentials.")];
         }
@@ -54,7 +54,7 @@ public class UserService : IUserService
 
         EndUser newUser = CreateNewDefaultUser();
         newUser.UserName = networkCredentials.UserName;
-        newUser.AppCredentials = Security.CreateAppCredentials(networkCredentials.SecurePassword);
+        newUser.AppCredential = Security.CreateAppCredential(networkCredentials.SecurePassword);
 
         IEnumerable<ValidationResult> validationResults = newUser.Validate();
         if (validationResults.Any())

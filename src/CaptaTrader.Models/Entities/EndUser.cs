@@ -21,7 +21,7 @@ public class EndUser : Model, IEntity
     [Required, Display(Name = "User Name")]
     public string UserName { get; set; }
 
-    public AppCredentials? AppCredentials { get; set; }
+    public AppCredential? AppCredential { get; set; }
 
     public IList<ExecutedTrade>? ExecutedTrades { get; set; }
 

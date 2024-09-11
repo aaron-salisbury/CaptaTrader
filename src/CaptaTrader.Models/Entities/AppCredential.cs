@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CaptaTrader.Models;
 
-public class AppCredentials : IEntity
+public class AppCredential : IEntity
 {
     [Key]
     public int Id { get; set; }
