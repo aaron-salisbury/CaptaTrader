@@ -45,8 +45,8 @@ public class Application
     {
         IServiceCollection services = new ServiceCollection()
             .AddSingleton(applicationLogger)
-        .AddSingleton<ISessionValueProvider>(new Session())
-        .AddSingleton(new Navigator());
+            .AddSingleton<ISessionValueProvider>(new Session())
+            .AddSingleton(new Navigator());
 
         List<Type> massTransitConsumerTypes = [];
         AddPresentersAndConsumers(services, massTransitConsumerTypes);
@@ -77,6 +77,7 @@ public class Application
             if (typeof(IConsumer).IsAssignableFrom(assemblyType))
             {
                 massTransitConsumerTypes.Add(assemblyType);
+
                 if (assemblyType.Name.EndsWith("Presenter") && !assemblyType.Name.Equals("Presenter"))
                 {
                     // Consumers have to be singletons if their Consume method uses instance values.

@@ -1,11 +1,16 @@
 ﻿using System;
-using static CaptaTrader.Domains.ExecutedTrade;
 
 namespace CaptaTrader.Business.DTOs;
 
 [Serializable]
 public record TradeOrder
 {
+    public enum TransactionTypes
+    {
+        Buy,
+        Sell
+    }
+
     public required DateTime TimeStamp { get; set; }
 
     public required TransactionTypes TransactionType { get; set; }

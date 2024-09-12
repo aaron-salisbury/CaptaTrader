@@ -1,5 +1,4 @@
 ﻿using CaptaTrader.Business.DTOs;
-using CaptaTrader.Domains;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using Spectre.Console;
 using System;
@@ -31,7 +30,7 @@ internal class BotTraderView : View
         transactionGrid.AddRow(_tradeOrderColumnHeaders);
         transactionGrid.AddRow(GetTradeOrderAsDataRow(trade));
 
-        string headerColor = trade.TransactionType == ExecutedTrade.TransactionTypes.Sell ? "green" : "purple";
+        string headerColor = trade.TransactionType == TradeOrder.TransactionTypes.Sell ? "green" : "purple";
 
         Panel transactionPanel = new(transactionGrid)
         {
