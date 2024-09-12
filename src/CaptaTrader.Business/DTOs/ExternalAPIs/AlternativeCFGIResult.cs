@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace CaptaTrader.Models;
+namespace CaptaTrader.Business.DTOs;
 
 [Serializable]
 public record AlternativeCFGIResult

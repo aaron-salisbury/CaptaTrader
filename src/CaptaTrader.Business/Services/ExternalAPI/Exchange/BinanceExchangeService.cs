@@ -2,7 +2,9 @@
 using Binance.Net.Clients;
 using Binance.Net.Objects.Models.Spot;
 using Binance.Net.Objects.Options;
-using CaptaTrader.Models;
+using CaptaTrader.Business.DTOs;
+using CaptaTrader.Data;
+using CaptaTrader.Domains;
 using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Objects;
 using Microsoft.Extensions.Logging;
@@ -18,13 +20,15 @@ public class BinanceExchangeService : IExchangeService
     private readonly ILoggerFactory _loggerFactory;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ISessionValueResolver _sessionValueResolver;
+    private readonly IDataAccess _dataAccess;
 
-    public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, ISessionValueResolver sessionValueResolver)
+    public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, ISessionValueResolver sessionValueResolver, IDataAccess dataAccess)
     {
         _logger = logger;
         _loggerFactory = loggerFactory;
         _httpClientFactory = httpClientFactory;
         _sessionValueResolver = sessionValueResolver;
+        _dataAccess = dataAccess;
     }
 
     public string GetExchangeID() => "BINANCE";
@@ -145,9 +149,17 @@ public class BinanceExchangeService : IExchangeService
     private ApiCredentials? GetApiCredentialsForSessionUser()
     {
         EndUser? sessionUser = _sessionValueResolver.GetSessionUser();
-        if (sessionUser?.ExchangeAPIKey != null && sessionUser?.ExchangeSecretKey != null)
+
+        if (sessionUser != null)
         {
-            return new(sessionUser.ExchangeAPIKey, sessionUser.ExchangeSecretKey);
+            AppConfig? appConfig = _dataAccess
+                .ReadFiltered<AppConfig>(c => c.EndUserId == sessionUser.EndUserId)
+                .SingleOrDefault();
+
+            if (appConfig?.ExchangeAPIKey != null && appConfig?.ExchangeSecretKey != null)
+            {
+                return new(appConfig.ExchangeAPIKey, appConfig.ExchangeSecretKey);
+            }
         }
 
         return null;

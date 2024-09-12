@@ -66,7 +66,7 @@ public class Application
         ServiceProvider!.GetRequiredService<IScheduler>().Shutdown();
         ServiceProvider!.GetRequiredService<IBusControl>().Stop();
 
-        AnsiConsole.Clear();
+        //AnsiConsole.Clear();
         AnsiConsole.WriteLine("Capta Trader application exited.");
     }
 

@@ -1,17 +1,17 @@
 ﻿using CaptaTrader.Business.Services.Domain;
-using CaptaTrader.Data.Database;
-using CaptaTrader.Models;
+using CaptaTrader.Data;
+using CaptaTrader.Domains;
 
 namespace CaptaTrader.Business.Services;
 
 public class SessionValueResolver : ISessionValueResolver
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IDataAccess _dataAccess;
     private readonly ISessionValueProvider _sessionValueProvider;
 
-    public SessionValueResolver(ApplicationDbContext context, ISessionValueProvider sessionValueProvider)
+    public SessionValueResolver(IDataAccess dataAccess, ISessionValueProvider sessionValueProvider)
     {
-        _context = context;
+        _dataAccess = dataAccess;
         _sessionValueProvider = sessionValueProvider;
     }
 
@@ -23,11 +23,11 @@ public class SessionValueResolver : ISessionValueResolver
             return null;
         }
 
-        return _context.GetEntityByKey<EndUser>(endUserId.Value, relationships);
+        return _dataAccess.ReadFiltered<EndUser>((eu => eu.EndUserId == endUserId), relationships).SingleOrDefault();
     }
 
     public void SetSessionUser(EndUser user)
     {
-        _sessionValueProvider.SetUserID(user.Id);
+        _sessionValueProvider.SetUserID(user.EndUserId);
     }
 }

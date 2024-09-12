@@ -1,7 +1,8 @@
-﻿using CaptaTrader.Business.Services.Domain;
+﻿using CaptaTrader.Business.DTOs;
+using CaptaTrader.Business.Services.Domain;
+using CaptaTrader.Data;
 using CaptaTrader.Data.Base;
-using CaptaTrader.Data.Database;
-using CaptaTrader.Models;
+using CaptaTrader.Domains;
 using Microsoft.Extensions.Logging;
 
 namespace CaptaTrader.Business.Services;
@@ -21,16 +22,16 @@ public class BitcoinBotTrader : IBotTrader
     private readonly IMarketDataService _cryptoDataService;
     private readonly IExchangeService _exchangeService;
     private readonly ITradeAnalyzerService _tradeAnalyzerService;
-    private readonly ApplicationDbContext _context;
+    private readonly IDataAccess _dataAccess;
     private readonly ISessionValueProvider _sessionValueProvider;
 
-    public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, ApplicationDbContext context, ISessionValueProvider sessionValueProvider)
+    public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, IDataAccess dataAccess, ISessionValueProvider sessionValueProvider)
     {
         _cryptoDataService = cryptoDataService;
         _exchangeService = exchangeService;
         _tradeAnalyzerService = tradeAnalyzerService;
         _logger = logger;
-        _context = context;
+        _dataAccess = dataAccess;
         _sessionValueProvider = sessionValueProvider;
     }
 
@@ -105,15 +106,18 @@ public class BitcoinBotTrader : IBotTrader
 
         if (tradeOrder != null 
             && userId != null
-            && ((tradeOrder.TransactionType == TradeOrder.TransactionTypes.Buy && _exchangeService.Buy(tradeOrder))
-                || (tradeOrder.TransactionType == TradeOrder.TransactionTypes.Sell && _exchangeService.Sell(tradeOrder))))
+            && ((tradeOrder.TransactionType == ExecutedTrade.TransactionTypes.Buy && _exchangeService.Buy(tradeOrder))
+                || (tradeOrder.TransactionType == ExecutedTrade.TransactionTypes.Sell && _exchangeService.Sell(tradeOrder))))
         {
-            _context.ExecutedTrades.Add(new ExecutedTrade()
+            _dataAccess.Create(new ExecutedTrade()
             {
                 EndUserId = userId.Value,
-                TradeOrder = tradeOrder
+                TimeStamp = tradeOrder.TimeStamp,
+                TransactionType = tradeOrder.TransactionType,
+                Symbol = tradeOrder.Symbol,
+                PriceUSDT = tradeOrder.PriceUSDT,
+                Amount = tradeOrder.Amount
             });
-            _context.Save();
 
             //await UpdateBalancesAsync();
         }
@@ -123,9 +127,7 @@ public class BitcoinBotTrader : IBotTrader
 
     public async Task WriteTradeOrdersToCSVAsync()
     {
-        List<TradeOrder> trades = [.. _context.ExecutedTrades
-            .Where(et => et.EndUserId == _sessionValueProvider.GetUserID())
-            .Select(et => et.TradeOrder)
+        List<ExecutedTrade> trades = [.. _dataAccess.ReadFiltered<ExecutedTrade>(et => et.EndUserId == _sessionValueProvider.GetUserID())
             .OrderByDescending(to => to.TimeStamp)];
 
         await IO.WriteToCSVAsync(trades, _logger);

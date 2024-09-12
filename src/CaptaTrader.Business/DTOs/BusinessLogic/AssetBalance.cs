@@ -1,8 +1,9 @@
 ﻿using System;
 
-namespace CaptaTrader.Models;
+namespace CaptaTrader.Business.DTOs;
 
-public class AssetBalance
+[Serializable]
+public record AssetBalance
 {
     public required string Asset { get; set; }
     public decimal Available { get; set; }

@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Models;
+﻿using CaptaTrader.Domains;
 
 namespace CaptaTrader.Business.Services;
 

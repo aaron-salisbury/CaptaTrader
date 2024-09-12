@@ -1,5 +1,5 @@
 ﻿using CaptaTrader.Business.Services.Domain;
-using CaptaTrader.Models;
+using CaptaTrader.Domains;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
 using System.Collections.Generic;
@@ -67,12 +67,12 @@ internal class ConfigurationsPresenter : Presenter
 
     private void ConfigurationsView_ConfigurationEntered(object? sender, ConfigViewEventArgs e)
     {
-        if (_userService.GetEndUser(_session.GetUserID()) is EndUser user)
+        if (_userService.GetEndUser(_session.GetUserID(), nameof(EndUser.AppConfig)) is EndUser user)
         {
             switch (e.MenuOption)
             {
                 case ConfigurationOptions.EnterEmail:
-                    user.Email = e.EnteredValue;
+                    user.AppConfig.Email = e.EnteredValue;
                     break;
             }
         }
@@ -82,18 +82,18 @@ internal class ConfigurationsPresenter : Presenter
 
     private void ConfigurationsView_ConfigurationSecretEntered(object? sender, ConfigViewEventArgs e)
     {
-        if (_userService.GetEndUser(_session.GetUserID()) is EndUser user)
+        if (_userService.GetEndUser(_session.GetUserID(), nameof(EndUser.AppConfig)) is EndUser user)
         {
             switch (e.MenuOption)
             {
                 case ConfigurationOptions.EnterCoinApiAPIKey:
-                    user.MarketDataAPIKey = e.EnteredValue;
+                    user.AppConfig.MarketDataAPIKey = e.EnteredValue;
                     break;
                 case ConfigurationOptions.EnterBinanceAPIKey:
-                    user.ExchangeAPIKey = e.EnteredValue;
+                    user.AppConfig.ExchangeAPIKey = e.EnteredValue;
                     break;
                 case ConfigurationOptions.EnterBinanceSecretKey:
-                    user.ExchangeSecretKey = e.EnteredValue;
+                    user.AppConfig.ExchangeSecretKey = e.EnteredValue;
                     break;
             }
         }

@@ -1,6 +1,5 @@
 ﻿using CaptaTrader.Data.Base;
-using CaptaTrader.Data.Base.Extensions;
-using CaptaTrader.Models;
+using CaptaTrader.Domains;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
@@ -32,14 +31,15 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<ExecutedTrade>().OwnsOne(et => et.TradeOrder, builder => { builder.ToJson(); });
+        //modelBuilder.Entity<ExecutedTrade>().OwnsOne(et => et.TradeOrder, builder => { builder.ToJson(); });
 
         base.OnModelCreating(modelBuilder);
     }
 
-    public DbSet<EndUser> EndUsers { get; set; }
-    public DbSet<AppCredential> AppCredentials { get; set; }
-    public DbSet<ExecutedTrade> ExecutedTrades { get; set; }
+    internal DbSet<EndUser> EndUsers { get; set; }
+    internal DbSet<AppCredential> AppCredentials { get; set; }
+    internal DbSet<AppConfig> AppConfigs { get; set; }
+    internal DbSet<ExecutedTrade> ExecutedTrades { get; set; }
 
     public void SaveAndReload(EntityEntry dbEntry)
     {
@@ -68,16 +68,16 @@ public class ApplicationDbContext : DbContext
         }
     }
 
-    public TEntity? GetEntityByKey<TEntity>(int id, params string[] relationships) where TEntity : class, IEntity
-    {
-        if (relationships.Length != 0)
-        {
-            return Set<TEntity>()
-                .Where(e => e.Id == id)
-                .IncludeRelationships(new Stack<string>(relationships))
-                .SingleOrDefault();
-        }
+    //public TEntity? GetEntityByKey<TEntity>(int id, params string[] relationships) where TEntity : class, IEntity
+    //{
+    //    if (relationships.Length != 0)
+    //    {
+    //        return Set<TEntity>()
+    //            .Where(e => e.Id == id)
+    //            .IncludeRelationships(new Stack<string>(relationships))
+    //            .SingleOrDefault();
+    //    }
 
-        return Find<TEntity>(id);
-    }
+    //    return Find<TEntity>(id);
+    //}
 }

@@ -1,8 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CaptaTrader.Domains.Base;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CaptaTrader.Models;
+namespace CaptaTrader.Domains;
 
-public class EndUser : Model, IEntity
+public class AppConfig : Model
 {
     //TODO: Add option to select which APIs to use and logic set their keys after doing so.
     public enum MarketDataAPIs
@@ -16,16 +18,13 @@ public class EndUser : Model, IEntity
     }
 
     [Key]
-    public int Id { get; set; }
+    public int AppConfigId { get; set; }
 
-    [Required, Display(Name = "User Name")]
-    public string UserName { get; set; }
+    [Required, ForeignKey(nameof(EndUser))]
+    public int EndUserId { get; set; }
 
-    public AppCredential? AppCredential { get; set; }
+    public EndUser? EndUser { get; set; }
 
-    public IList<ExecutedTrade>? ExecutedTrades { get; set; }
-
-    //TODO: Move these properties to a one-to-one relationship. Where they're used will need to start passing navigation paths.
     [EmailAddress, Display(Name = "E-Mail")]
     public string? Email { get; set; }
 
@@ -38,9 +37,4 @@ public class EndUser : Model, IEntity
     public string? ExchangeAPIKey { get; set; }
 
     public string? ExchangeSecretKey { get; set; }
-
-    public EndUser(string userName)
-    {
-        UserName = userName;
-    }
 }

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CaptaTrader.Models;
+namespace CaptaTrader.Domains;
 
-[Serializable]
-public record TradeOrder
+public class ExecutedTrade
 {
     public enum TransactionTypes
     {
@@ -11,14 +11,27 @@ public record TradeOrder
         Sell
     }
 
+    [Key]
+    public int ExecutedTradeId { get; private set; }
+
+    [Required, ForeignKey(nameof(EndUser))]
+    public int EndUserId { get; set; }
+
+    public EndUser? EndUser { get; set; }
+
+    [Required]
     public required DateTime TimeStamp { get; set; }
 
+    [Required]
     public required TransactionTypes TransactionType { get; set; }
 
+    [Required]
     public required string Symbol { get; set; }
 
+    [Required]
     public required decimal PriceUSDT { get; set; }
 
+    [Required]
     public required decimal Amount { get; set; }
 
     //public string[] AsDataRow()

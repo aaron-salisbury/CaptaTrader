@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using CsvHelper.Configuration;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
@@ -18,7 +19,7 @@ public static class IO
         return appDirectory;
     }
 
-    public static async Task WriteToCSVAsync<T>(IEnumerable<T> objects, ILogger logger, string? writePath = null)
+    public static async Task WriteToCSVAsync<T>(IEnumerable<T> objects, ILogger logger, string? writePath = null, ClassMap<T>? classMap = null)
     {
         try
         {
@@ -31,6 +32,11 @@ public static class IO
             using (StreamWriter writer = new(fullPath))
             using (CsvWriter csv = new(writer, CultureInfo.InvariantCulture))
             {
+                if (classMap != null)
+                {
+                    csv.Context.RegisterClassMap(classMap);
+                }
+                
                 await csv.WriteRecordsAsync(objects);
             }
         }

@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CaptaTrader.Models\CaptaTrader.Models.csproj" />
+    <ProjectReference Include="..\..\CaptaTrader.Domains\CaptaTrader.Domains.csproj" />
   </ItemGroup>
 
 </Project>

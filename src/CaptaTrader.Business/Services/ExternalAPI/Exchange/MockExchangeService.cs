@@ -1,5 +1,5 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
-using CaptaTrader.Models;
+using CaptaTrader.Business.DTOs;
 
 namespace CaptaTrader.Business.Services;
 

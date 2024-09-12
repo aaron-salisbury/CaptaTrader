@@ -2,7 +2,6 @@
 using CaptaTrader.Business.Services;
 using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Data;
-using CaptaTrader.Data.Database;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -29,6 +28,7 @@ public static class Startup
 
         // Architecture
         // "Validation should be done for api DTOs. And I don’t make objects with complex behavior. Either data objects that have no logic or static (or effectively static) services that do things. This simplifies arch significantly."
+        // https://stackoverflow.com/a/12078590
         // https://www.youtube.com/watch?v=ZA2X1gaAhJk
         // https://codeopinion.com/restructuring-to-a-vertical-slice-architecture/
         // https://www.youtube.com/watch?v=T-EwN9UqRwE
@@ -46,7 +46,7 @@ public static class Startup
 
         // Infrastructure services.
         services.AddWebRequesting()
-            .AddDbContext<ApplicationDbContext>()
+            .AddDataAccess()
             .AddScoped<ISessionValueResolver, SessionValueResolver>()
             .AddScheduling()
             .AddMassTransit(x =>

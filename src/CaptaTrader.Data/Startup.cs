@@ -32,18 +32,34 @@ public static class Startup
     }
 
     /// <summary>
-    /// Adds a scoped DbContext service for an embedded SQLite database whose tables are dynamically built against the provided entity types. 
-    /// No migrations are run.
-    /// Also adds a scoped service of the type <see cref="IDataAccess"/> that is a wrapper for the DbContext.
-    /// This should only be used for early project prototyping.
+    /// Registers the <see cref="ApplicationDbContext"/> as a service.
+    /// Also adds a scoped service of the type <see cref="IDataAccess"/> that is a wrapper for the context.
     /// </summary>
     /// <returns>A reference to this instance after the operation has completed.</returns>
-    public static IServiceCollection AddDataAccessEmbeddedDynamic(this IServiceCollection services, Type[] entityTypes)
+    public static IServiceCollection AddDataAccess(this IServiceCollection services)
+    {
+        services.AddDbContext<ApplicationDbContext>();
+
+        services.AddScoped<IDataAccess, ApplicationDataAccess>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Adds a scoped DbContext service for an embedded SQLite database whose tables are dynamically built against the provided entity types. 
+    /// No migrations are run.
+    /// Also adds a scoped service of the type <see cref="IDataAccess"/> that is a CRUD wrapper for the context.
+    /// </summary>
+    /// <remarks>
+    /// This should only be used for early application prototyping.
+    /// </remarks>
+    /// <returns>A reference to this instance after the operation has completed.</returns>
+    public static IServiceCollection AddDataAccessDynamic(this IServiceCollection services, Type[] entityTypes)
     {
         _dynamicDbContextType = BuildDynamicDbContextType<DynamicEmbeddedDbContext>(entityTypes);
 
         services.AddScoped(typeof(DbContext), DynamicContextFactory);
-        services.AddScoped<IDataAccess, DynamicEmbeddedDataAccess>();
+        services.AddScoped<IDataAccess, DataAccess>();
 
         return services;
     }

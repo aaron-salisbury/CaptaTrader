@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-namespace CaptaTrader.Models;
+namespace CaptaTrader.Domains.Base;
 
 public abstract class Model : INotifyPropertyChanged
 {

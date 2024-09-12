@@ -1,5 +1,6 @@
-﻿using CaptaTrader.Data;
-using CaptaTrader.Models;
+﻿using CaptaTrader.Business.DTOs;
+using CaptaTrader.Data;
+using CaptaTrader.Domains;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
@@ -15,20 +16,33 @@ public class CoinApiDataService : IMarketDataService
     private readonly ILogger _logger;
     private readonly WebRequester _webRequester;
     private readonly ISessionValueResolver _sessionValueResolver;
+    private readonly IDataAccess _dataAccess;
 
-    public CoinApiDataService(ILogger logger, WebRequester webRequester, ISessionValueResolver sessionValueResolver)
+    public CoinApiDataService(ILogger logger, WebRequester webRequester, ISessionValueResolver sessionValueResolver, IDataAccess dataAccess)
     {
         _logger = logger;
         _webRequester = webRequester;
         _sessionValueResolver = sessionValueResolver;
+        _dataAccess = dataAccess;
     }
 
     public async Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals(string exchangeID, string baseAsset)
     {
-        string? apiKey = _sessionValueResolver.GetSessionUser()?.MarketDataAPIKey;
+        string? apiKey = null;
+
+        int? userId = _sessionValueResolver.GetSessionUser()?.EndUserId;
+        if (userId != null)
+        {
+            AppConfig? appConfig = _dataAccess
+                .ReadFiltered<AppConfig>(c => c.EndUserId == userId)
+                .SingleOrDefault();
+
+            apiKey = appConfig?.MarketDataAPIKey;
+        }
+
         if (apiKey == null)
         {
-            _logger.LogError("No API key available to market data service.");
+            _logger.LogError("No API key available for market data service.");
             return null;
         }
 

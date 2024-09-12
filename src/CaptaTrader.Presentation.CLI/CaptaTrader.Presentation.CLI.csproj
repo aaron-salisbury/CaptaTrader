@@ -29,7 +29,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CaptaTrader.Business\CaptaTrader.Business.csproj" />
-    <ProjectReference Include="..\CaptaTrader.Models\CaptaTrader.Models.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
-﻿using CaptaTrader.Business.MessageContracts;
+﻿using CaptaTrader.Business.DTOs;
+using CaptaTrader.Business.MessageContracts;
 using CaptaTrader.Business.Services;
-using CaptaTrader.Models;
 using MassTransit;
 using Quartz;
 

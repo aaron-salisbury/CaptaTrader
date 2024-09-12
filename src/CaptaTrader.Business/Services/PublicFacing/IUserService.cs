@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Models;
+﻿using CaptaTrader.Domains;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 
