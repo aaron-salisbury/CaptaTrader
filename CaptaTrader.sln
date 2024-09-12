@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptaTrader.Business", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptaTrader.Presentation.CLI", "src\CaptaTrader.Presentation.CLI\CaptaTrader.Presentation.CLI.csproj", "{6D9F5F44-1D4C-4E51-B779-8CC61BF1C64A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaptaTrader.Domains", "CaptaTrader.Domains\CaptaTrader.Domains.csproj", "{ED7584CD-E864-45E8-9BE6-1C645F5B298E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaptaTrader.Domains", "src\CaptaTrader.Domains\CaptaTrader.Domains.csproj", "{ED7584CD-E864-45E8-9BE6-1C645F5B298E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
