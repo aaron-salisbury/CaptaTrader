@@ -43,9 +43,6 @@ public static class Startup
         // https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/ddd-oriented-microservice#layers-in-ddd-microservices
         // https://mapperly.riok.app/docs/intro/
 
-        // Validation
-        // https://www.linkedin.com/posts/davidcallan_asp-net-built-in-ivalidatableobject-example-activity-7228375802873024512-HAr-?utm_source=share&utm_medium=member_desktop
-
 
 
         // Infrastructure services.
