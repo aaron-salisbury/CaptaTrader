@@ -48,7 +48,6 @@ public static class Startup
         services.AddWebRequesting()
             .AddDataAccess()
             .AddScoped<ISessionValueResolver, SessionValueResolver>()
-            .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
             .AddScheduling()
             .AddMassTransit(x =>
             {
@@ -71,7 +70,8 @@ public static class Startup
         }
 
         // Internal business domain logic.
-        services.AddScoped<ITradeAnalyzerService, MockTradeAnalyzerService>() //TODO: Obviously will need a real analyzer.
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
+            .AddScoped<ITradeAnalyzerService, MockTradeAnalyzerService>() //TODO: Obviously will need a real analyzer.
             .AddScoped<IBotTrader, BitcoinBotTrader>();
 
         // Orchestrated public-facing services.
