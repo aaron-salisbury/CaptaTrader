@@ -44,16 +44,12 @@ public static class Startup
 
 
 
-        // Infrastructure services.
+        // Necessary infrastructure.
         services.AddWebRequesting()
             .AddDataAccess()
             .AddScoped<ISessionValueResolver, SessionValueResolver>()
-            .AddScheduling()
-            .AddMassTransit(x =>
-            {
-                x.AddConsumers(massTransitConsumerTypes);
-                x.UsingInMemory((context, cfg) => { cfg.ConfigureEndpoints(context); });
-            });
+            .AddMessaging(massTransitConsumerTypes)
+            .AddScheduling();
 
         // External API services.
         if (useMockExternalAPICalls)
@@ -79,6 +75,18 @@ public static class Startup
             .AddScoped<ITradingService, TradingService>();
 
         return services;
+    }
+
+    private static IServiceCollection AddMessaging(this IServiceCollection services, params Type[] massTransitConsumerTypes)
+    {
+        services.AddMassTransit(c =>
+        {
+            c.AddConsumers(massTransitConsumerTypes);
+            c.UsingInMemory((context, cfg) => { cfg.ConfigureEndpoints(context); });
+        });
+
+        return services;
+
     }
 
     private static IServiceCollection AddScheduling(this IServiceCollection services)

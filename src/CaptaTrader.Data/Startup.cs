@@ -33,7 +33,7 @@ public static class Startup
 
     /// <summary>
     /// Registers the <see cref="ApplicationDbContext"/> as a service.
-    /// Also adds a scoped service of the type <see cref="IDataAccess"/> that is a wrapper for the context.
+    /// Also adds a scoped service of the type <see cref="IDataAccess"/> that is a CRUD wrapper for the context.
     /// </summary>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddDataAccess(this IServiceCollection services)
