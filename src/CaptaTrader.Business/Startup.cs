@@ -1,11 +1,14 @@
-﻿using CaptaTrader.Business.Models;
+﻿using CaptaTrader.Business.DTOs.Validators;
+using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
 using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Data;
+using FluentValidation;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Quartz;
+using System.Reflection;
 
 namespace CaptaTrader.Business;
 
@@ -49,6 +52,7 @@ public static class Startup
         services.AddWebRequesting()
             .AddDataAccess()
             .AddScoped<ISessionValueResolver, SessionValueResolver>()
+            .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
             .AddScheduling()
             .AddMassTransit(x =>
             {

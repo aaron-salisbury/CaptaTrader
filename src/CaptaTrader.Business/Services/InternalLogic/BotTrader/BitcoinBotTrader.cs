@@ -1,7 +1,10 @@
-﻿using CaptaTrader.Business.DTOs;
+﻿using CaptaTrader.Business.Base.Extensions;
+using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Data;
 using CaptaTrader.Domains;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 
 namespace CaptaTrader.Business.Services;
@@ -22,14 +25,19 @@ public class BitcoinBotTrader : IBotTrader
     private readonly ITradeAnalyzerService _tradeAnalyzerService;
     private readonly IDataAccess _dataAccess;
     private readonly ISessionValueProvider _sessionValueProvider;
+    private IValidator<TradeOrder> _tradeValidator;
+    private ILogger _logger;
 
-    public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, ILogger logger, IDataAccess dataAccess, ISessionValueProvider sessionValueProvider)
+    public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, IDataAccess dataAccess, 
+        ISessionValueProvider sessionValueProvider, IValidator<TradeOrder> tradeValidator, ILogger logger)
     {
         _cryptoDataService = cryptoDataService;
         _exchangeService = exchangeService;
         _tradeAnalyzerService = tradeAnalyzerService;
         _dataAccess = dataAccess;
         _sessionValueProvider = sessionValueProvider;
+        _tradeValidator = tradeValidator;
+        _logger = logger;
     }
 
     public async Task<bool> UpdateBalancesAsync()
@@ -106,6 +114,13 @@ public class BitcoinBotTrader : IBotTrader
             && ((tradeOrder.TransactionType == TradeOrder.TransactionTypes.Buy && _exchangeService.Buy(tradeOrder))
                 || (tradeOrder.TransactionType == TradeOrder.TransactionTypes.Sell && _exchangeService.Sell(tradeOrder))))
         {
+            ValidationResult result = await _tradeValidator.ValidateAsync(tradeOrder);
+            if (!result.IsValid)
+            {
+                _logger.LogError(result.ToStringPretty("Trade Order creation"));
+                return null;
+            }
+
             _dataAccess.Create(new ExecutedTrade()
             {
                 EndUserId = userId.Value,

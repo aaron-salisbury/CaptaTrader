@@ -1,7 +1,6 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Services;
-using CaptaTrader.Domains;
 
 namespace CaptaTrader.Business.Models;
 
@@ -17,22 +16,24 @@ public class MockTradeAnalyzerService : ITradeAnalyzerService
             return null;
         }
 
-        return CreateMockTradeTransaction();
+        TradeOrder tradeOrder = CreateMockTradeTransaction();
+
+        return tradeOrder;
     }
 
     private TradeOrder CreateMockTradeTransaction()
     {
-        ExecutedTrade.TransactionTypes transactionType;
+        TradeOrder.TransactionTypes transactionType;
         string symbol;
 
         if (_random.Next(2) == 1)
         {
-            transactionType = ExecutedTrade.TransactionTypes.Buy;
+            transactionType = TradeOrder.TransactionTypes.Buy;
             symbol = "BTC";
         }
         else
         {
-            transactionType = ExecutedTrade.TransactionTypes.Sell;
+            transactionType = TradeOrder.TransactionTypes.Sell;
             symbol = "USDT";
         }
 
