@@ -1,5 +1,4 @@
-﻿using CaptaTrader.Business.DTOs.Validators;
-using CaptaTrader.Business.Models;
+﻿using CaptaTrader.Business.Models;
 using CaptaTrader.Business.Services;
 using CaptaTrader.Business.Services.Domain;
 using CaptaTrader.Data;
