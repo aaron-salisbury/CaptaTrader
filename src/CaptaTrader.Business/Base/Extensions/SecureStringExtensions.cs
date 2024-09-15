@@ -7,6 +7,14 @@ namespace CaptaTrader.Business.Base.Extensions;
 public static class SecureStringExtensions
 {
     /// <summary>
+    /// Convert to byte array.
+    /// </summary>
+    public static byte[] ToBytes(this SecureString secureString)
+    {
+        return Encoding.ASCII.GetBytes(secureString.ToPlainString());
+    }
+
+    /// <summary>
     /// Convert to plain string.
     /// </summary>
     public static string ToPlainString(this SecureString secureString)
@@ -16,13 +24,5 @@ public static class SecureStringExtensions
         NetworkCredential secureStringAsNetworkCredential = new(string.Empty, secureString);
 
         return secureStringAsNetworkCredential.Password;
-    }
-
-    /// <summary>
-    /// Convert to byte array.
-    /// </summary>
-    public static byte[] ToBytes(this SecureString secureString)
-    {
-        return Encoding.ASCII.GetBytes(secureString.ToPlainString());
     }
 }
