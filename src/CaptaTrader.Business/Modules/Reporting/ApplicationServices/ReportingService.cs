@@ -1,11 +1,12 @@
-﻿using CaptaTrader.Business.Modules.Trading.DTOs;
+﻿using CaptaTrader.Business.Modules.Trading;
+using CaptaTrader.Business.Modules.Trading.DTOs;
 using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Data;
 using CaptaTrader.Data.Base;
 using CaptaTrader.Data.Entities;
 using Microsoft.Extensions.Logging;
 
-namespace CaptaTrader.Business.Modules.Trading.ApplicationServices;
+namespace CaptaTrader.Business.Modules.Reporting.ApplicationServices;
 
 public class ReportingService : IReportingService
 {

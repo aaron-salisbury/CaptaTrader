@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CaptaTrader.Business.Modules.Trading.ExternalServices.CFGI;
+namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 
 public interface ICryptoFearAndGreedIndex
 {

@@ -1,5 +1,4 @@
-﻿using CaptaTrader.Business.Modules.UserAccess.DomainServices.Authorization;
-using CaptaTrader.Business.Modules.UserAccess.DomainServices.Session;
+﻿using CaptaTrader.Business.Modules.UserAccess.DomainServices;
 using CaptaTrader.Business.Modules.UserAccess.DTOs;
 using CaptaTrader.Data;
 using CaptaTrader.Data.Entities;
@@ -9,14 +8,14 @@ using System.Net;
 
 namespace CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 
-public class UserService : IUserService
+public class UserAccessService : IUserAccessService
 {
     private readonly IDataAccess _dataAccess;
-    private readonly ISessionValueResolver _sessionValueResolver;
+    private readonly SessionValueResolver _sessionValueResolver;
     private IValidator<UserConfigDto> _userConfigValidator;
     private readonly UserAccessMapper _userAccessMapper = new();
 
-    public UserService(IDataAccess dataAccess, ISessionValueResolver sessionValueResolver, IValidator<UserConfigDto> userConfigValidator)
+    public UserAccessService(IDataAccess dataAccess, SessionValueResolver sessionValueResolver, IValidator<UserConfigDto> userConfigValidator)
     {
         _dataAccess = dataAccess;
         _sessionValueResolver = sessionValueResolver;

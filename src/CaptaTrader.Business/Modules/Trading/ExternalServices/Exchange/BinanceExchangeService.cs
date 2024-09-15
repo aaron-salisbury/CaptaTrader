@@ -3,14 +3,13 @@ using Binance.Net.Clients;
 using Binance.Net.Objects.Models.Spot;
 using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Modules.Trading.DTOs;
-using CaptaTrader.Business.Modules.UserAccess.DomainServices.Session;
+using CaptaTrader.Business.Modules.UserAccess.DomainServices;
 using CaptaTrader.Business.Modules.UserAccess.DTOs;
-using CaptaTrader.Data;
 using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Objects;
 using Microsoft.Extensions.Logging;
 
-namespace CaptaTrader.Business.Modules.Trading.ExternalServices.Exchange;
+namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 
 // API Documentation: https://docs.binance.us/#introduction
 // Helper Library: https://github.com/JKorf/Binance.Net
@@ -20,16 +19,14 @@ public class BinanceExchangeService : IExchangeService
     private readonly ILogger _logger;
     private readonly ILoggerFactory _loggerFactory;
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ISessionValueResolver _sessionValueResolver;
-    private readonly IDataAccess _dataAccess;
+    private readonly SessionValueResolver _sessionValueResolver;
 
-    public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, ISessionValueResolver sessionValueResolver, IDataAccess dataAccess)
+    public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, SessionValueResolver sessionValueResolver)
     {
         _logger = logger;
         _loggerFactory = loggerFactory;
         _httpClientFactory = httpClientFactory;
         _sessionValueResolver = sessionValueResolver;
-        _dataAccess = dataAccess;
     }
 
     public string GetExchangeID() => "BINANCE";

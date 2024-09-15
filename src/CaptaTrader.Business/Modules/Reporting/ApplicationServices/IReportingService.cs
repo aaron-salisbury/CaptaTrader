@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CaptaTrader.Business.Modules.Trading.ApplicationServices;
+namespace CaptaTrader.Business.Modules.Reporting.ApplicationServices;
 
 public interface IReportingService
 {

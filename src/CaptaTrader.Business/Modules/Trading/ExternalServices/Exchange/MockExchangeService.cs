@@ -2,7 +2,7 @@
 using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Modules.Trading.DTOs;
 
-namespace CaptaTrader.Business.Modules.Trading.ExternalServices.Exchange;
+namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 
 public class MockExchangeService : IExchangeService
 {

@@ -3,9 +3,10 @@ using CaptaTrader.Business.Modules.UserAccess.DTOs;
 using CaptaTrader.Data;
 using CaptaTrader.Data.Entities;
 
-namespace CaptaTrader.Business.Modules.UserAccess.DomainServices.Session;
+namespace CaptaTrader.Business.Modules.UserAccess.DomainServices;
 
-public class SessionValueResolver : ISessionValueResolver
+// Works in conjunction with ISessionValueProvider so that session data doesn't need to hold on to everything in the heap.
+public class SessionValueResolver
 {
     private readonly IDataAccess _dataAccess;
     private readonly ISessionValueProvider _sessionValueProvider;

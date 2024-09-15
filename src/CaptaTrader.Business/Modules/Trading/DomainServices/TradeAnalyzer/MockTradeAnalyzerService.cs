@@ -1,7 +1,7 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Modules.Trading.DTOs;
 
-namespace CaptaTrader.Business.Modules.Trading.DomainServices.TradeAnalyzer;
+namespace CaptaTrader.Business.Modules.Trading.DomainServices;
 
 public class MockTradeAnalyzerService : ITradeAnalyzerService
 {

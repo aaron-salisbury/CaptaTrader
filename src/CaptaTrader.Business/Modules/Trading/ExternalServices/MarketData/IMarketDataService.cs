@@ -1,6 +1,6 @@
 ﻿using CaptaTrader.Business.DTOs;
 
-namespace CaptaTrader.Business.Modules.Trading.ExternalServices.MarketData;
+namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 
 public interface IMarketDataService
 {

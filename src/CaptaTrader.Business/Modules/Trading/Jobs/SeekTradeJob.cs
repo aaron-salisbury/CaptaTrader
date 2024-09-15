@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.Modules.Trading.DomainServices.BotTrader;
+﻿using CaptaTrader.Business.Modules.Trading.DomainServices;
 using CaptaTrader.Business.Modules.Trading.DTOs;
 using CaptaTrader.Business.Modules.Trading.MessageContracts;
 using MassTransit;

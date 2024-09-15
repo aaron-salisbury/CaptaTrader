@@ -1,11 +1,8 @@
 ﻿using CaptaTrader.Business.Modules.Trading.ApplicationServices;
-using CaptaTrader.Business.Modules.Trading.DomainServices.BotTrader;
-using CaptaTrader.Business.Modules.Trading.DomainServices.TradeAnalyzer;
-using CaptaTrader.Business.Modules.Trading.ExternalServices.CFGI;
-using CaptaTrader.Business.Modules.Trading.ExternalServices.Exchange;
-using CaptaTrader.Business.Modules.Trading.ExternalServices.MarketData;
+using CaptaTrader.Business.Modules.Trading.DomainServices;
+using CaptaTrader.Business.Modules.Trading.ExternalServices;
 using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
-using CaptaTrader.Business.Modules.UserAccess.DomainServices.Session;
+using CaptaTrader.Business.Modules.UserAccess.DomainServices;
 using CaptaTrader.Data;
 using FluentValidation;
 using MassTransit;
@@ -52,7 +49,7 @@ public static class Startup
         // Necessary infrastructure.
         services.AddWebRequesting()
             .AddDataAccess()
-            .AddScoped<ISessionValueResolver, SessionValueResolver>()
+            .AddScoped<SessionValueResolver, SessionValueResolver>()
             .AddMessaging(massTransitConsumerTypes)
             .AddScheduling();
 
@@ -76,7 +73,7 @@ public static class Startup
             .AddScoped<IBotTrader, BitcoinBotTrader>();
 
         // Orchestrated public-facing services.
-        services.AddScoped<IUserService, UserService>()
+        services.AddScoped<IUserAccessService, UserAccessService>()
             .AddScoped<ITradingService, TradingService>();
 
         return services;

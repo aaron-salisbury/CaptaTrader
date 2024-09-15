@@ -1,12 +1,12 @@
 ﻿using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Modules.Trading.DTOs;
-using CaptaTrader.Business.Modules.UserAccess.DomainServices.Session;
+using CaptaTrader.Business.Modules.UserAccess.DomainServices;
 using CaptaTrader.Business.Modules.UserAccess.DTOs;
 using CaptaTrader.Data;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace CaptaTrader.Business.Modules.Trading.ExternalServices.MarketData;
+namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 
 // API Documentation: https://docs.coinapi.io/
 public class CoinApiDataService : IMarketDataService
@@ -17,15 +17,13 @@ public class CoinApiDataService : IMarketDataService
 
     private readonly ILogger _logger;
     private readonly WebRequester _webRequester;
-    private readonly ISessionValueResolver _sessionValueResolver;
-    private readonly IDataAccess _dataAccess;
+    private readonly SessionValueResolver _sessionValueResolver;
 
-    public CoinApiDataService(ILogger logger, WebRequester webRequester, ISessionValueResolver sessionValueResolver, IDataAccess dataAccess)
+    public CoinApiDataService(ILogger logger, WebRequester webRequester, SessionValueResolver sessionValueResolver)
     {
         _logger = logger;
         _webRequester = webRequester;
         _sessionValueResolver = sessionValueResolver;
-        _dataAccess = dataAccess;
     }
 
     public async Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals(string exchangeID, string baseAsset)

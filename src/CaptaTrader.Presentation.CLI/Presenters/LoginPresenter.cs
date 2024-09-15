@@ -9,9 +9,9 @@ namespace CaptaTrader.Presentation.CLI.Presenters;
 internal class LoginPresenter : Presenter
 {
     private LoginView? _view;
-    private IUserService _userService;
+    private IUserAccessService _userService;
 
-    public LoginPresenter(IUserService userService, Navigator navigator) : base(navigator)
+    public LoginPresenter(IUserAccessService userService, Navigator navigator) : base(navigator)
     {
         _userService = userService;
     }
@@ -68,7 +68,7 @@ internal class LoginPresenter : Presenter
         }
         else
         {
-            _view?.PopupProcessFail(nameof(IUserService.Authenticate), result);
+            _view?.PopupProcessFail(nameof(IUserAccessService.Authenticate), result);
             _view?.Show();
         }
     }
@@ -85,7 +85,7 @@ internal class LoginPresenter : Presenter
         }
         else
         {
-            _view?.PopupProcessFail(nameof(IUserService.Register), result);
+            _view?.PopupProcessFail(nameof(IUserAccessService.Register), result);
             _view?.Show();
         }
     }

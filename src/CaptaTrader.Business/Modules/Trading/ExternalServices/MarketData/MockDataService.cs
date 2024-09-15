@@ -1,7 +1,7 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.DTOs;
 
-namespace CaptaTrader.Business.Modules.Trading.ExternalServices.MarketData;
+namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 
 public class MockDataService : IMarketDataService
 {

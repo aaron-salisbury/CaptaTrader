@@ -3,7 +3,7 @@ using CaptaTrader.Business.Modules.UserAccess.DTOs;
 using System.Security;
 using System.Security.Cryptography;
 
-namespace CaptaTrader.Business.Modules.UserAccess.DomainServices.Authorization;
+namespace CaptaTrader.Business.Modules.UserAccess.DomainServices;
 
 // https://www.mking.net/blog/password-security-best-practices-with-examples-in-csharp
 

@@ -4,7 +4,7 @@ using System.Net;
 
 namespace CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 
-public interface IUserService
+public interface IUserAccessService
 {
     ValidationResult Authenticate(NetworkCredential networkCredentials);
 

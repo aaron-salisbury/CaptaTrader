@@ -1,9 +1,7 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.DTOs;
-using CaptaTrader.Business.Modules.Trading.DomainServices.TradeAnalyzer;
 using CaptaTrader.Business.Modules.Trading.DTOs;
-using CaptaTrader.Business.Modules.Trading.ExternalServices.Exchange;
-using CaptaTrader.Business.Modules.Trading.ExternalServices.MarketData;
+using CaptaTrader.Business.Modules.Trading.ExternalServices;
 using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Data;
 using CaptaTrader.Data.Entities;
@@ -11,7 +9,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 
-namespace CaptaTrader.Business.Modules.Trading.DomainServices.BotTrader;
+namespace CaptaTrader.Business.Modules.Trading.DomainServices;
 
 public class BitcoinBotTrader : IBotTrader
 {

@@ -3,7 +3,7 @@ using CaptaTrader.Data;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace CaptaTrader.Business.Modules.Trading.ExternalServices.CFGI;
+namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 
 // API Documentation: https://alternative.me/crypto/fear-and-greed-index/#api
 public class AlternativeCFGI : ICryptoFearAndGreedIndex

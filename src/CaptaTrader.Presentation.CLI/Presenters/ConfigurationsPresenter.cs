@@ -10,10 +10,10 @@ namespace CaptaTrader.Presentation.CLI.Presenters;
 internal class ConfigurationsPresenter : Presenter
 {
     private ConfigurationsView? _view;
-    private IUserService _userService;
+    private IUserAccessService _userService;
     private UserConfigDto? _currentConfig;
 
-    public ConfigurationsPresenter(IUserService userService, Navigator navigator) : base(navigator)
+    public ConfigurationsPresenter(IUserAccessService userService, Navigator navigator) : base(navigator)
     {
         _userService = userService;
         _currentConfig = _userService.GetSessionUserConfig();
