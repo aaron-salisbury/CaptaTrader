@@ -149,7 +149,7 @@ public class BinanceExchangeService : IExchangeService
 
     private ApiCredentials? GetApiCredentialsForSessionUser()
     {
-        UserConfigDto? userConfig = _sessionValueResolver.GetSessionUser("UserConfig")?.UserConfig;
+        UserConfigDto? userConfig = _sessionValueResolver.GetSessionUser(nameof(EndUserDto.UserConfig))?.UserConfig;
 
         if (userConfig?.ExchangeAPIKey != null && userConfig?.ExchangeSecretKey != null)
         {

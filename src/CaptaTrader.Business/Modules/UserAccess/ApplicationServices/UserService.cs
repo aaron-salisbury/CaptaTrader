@@ -13,14 +13,14 @@ public class UserService : IUserService
 {
     private readonly IDataAccess _dataAccess;
     private readonly ISessionValueResolver _sessionValueResolver;
-    private IValidator<EndUserDto> _userValidator;
+    private IValidator<UserConfigDto> _userConfigValidator;
     private readonly UserAccessMapper _userAccessMapper = new();
 
-    public UserService(IDataAccess dataAccess, ISessionValueResolver sessionValueResolver, IValidator<EndUserDto> userValidator)
+    public UserService(IDataAccess dataAccess, ISessionValueResolver sessionValueResolver, IValidator<UserConfigDto> userConfigValidator)
     {
         _dataAccess = dataAccess;
         _sessionValueResolver = sessionValueResolver;
-        _userValidator = userValidator;
+        _userConfigValidator = userConfigValidator;
 }
 
     public ValidationResult Authenticate(NetworkCredential networkCredentials)
@@ -60,24 +60,18 @@ public class UserService : IUserService
         return new ValidationResult();
     }
 
-    public EndUserDto? GetEndUser(int? id, params string[] relationships)
+    public UserConfigDto? GetSessionUserConfig()
     {
-        if (id != null && 
-            _dataAccess.ReadFiltered<EndUser>(eu => eu.EndUserId == id.Value, relationships).FirstOrDefault() is EndUser user)
-        {
-            return _userAccessMapper.MapToDto<EndUserDto>(user);
-        }
-
-        return null;
+        return _sessionValueResolver.GetSessionUser(nameof(EndUserDto.UserConfig))?.UserConfig;
     }
 
-    public async Task<ValidationResult> SaveEndUserAsync(EndUserDto user)
+    public async Task<ValidationResult> SaveSessionUserConfigAsync(UserConfigDto userConfig)
     {
-        ValidationResult result = await _userValidator.ValidateAsync(user);
-        
+        ValidationResult result = await _userConfigValidator.ValidateAsync(userConfig);
+
         if (result.IsValid)
         {
-            _dataAccess.Update(user);
+            _dataAccess.Update(_userAccessMapper.MapToEntity<UserConfig>(userConfig));
         }
 
         return result;

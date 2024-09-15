@@ -10,7 +10,7 @@ public interface IUserService
 
     ValidationResult Register(NetworkCredential networkCredentials);
 
-    EndUserDto? GetEndUser(int? id, params string[] relationships);
+    UserConfigDto? GetSessionUserConfig();
 
-    Task<ValidationResult> SaveEndUserAsync(EndUserDto user);
+    Task<ValidationResult> SaveSessionUserConfigAsync(UserConfigDto userConfig);
 }
