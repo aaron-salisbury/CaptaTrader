@@ -22,7 +22,7 @@ public class ApplicationDbContext : DbContext
     }
 
     internal DbSet<EndUser> EndUsers { get; set; }
-    internal DbSet<UserCredential> AppCredentials { get; set; }
-    internal DbSet<UserConfig> AppConfigs { get; set; }
+    internal DbSet<UserCredential> UserCredentials { get; set; }
+    internal DbSet<UserConfig> UserConfigs { get; set; }
     internal DbSet<TradeOrder> TradeOrders { get; set; }
 }

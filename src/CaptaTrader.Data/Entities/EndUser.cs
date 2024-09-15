@@ -7,7 +7,7 @@ public class EndUser
     [Key]
     public int EndUserId { get; private set; }
 
-    [Required, Display(Name = "User Name")]
+    [Required]
     public required string UserName { get; set; }
 
     public UserCredential? UserCredential { get; set; }
