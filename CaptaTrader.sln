@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptaTrader.Business", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptaTrader.Presentation.CLI", "src\CaptaTrader.Presentation.CLI\CaptaTrader.Presentation.CLI.csproj", "{6D9F5F44-1D4C-4E51-B779-8CC61BF1C64A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptaTrader.Domains", "src\CaptaTrader.Domains\CaptaTrader.Domains.csproj", "{ED7584CD-E864-45E8-9BE6-1C645F5B298E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{6D9F5F44-1D4C-4E51-B779-8CC61BF1C64A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D9F5F44-1D4C-4E51-B779-8CC61BF1C64A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D9F5F44-1D4C-4E51-B779-8CC61BF1C64A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ED7584CD-E864-45E8-9BE6-1C645F5B298E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ED7584CD-E864-45E8-9BE6-1C645F5B298E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ED7584CD-E864-45E8-9BE6-1C645F5B298E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ED7584CD-E864-45E8-9BE6-1C645F5B298E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

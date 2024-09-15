@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.Services.Domain;
+﻿using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 
 namespace CaptaTrader.Presentation.CLI.Base;
 

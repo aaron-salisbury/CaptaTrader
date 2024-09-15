@@ -56,7 +56,7 @@ public static class Startup
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddDataAccessDynamic(this IServiceCollection services, Type[] entityTypes)
     {
-        _dynamicDbContextType = BuildDynamicDbContextType<DynamicEmbeddedDbContext>(entityTypes);
+        _dynamicDbContextType = BuildDynamicDbContextType<DynamicDbContext>(entityTypes);
 
         services.AddScoped(typeof(DbContext), DynamicContextFactory);
         services.AddScoped<IDataAccess, DataAccess>();

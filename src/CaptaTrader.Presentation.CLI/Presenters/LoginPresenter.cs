@@ -1,9 +1,7 @@
-﻿using CaptaTrader.Business.Services.Domain;
+﻿using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+using FluentValidation.Results;
 using static CaptaTrader.Presentation.CLI.Views.LoginView;
 
 namespace CaptaTrader.Presentation.CLI.Presenters;
@@ -53,42 +51,42 @@ internal class LoginPresenter : Presenter
                 return;
             default:
                 Serilog.Log.Warning("Invalid login option selected.");
-                Navigator.NavigateTo(typeof(LoginPresenter));
+                _view?.Show();
                 break;
         }
     }
 
     private void LoginView_LoginCredentialsEntered(object? sender, LoginViewEventArgs e)
     {
-        IEnumerable<ValidationResult> results = e.NetworkCredential == null
-            ? [new ValidationResult("No credentials found.")]
+        ValidationResult result = e.NetworkCredential == null
+            ? new ValidationResult([new ValidationFailure() { ErrorMessage = "No credentials found." }])
             : _userService.Authenticate(e.NetworkCredential);
-            
-        if (!results.Any())
+   
+        if (result.IsValid)
         {
             Navigator.NavigateTo(typeof(MainMenuPresenter));
         }
         else
         {
-            _view?.PopupProcessFail(nameof(IUserService.Authenticate), results);
-            Navigator.NavigateTo(typeof(LoginPresenter));
+            _view?.PopupProcessFail(nameof(IUserService.Authenticate), result);
+            _view?.Show();
         }
     }
 
     private void LoginView_RegisterNewCredentialsEntered(object? sender, LoginViewEventArgs e)
     {
-        IEnumerable<ValidationResult> results = e.NetworkCredential == null
-            ? [new ValidationResult("No credentials found.")]
+        ValidationResult result = e.NetworkCredential == null
+            ? new ValidationResult([new ValidationFailure() { ErrorMessage = "No credentials found." }])
             : _userService.Register(e.NetworkCredential);
             
-        if (!results.Any())
+        if (result.IsValid)
         {
             Navigator.NavigateTo(typeof(MainMenuPresenter));
         }
         else
         {
-            _view?.PopupProcessFail(nameof(IUserService.Register), results);
-            Navigator.NavigateTo(typeof(LoginPresenter));
+            _view?.PopupProcessFail(nameof(IUserService.Register), result);
+            _view?.Show();
         }
     }
 }

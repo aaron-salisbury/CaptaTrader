@@ -1,6 +1,5 @@
 ﻿using Spectre.Console;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace CaptaTrader.Presentation.CLI.Base.MVP;
@@ -11,13 +10,13 @@ internal abstract class View
 
     internal virtual void Show() { throw new NotImplementedException(); }
 
-    internal void PopupProcessFail(string processName, IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult>? results = null)
+    internal void PopupProcessFail(string processName, FluentValidation.Results.ValidationResult validationResult)
     {
-        if (results != null)
+        if (validationResult.Errors.Count > 0)
         {
-            string errorMessage = results.Count() == 1
-                ? results.First().ErrorMessage ?? string.Empty
-                : Environment.NewLine + string.Join(Environment.NewLine, results.Select(vr => $" * {vr.ErrorMessage}"));
+            string errorMessage = validationResult.Errors.Count == 1
+                ? validationResult.Errors.First().ErrorMessage
+                : Environment.NewLine + string.Join(Environment.NewLine, validationResult.Errors.Select(e => $" * {e.ErrorMessage}"));
 
             AnsiConsole.MarkupLineInterpolated($"[red]{processName} failed[/]: {errorMessage}");
         }

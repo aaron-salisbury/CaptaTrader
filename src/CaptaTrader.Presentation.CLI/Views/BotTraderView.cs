@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.DTOs;
+﻿using CaptaTrader.Business.Modules.Trading.DTOs;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using Spectre.Console;
 using System;
@@ -23,14 +23,14 @@ internal class BotTraderView : View
         ShutdownRequested?.Invoke(this, EventArgs.Empty);
     }
 
-    internal void PopupTradeOrder(TradeOrder trade)
+    internal void PopupTradeOrder(TradeOrderDto trade)
     {
         Grid transactionGrid = new();
         transactionGrid.AddColumns(_tradeOrderColumnHeaders.Length);
         transactionGrid.AddRow(_tradeOrderColumnHeaders);
         transactionGrid.AddRow(GetTradeOrderAsDataRow(trade));
 
-        string headerColor = trade.TransactionType == TradeOrder.TransactionTypes.Sell ? "green" : "purple";
+        string headerColor = trade.TransactionType == TradeOrderDto.TransactionTypes.Sell ? "green" : "purple";
 
         Panel transactionPanel = new(transactionGrid)
         {
@@ -42,7 +42,7 @@ internal class BotTraderView : View
         AnsiConsole.Write(transactionPanel);
     }
 
-    private static string[] GetTradeOrderAsDataRow(TradeOrder tradeOrder)
+    private static string[] GetTradeOrderAsDataRow(TradeOrderDto tradeOrder)
     {
         return
             [
@@ -58,11 +58,11 @@ internal class BotTraderView : View
     {
         IEnumerable<string> columnNames = 
             [
-                nameof(TradeOrder.TimeStamp),
-                nameof(TradeOrder.TransactionType),
-                nameof(TradeOrder.Symbol),
-                nameof(TradeOrder.PriceUSDT),
-                nameof(TradeOrder.Amount)
+                nameof(TradeOrderDto.TimeStamp),
+                nameof(TradeOrderDto.TransactionType),
+                nameof(TradeOrderDto.Symbol),
+                nameof(TradeOrderDto.PriceUSDT),
+                nameof(TradeOrderDto.Amount)
             ];
 
         Style columnsHeaderStyle = new(decoration: Decoration.Bold);

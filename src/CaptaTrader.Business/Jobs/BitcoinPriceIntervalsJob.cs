@@ -1,4 +1,4 @@
-﻿using CaptaTrader.Business.Services;
+﻿using CaptaTrader.Business.Modules.Trading.DomainServices.BotTrader;
 using Quartz;
 
 namespace CaptaTrader.Business.Jobs;

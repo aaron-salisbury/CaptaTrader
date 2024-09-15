@@ -1,5 +1,5 @@
-﻿using CaptaTrader.Business.MessageContracts;
-using CaptaTrader.Business.Services.Domain;
+﻿using CaptaTrader.Business.Modules.Trading.ApplicationServices;
+using CaptaTrader.Business.Modules.Trading.MessageContracts;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
 using MassTransit;

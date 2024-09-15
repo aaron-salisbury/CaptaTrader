@@ -5,13 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using static CaptaTrader.Presentation.CLI.Views.ConfigurationsView;
 
 namespace CaptaTrader.Presentation.CLI.Views;
 
 internal class ConfigurationsView : View
 {
-    internal event EventHandler<ConfigViewEventArgs>? ConfigurationOptionSelected;
+    internal delegate Task AsyncEventHandler<TEventArgs>(object? sender, TEventArgs e);
+
+    internal event AsyncEventHandler<ConfigViewEventArgs>? ConfigurationOptionSelectedAsync;
     internal event EventHandler<ConfigViewEventArgs>? ConfigurationEntered;
     internal event EventHandler<ConfigViewEventArgs>? ConfigurationSecretEntered;
 
@@ -44,7 +47,10 @@ internal class ConfigurationsView : View
 
         ConfigurationOptions selectedOption = options.Where(co => string.Equals(co.GetDisplayName(), readableChoice)).FirstOrDefault();
 
-        ConfigurationOptionSelected?.Invoke(this, new ConfigViewEventArgs(selectedOption));
+        if (ConfigurationOptionSelectedAsync != null)
+        {
+            _ = ConfigurationOptionSelectedAsync(this, new ConfigViewEventArgs(selectedOption));
+        }
     }
 
     internal void PopupConfiguration(ConfigurationOptions configurationOption)

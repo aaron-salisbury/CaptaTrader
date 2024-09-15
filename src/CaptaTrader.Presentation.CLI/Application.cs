@@ -1,5 +1,5 @@
 ﻿using CaptaTrader.Business;
-using CaptaTrader.Business.Services.Domain;
+using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Data.Database;
 using CaptaTrader.Presentation.CLI.Base;
 using CaptaTrader.Presentation.CLI.Base.Extensions;

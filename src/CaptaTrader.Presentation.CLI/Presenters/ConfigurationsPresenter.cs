@@ -1,10 +1,9 @@
-﻿using CaptaTrader.Business.Services.Domain;
-using CaptaTrader.Domains;
+﻿using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
+using CaptaTrader.Business.Modules.UserAccess.DTOs;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+using FluentValidation.Results;
+using System.Threading.Tasks;
 using static CaptaTrader.Presentation.CLI.Views.ConfigurationsView;
 
 namespace CaptaTrader.Presentation.CLI.Presenters;
@@ -14,18 +13,20 @@ internal class ConfigurationsPresenter : Presenter
     private ConfigurationsView? _view;
     private ISessionValueProvider _session;
     private IUserService _userService;
+    private EndUserDto? _currentUser;
 
     public ConfigurationsPresenter(ISessionValueProvider session, IUserService userService, Navigator navigator) : base(navigator)
     {
         _session = session;
         _userService = userService;
+        _currentUser = _userService.GetEndUser(_session.GetUserID(), "UserConfig");
     }
 
     internal override void Display(View view)
     {
         _view = (ConfigurationsView)view;
 
-        _view.ConfigurationOptionSelected += ConfigurationsView_ConfigurationOptionSelected;
+        _view.ConfigurationOptionSelectedAsync += ConfigurationsView_ConfigurationOptionSelected;
         _view.ConfigurationEntered += ConfigurationsView_ConfigurationEntered;
         _view.ConfigurationSecretEntered += ConfigurationsView_ConfigurationSecretEntered;
 
@@ -36,13 +37,13 @@ internal class ConfigurationsPresenter : Presenter
     {
         if (_view != null)
         {
-            _view.ConfigurationOptionSelected -= ConfigurationsView_ConfigurationOptionSelected;
+            _view.ConfigurationOptionSelectedAsync -= ConfigurationsView_ConfigurationOptionSelected;
             _view.ConfigurationEntered -= ConfigurationsView_ConfigurationEntered;
             _view.ConfigurationEntered -= ConfigurationsView_ConfigurationSecretEntered;
         }
     }
 
-    private void ConfigurationsView_ConfigurationOptionSelected(object? sender, ConfigViewEventArgs e)
+    private async Task ConfigurationsView_ConfigurationOptionSelected(object? sender, ConfigViewEventArgs e)
     {
         switch (e.MenuOption)
         {
@@ -55,7 +56,7 @@ internal class ConfigurationsPresenter : Presenter
                 _view?.PopupSecretConfiguration(e.MenuOption);
                 break;
             case ConfigurationOptions.Save:
-                Save();
+                await SaveAsync();
                 break;
             case ConfigurationOptions.Return:
             default:
@@ -67,57 +68,57 @@ internal class ConfigurationsPresenter : Presenter
 
     private void ConfigurationsView_ConfigurationEntered(object? sender, ConfigViewEventArgs e)
     {
-        if (_userService.GetEndUser(_session.GetUserID(), nameof(EndUser.AppConfig)) is EndUser user)
+        if (_currentUser != null)
         {
             switch (e.MenuOption)
             {
                 case ConfigurationOptions.EnterEmail:
-                    user.AppConfig.Email = e.EnteredValue;
+                    _currentUser.UserConfig.Email = e.EnteredValue;
                     break;
             }
         }
 
-        Navigator.NavigateTo(typeof(ConfigurationsPresenter));
+        _view?.Show();
     }
 
     private void ConfigurationsView_ConfigurationSecretEntered(object? sender, ConfigViewEventArgs e)
     {
-        if (_userService.GetEndUser(_session.GetUserID(), nameof(EndUser.AppConfig)) is EndUser user)
+        if (_currentUser != null)
         {
             switch (e.MenuOption)
             {
                 case ConfigurationOptions.EnterCoinApiAPIKey:
-                    user.AppConfig.MarketDataAPIKey = e.EnteredValue;
+                    _currentUser.UserConfig.MarketDataAPIKey = e.EnteredValue;
                     break;
                 case ConfigurationOptions.EnterBinanceAPIKey:
-                    user.AppConfig.ExchangeAPIKey = e.EnteredValue;
+                    _currentUser.UserConfig.ExchangeAPIKey = e.EnteredValue;
                     break;
                 case ConfigurationOptions.EnterBinanceSecretKey:
-                    user.AppConfig.ExchangeSecretKey = e.EnteredValue;
+                    _currentUser.UserConfig.ExchangeSecretKey = e.EnteredValue;
                     break;
             }
         }
 
-        Navigator.NavigateTo(typeof(ConfigurationsPresenter));
+        _view?.Show();
     }
 
-    private void Save()
+    private async Task SaveAsync()
     {
-        IEnumerable<ValidationResult> results;
-        EndUser? user = _userService.GetEndUser(_session.GetUserID());
+        ValidationResult result;
 
-        if (user == null)
+        if (_currentUser == null)
         {
-            results = [new ValidationResult("No user found to update.")];
+            result = new ValidationResult([new ValidationFailure() { ErrorMessage = "No user found to update." }]);
         }
         else
         {
-            results = _userService.SaveEndUser(user);
+            result = await _userService.SaveEndUserAsync(_currentUser);
         }
 
-        if (results.Any())
+        if (!result.IsValid)
         {
-            _view?.PopupProcessFail(nameof(IUserService.SaveEndUser), results);
+            _view?.PopupProcessFail("Save End User", result);
+            _view?.Show();
         }
 
         Navigator.NavigateTo(typeof(MainMenuPresenter));
