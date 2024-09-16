@@ -20,7 +20,7 @@ public class UserAccessService : IUserAccessService
         _dataAccess = dataAccess;
         _sessionValueResolver = sessionValueResolver;
         _userConfigValidator = userConfigValidator;
-}
+    }
 
     public ValidationResult Authenticate(NetworkCredential networkCredentials)
     {

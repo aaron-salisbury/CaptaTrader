@@ -5,7 +5,7 @@ namespace CaptaTrader.Data.Entities;
 public class EndUser
 {
     [Key]
-    public int EndUserId { get; private set; }
+    public int EndUserId { get; set; }
 
     [Required]
     public required string UserName { get; set; }

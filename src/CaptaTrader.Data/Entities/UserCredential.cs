@@ -6,7 +6,7 @@ namespace CaptaTrader.Data.Entities;
 public class UserCredential
 {
     [Key]
-    public int UserCredentialId { get; private set; }
+    public int UserCredentialId { get; set; }
 
     [Required, ForeignKey(nameof(EndUser))]
     public int EndUserId { get; set; }

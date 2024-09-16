@@ -6,7 +6,7 @@ namespace CaptaTrader.Data.Entities;
 public class UserConfig
 {
     [Key]
-    public int UserConfigId { get; private set; }
+    public int UserConfigId { get; set; }
 
     [Required, ForeignKey(nameof(EndUser))]
     public int EndUserId { get; set; }

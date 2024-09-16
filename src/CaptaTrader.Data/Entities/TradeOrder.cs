@@ -6,7 +6,7 @@ namespace CaptaTrader.Data.Entities;
 public class TradeOrder
 {
     [Key]
-    public int TradeOrderId { get; private set; }
+    public int TradeOrderId { get; set; }
 
     [Required, ForeignKey(nameof(EndUser))]
     public int EndUserId { get; set; }
