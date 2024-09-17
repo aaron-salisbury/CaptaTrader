@@ -73,7 +73,7 @@ public static class Startup
         // Orchestrated public-facing services.
         services.AddScoped<IUserAccessService, UserAccessService>()
             .AddScoped<ITradingService, TradingService>()
-            .AddSingleton<DomainInitializer, DomainInitializer>();
+            .AddScoped<DomainInitializer, DomainInitializer>();
 
         return services;
     }
