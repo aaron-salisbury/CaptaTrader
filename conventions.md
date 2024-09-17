@@ -32,6 +32,8 @@ Generally follow the definitions described within this [article](https://medium.
 3. **Domains** - Real-world concepts used internally within business logic and don't need to persist.
 4. **Models** - Can represent a view of either entities, domains, or DTOs. With the intention that these are what wwould be consumed by the presentation layer. In MVVM and MVC, models are the objects used for data binding.
 
+Ideally application DTOs get validated, entities are pure data objects, and in general objects (outside of some effectively static services) don't get complex behavior. [KISS](https://www.interaction-design.org/literature/topics/keep-it-simple-stupid).
+
 Coding
 ================
 

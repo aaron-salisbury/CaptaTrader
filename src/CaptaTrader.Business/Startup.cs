@@ -31,7 +31,6 @@ public static class Startup
         // https://stackoverflow.com/questions/249760/how-can-i-convert-a-unix-timestamp-to-datetime-and-vice-versa
 
         // Architecture
-        // "Validation should be done for api DTOs. And I don’t make objects with complex behavior. Either data objects that have no logic or static (or effectively static) services that do things. This simplifies arch significantly."
         // https://stackoverflow.com/a/12078590
         // https://www.youtube.com/watch?v=ZA2X1gaAhJk
         // https://codeopinion.com/restructuring-to-a-vertical-slice-architecture/
