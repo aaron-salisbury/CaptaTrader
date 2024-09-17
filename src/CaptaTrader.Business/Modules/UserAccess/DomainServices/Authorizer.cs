@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 
 namespace CaptaTrader.Business.Modules.UserAccess.DomainServices;
 
-// https://www.mking.net/blog/password-security-best-practices-with-examples-in-csharp
+// ref: https://www.mking.net/blog/password-security-best-practices-with-examples-in-csharp
 
 internal static class Authorizer
 {

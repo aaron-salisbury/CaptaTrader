@@ -8,7 +8,7 @@ public static class AssemblyExtensions
 {
     public static string? ReadResource(this Assembly assembly, string name)
     {
-        // https://stackoverflow.com/a/3314213
+        // ref: https://stackoverflow.com/a/3314213
 
         string resourcePath = assembly.GetManifestResourceNames()
                 .Single(str => str.EndsWith(name));

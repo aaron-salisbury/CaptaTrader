@@ -9,7 +9,7 @@ public static class DecimalExtensions
     /// </summary>
     public static decimal PrecisionTruncate(this decimal d, byte precision)
     {
-        // From D. Nesterov's answer at https://stackoverflow.com/questions/3143657/truncate-two-decimal-places-without-rounding
+        // ref: https://stackoverflow.com/a/43639947
 
         decimal r = Math.Round(d, precision);
 

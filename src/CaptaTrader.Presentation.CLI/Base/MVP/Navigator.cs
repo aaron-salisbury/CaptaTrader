@@ -3,16 +3,20 @@
 namespace CaptaTrader.Presentation.CLI.Base.MVP;
 
 // Inspired by https://stackoverflow.com/a/13030590
-
-internal class Navigator
+public class Navigator
 {
+    private readonly IServiceProvider _serviceProvider;
     private Presenter? _current;
+
+    public Navigator(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
 
     internal void NavigateTo(Type nextPresenterType)
     {
-        bool isPresenter = typeof(Presenter).IsAssignableFrom(nextPresenterType);
-
-        if (isPresenter && Application.ServiceProvider!.GetService(nextPresenterType) is Presenter nextPresenter)
+        if (typeof(Presenter).IsAssignableFrom(nextPresenterType) &&
+            _serviceProvider.GetService(nextPresenterType) is Presenter nextPresenter)
         {
             NavigateTo(nextPresenter);
         }

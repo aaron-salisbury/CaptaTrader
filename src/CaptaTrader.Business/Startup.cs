@@ -16,11 +16,11 @@ namespace CaptaTrader.Business;
 public static class Startup
 {
     /// <summary>
-    /// Adds business-tier services, including <see cref="IBusControl"/> for messaging.
-    /// Dependent on application <see cref="ILogger"/> and <see cref="ISessionValueProvider"/>.
+    /// Adds business-tier services, including <see cref="DomainInitializer"/> for safely starting & shutting down the business services.
+    /// Dependent on <see cref="ILogger"/>, <see cref="ISessionValueProvider"/>, and everything that implements <see cref="IConsumer"/>.
     /// </summary>
     /// <returns>A reference to this instance after the operation has completed.</returns>
-    public static IServiceCollection AddBusinessServices(this IServiceCollection services, bool useMockExternalAPICalls, params Type[] massTransitConsumerTypes)
+    public static IServiceCollection AddBusinessServices(this IServiceCollection services)
     {
         //TODO: Look Into:
         // APIs
@@ -46,26 +46,24 @@ public static class Startup
 
 
 
+
         // Necessary infrastructure.
         services.AddWebRequesting()
             .AddDataAccess()
             .AddScoped<SessionValueResolver, SessionValueResolver>()
-            .AddMessaging(massTransitConsumerTypes)
+            .AddMessaging()
             .AddScheduling();
 
         // External API services.
-        if (useMockExternalAPICalls)
-        {
-            services.AddScoped<IMarketDataService, MockDataService>()
+#if DEBUG //TODO: Use command option MockExternalAPICalls to decide instead.
+        services.AddScoped<IMarketDataService, MockDataService>()
                 .AddScoped<IExchangeService, MockExchangeService>()
                 .AddScoped<ICryptoFearAndGreedIndex, MockCFGIService>();
-        }
-        else
-        {
-            services.AddScoped<IMarketDataService, CoinApiDataService>() //TODO: Potential alternate if limit is reached: https://openapi.coinstats.app/
-                .AddScoped<IExchangeService, BinanceExchangeService>()
-                .AddScoped<ICryptoFearAndGreedIndex, AlternativeCFGI>();
-        }
+#else
+        services.AddScoped<IMarketDataService, CoinApiDataService>() //TODO: Potential alternate if limit is reached: https://openapi.coinstats.app/
+            .AddScoped<IExchangeService, BinanceExchangeService>()
+            .AddScoped<ICryptoFearAndGreedIndex, AlternativeCFGI>();
+#endif
 
         // Internal business domain logic.
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
@@ -74,21 +72,26 @@ public static class Startup
 
         // Orchestrated public-facing services.
         services.AddScoped<IUserAccessService, UserAccessService>()
-            .AddScoped<ITradingService, TradingService>();
+            .AddScoped<ITradingService, TradingService>()
+            .AddSingleton<DomainInitializer, DomainInitializer>();
 
         return services;
     }
 
-    private static IServiceCollection AddMessaging(this IServiceCollection services, params Type[] massTransitConsumerTypes)
+    private static IServiceCollection AddMessaging(this IServiceCollection services)
     {
+        Type[] consumers = services
+            .Where(s => typeof(IConsumer).IsAssignableFrom(s.ServiceType))
+            .Select(s => s.ServiceType)
+            .ToArray();
+
         services.AddMassTransit(c =>
         {
-            c.AddConsumers(massTransitConsumerTypes);
+            c.AddConsumers(consumers);
             c.UsingInMemory((context, cfg) => { cfg.ConfigureEndpoints(context); });
         });
 
         return services;
-
     }
 
     private static IServiceCollection AddScheduling(this IServiceCollection services)

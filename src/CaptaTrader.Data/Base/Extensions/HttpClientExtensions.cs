@@ -9,7 +9,7 @@ internal static class HttpClientExtensions
     /// </summary>
     internal static async Task DownloadFileTaskAsync(this HttpClient client, Uri address, string fileName)
     {
-        // https://stackoverflow.com/a/66270371
+        // ref: https://stackoverflow.com/a/66270371
 
         using (Stream stream = await client.GetStreamAsync(address))
         using (FileStream fileStream = new(fileName, FileMode.CreateNew))

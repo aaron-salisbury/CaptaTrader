@@ -1,6 +1,5 @@
 ﻿using CaptaTrader.Business.Modules.Trading;
 using CaptaTrader.Business.Modules.Trading.DTOs;
-using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Data;
 using CaptaTrader.Data.Base;
 using CaptaTrader.Data.Entities;

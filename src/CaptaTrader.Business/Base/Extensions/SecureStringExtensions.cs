@@ -19,7 +19,7 @@ public static class SecureStringExtensions
     /// </summary>
     public static string ToPlainString(this SecureString secureString)
     {
-        // https://stackoverflow.com/a/38016279
+        // ref: https://stackoverflow.com/a/38016279
 
         NetworkCredential secureStringAsNetworkCredential = new(string.Empty, secureString);
 

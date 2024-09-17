@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Spectre.Console.Cli;
+﻿using Spectre.Console.Cli;
 using System.ComponentModel;
 using System.Threading.Tasks;
 
@@ -7,16 +6,16 @@ namespace CaptaTrader.Presentation.CLI.Base.Commands;
 
 internal sealed class MainCommand : AsyncCommand<MainCommand.Settings>
 {
-    private ILoggerFactory _loggerFactory;
+    private readonly Application _app;
 
-    public MainCommand(ILoggerFactory loggerFactory)
+    public MainCommand(Application app)
     {
-        _loggerFactory = loggerFactory;
+        _app = app;
     }
 
     public class Settings : LogCommandSettings
     {
-        // https://spectreconsole.net/cli/settings
+        // ref: https://spectreconsole.net/cli/settings
 
         [CommandOption("-m|--mock-data")]
         [Description("Mock external API calls")]
@@ -27,8 +26,8 @@ internal sealed class MainCommand : AsyncCommand<MainCommand.Settings>
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
         //TODO: Temporary for testing.
-        settings.MockExternalAPICalls = true;
+        //settings.MockExternalAPICalls = true;
 
-        return await new Application(_loggerFactory.CreateLogger(nameof(Application)), settings.MockExternalAPICalls).RunAsync();
+        return await _app.RunAsync();
     }
 }

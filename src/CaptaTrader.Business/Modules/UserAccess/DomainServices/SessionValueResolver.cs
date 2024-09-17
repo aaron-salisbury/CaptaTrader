@@ -1,5 +1,4 @@
-﻿using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
-using CaptaTrader.Business.Modules.UserAccess.DTOs;
+﻿using CaptaTrader.Business.Modules.UserAccess.DTOs;
 using CaptaTrader.Data;
 using CaptaTrader.Data.Entities;
 

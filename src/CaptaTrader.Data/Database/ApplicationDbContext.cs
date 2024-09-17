@@ -7,7 +7,7 @@ namespace CaptaTrader.Data.Database;
 //TODO: Read and apply:
 //  https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
 //  https://learn.microsoft.com/en-us/ef/core/modeling/indexes?tabs=data-annotations
-// https://learn.microsoft.com/en-us/ef/ef6/querying/related-data
+//  https://learn.microsoft.com/en-us/ef/ef6/querying/related-data
 
 public class ApplicationDbContext : DbContext
 {
@@ -17,7 +17,6 @@ public class ApplicationDbContext : DbContext
         string appName = new DirectoryInfo(appFolderPath).Name;
         string dbPath = Path.Join(appFolderPath, $"{appName}.db");
 
-        //TODO: Don't hard-code connection strings; should be stored in configuration.
         options.UseSqlite($"Data Source={dbPath}");
     }
 

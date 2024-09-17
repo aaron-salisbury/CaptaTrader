@@ -23,25 +23,25 @@ public sealed class VerbosityConverter : TypeConverter
     public VerbosityConverter()
     {
         _lookup = new Dictionary<string, LogEventLevel>(StringComparer.OrdinalIgnoreCase)
-    {
-        {"v", LogEventLevel.Verbose},
-        {"d", LogEventLevel.Debug},
-        {"i", LogEventLevel.Information},
-        {"w", LogEventLevel.Warning},
-        {"e", LogEventLevel.Error},
-        {"f", LogEventLevel.Fatal}
-    };
+        {
+            {"v", LogEventLevel.Verbose},
+            {"d", LogEventLevel.Debug},
+            {"i", LogEventLevel.Information},
+            {"w", LogEventLevel.Warning},
+            {"e", LogEventLevel.Error},
+            {"f", LogEventLevel.Fatal}
+        };
     }
 
     public override object ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
     {
         if (value is string stringValue)
         {
-            var result = _lookup.TryGetValue(stringValue, out var verbosity);
+            bool result = _lookup.TryGetValue(stringValue, out var verbosity);
             if (!result)
             {
                 const string format = "The value '{0}' is not a valid verbosity.";
-                var message = string.Format(CultureInfo.InvariantCulture, format, value);
+                string message = string.Format(CultureInfo.InvariantCulture, format, value);
                 throw new InvalidOperationException(message);
             }
             return verbosity;

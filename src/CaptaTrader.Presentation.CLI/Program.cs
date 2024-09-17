@@ -1,6 +1,10 @@
-﻿using CaptaTrader.Presentation.CLI.Base.Commands;
+﻿using CaptaTrader.Business;
+using CaptaTrader.Presentation.CLI.Base;
+using CaptaTrader.Presentation.CLI.Base.Commands;
 using CaptaTrader.Presentation.CLI.Base.Infrastructure;
+using CaptaTrader.Presentation.CLI.Base.MVP;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -51,15 +55,23 @@ public class Program
 
     private static IServiceCollection ConfigureServices()
     {
-        IServiceCollection registrations = new ServiceCollection();
-
         Serilog.Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.ControlledBy(CommandInterceptor.LogLevel) // https://github.com/spectreconsole/examples/blob/main/examples/Cli/Logging/Program.cs
+            .MinimumLevel.ControlledBy(CommandInterceptor.LogLevel) // ref: https://github.com/spectreconsole/examples/blob/main/examples/Cli/Logging/Program.cs
             .WriteTo.Console()
             .CreateLogger();
 
-        registrations.AddLogging(configure => configure.AddSerilog(Serilog.Log.Logger));
+        IServiceCollection services = new ServiceCollection()
+            .AddLogging(configure => configure.AddSerilog(Serilog.Log.Logger))
+            .AddSingleton(sp => sp.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(Application)))
+            .AddSingleton<ISessionValueProvider, Session>()
+            .AddSingleton<Navigator, Navigator>();
 
-        return registrations;
+        Application.AddPresentersAndConsumers(services);
+
+        services.AddBusinessServices();
+
+        services.AddSingleton<Application, Application>();
+
+        return services;
     }
 }

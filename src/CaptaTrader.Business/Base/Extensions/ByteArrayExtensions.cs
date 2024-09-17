@@ -6,7 +6,7 @@ public static class ByteArrayExtensions
 {
     public static bool EqualsByteArray(this byte[] array1, byte[] array2)
     {
-        // https://stackoverflow.com/a/2138588
+        // ref: https://stackoverflow.com/a/2138588
 
         if (array1.Length != array2.Length)
         {

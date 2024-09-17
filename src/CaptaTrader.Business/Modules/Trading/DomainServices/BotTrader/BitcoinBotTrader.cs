@@ -2,7 +2,6 @@
 using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Modules.Trading.DTOs;
 using CaptaTrader.Business.Modules.Trading.ExternalServices;
-using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Data;
 using CaptaTrader.Data.Entities;
 using FluentValidation;
