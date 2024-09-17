@@ -30,7 +30,7 @@ Generally follow the definitions described within this [article](https://medium.
 1. **Entities** - Uniquely identifiable objects. This includes everything that would get mapped to a database table.
 2. **DTOs** - Lightweight objects for data transfer. All should be considered serializable and made as records. Always a [POCO](https://ardalis.com/dto-or-poco/).
 3. **Domains** - Real-world concepts used internally within business logic and don't need to persist.
-4. **Models** - Can represent a view of either entities, domains, or DTOs. With the intention that these are what wwould be consumed by the presentation layer. In MVVM and MVC, models are the objects used for data binding.
+4. **Models** - Can represent a view of either entities, domains, or DTOs. With the intention that these are what would be consumed by the presentation layer. In MVVM and MVC, models are the objects used for data binding.
 
 Coding
 ================
