@@ -1,7 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace CaptaTrader.Data.Entities;
 
+[Index(nameof(UserName), IsUnique = true)]
 public class EndUser
 {
     [Key]

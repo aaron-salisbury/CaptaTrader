@@ -1,8 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CaptaTrader.Data.Entities;
 
+[Index(nameof(EndUserId))]
 public class TradeOrder
 {
     [Key]
