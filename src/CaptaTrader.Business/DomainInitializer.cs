@@ -27,6 +27,6 @@ public class DomainInitializer
     public async Task ShutdownAsync()
     {
         await _scheduler.Shutdown();
-        await _busControl.StopAsync();
+        _busControl.Stop();
     }
 }
