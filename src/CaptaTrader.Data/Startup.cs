@@ -36,7 +36,7 @@ public static class Startup
     {
         services.AddDbContext<ApplicationDbContext>()
             .AddScoped<IDataAccess, ApplicationDataAccess>()
-            .AddScoped<DataInitializer, DataInitializer>(); ;
+            .AddScoped<DataInitializer, DataInitializer>();
 
         return services;
     }
