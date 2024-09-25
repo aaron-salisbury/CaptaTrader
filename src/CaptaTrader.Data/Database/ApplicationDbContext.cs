@@ -5,7 +5,9 @@ using Microsoft.EntityFrameworkCore;
 namespace CaptaTrader.Data.Database;
 
 //TODO: Read and apply:
+//  https://learn.microsoft.com/en-us/ef/core/modeling/
 //  https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
+//  https://learn.microsoft.com/en-us/ef/core/performance/efficient-querying#use-indexes-properly
 //  https://learn.microsoft.com/en-us/ef/core/modeling/indexes?tabs=data-annotations
 //  https://learn.microsoft.com/en-us/ef/ef6/querying/related-data
 
