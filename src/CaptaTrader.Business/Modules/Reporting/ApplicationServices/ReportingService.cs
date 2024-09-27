@@ -31,6 +31,7 @@ public class ReportingService : IReportingService
                 .OrderByDescending(to => to.TimeStamp)
                 .Select(_tradingMapper.MapToDto<TradeOrderDto>);
 
+            //TODO: will need to make a mapper and pass it in.
             await IO.WriteToCSVAsync(thisUsersTrades, _logger);
         }
     }
