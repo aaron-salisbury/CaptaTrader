@@ -15,7 +15,6 @@ public class ApplicationDataAccess : IDataAccess
 {
     private readonly ILogger _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
-    private bool _disposed;
 
     public ApplicationDataAccess(ILogger logger, IServiceScopeFactory serviceScopeFactory)
     {
