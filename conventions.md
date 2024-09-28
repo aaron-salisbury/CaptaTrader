@@ -9,7 +9,7 @@ Architecture
 			- Business doesn't define entities. 
 			- Data access doesn't implement business validations.
 			- UI doesn't perform business logic.
-		- Maintain modularity within the application/business layer.
+		- Maintain modularity and [Locality of Behaviour](https://htmx.org/essays/locality-of-behaviour/) within the application/business layer.
 3. Name projects with the postfix of their tier (e.g., MyCoolApp.Data).
 4. There can be more than one presentation for the set of given business functionality (i.e., a mobile app and a desktop application). Name each presentation project with the target platform postfix (e.g., MyCoolApp.Presentation.Web).
 5. GUI app projects that target desktop or mobile should follow the [MVVM Design Pattern](https://dev.to/mochafreddo/mastering-mvvm-a-comprehensive-guide-to-the-model-view-viewmodel-architecture-221g).
