@@ -31,6 +31,8 @@ public class SessionValueResolver
             return null;
         }
 
+        //TODO: No credential on a new end user and mapper breaks due to it.
+        //      Mapper wants (or needs) everything but we want to honor the requested relationships and not bring everything back always.
         return _userAccessMapper.MapToDto<EndUserDto>(endUser);
     }
 
