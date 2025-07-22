@@ -1,5 +1,4 @@
-﻿using CaptaTrader.Business.DTOs;
-using CaptaTrader.Business.Modules.Trading.DTOs;
+﻿using CaptaTrader.Business.Modules.Trading.DTOs;
 using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Business.Modules.UserAccess.DTOs;
 using CaptaTrader.Data.Services;
@@ -53,7 +52,7 @@ public sealed class CoinApiDataService : IMarketDataService
                 });
 
             if (!string.IsNullOrEmpty(json) &&
-                JsonSerializer.Deserialize<List<CoinApiOhlcvDto>>(json) is List<CoinApiOhlcvDto> intervals)
+                JsonSerializer.Deserialize<List<CoinApiOhlcv>>(json) is List<CoinApiOhlcv> intervals)
             {
                 return intervals.Select(cao => new PriceInterval()
                 {

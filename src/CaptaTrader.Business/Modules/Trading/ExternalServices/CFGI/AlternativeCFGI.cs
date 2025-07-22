@@ -33,7 +33,7 @@ public sealed class AlternativeCFGI : ICryptoFearAndGreedIndex
             string? json = await _webRequester.SendHTTPJsonRequestAsync(url);
 
             if (!string.IsNullOrEmpty(json) &&
-                JsonSerializer.Deserialize<AlternativeCFGIResultDto>(json) is AlternativeCFGIResultDto result)
+                JsonSerializer.Deserialize<AlternativeCFGIResult>(json) is AlternativeCFGIResult result)
             {
                 return result.Data.Where(d => !string.IsNullOrEmpty(d.Value) && d.Value.All(char.IsDigit))
                     .Select(d => Convert.ToInt32(d.Value));

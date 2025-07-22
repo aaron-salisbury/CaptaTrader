@@ -1,5 +1,4 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
-using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Modules.Trading.DTOs;
 using System;
 using System.Collections.Generic;

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace CaptaTrader.Business.Modules.Trading.DTOs;
 
-public record AlternativeCFGIResultDto
+public record AlternativeCFGIResult
 {
     [JsonPropertyName("name")]
     public string? Name { get; init; }

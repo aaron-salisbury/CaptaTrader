@@ -1,9 +1,7 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
-using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Modules.Trading.DTOs;
 using CaptaTrader.Business.Modules.Trading.ExternalServices;
 using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
-using CaptaTrader.Data.Entities;
 using CaptaTrader.Data.Services;
 using FluentValidation;
 using FluentValidation.Results;
@@ -35,7 +33,7 @@ public sealed class BitcoinBotTrader : IBotTrader
     private ILogger _logger;
 
     public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, IDataAccess dataAccess,
-        IUserAccessService userAccessService, IValidator<TradeOrderDto> tradeValidator, ILogger logger)
+        IUserAccessService userAccessService, IValidator<DTOs.TradeOrderDto> tradeValidator, ILogger logger)
     {
         _cryptoDataService = cryptoDataService;
         _exchangeService = exchangeService;
@@ -107,18 +105,18 @@ public sealed class BitcoinBotTrader : IBotTrader
         return successful;
     }
 
-    public async Task<TradeOrderDto?> AttemptToInitiateTradeAsync()
+    public async Task<DTOs.TradeOrderDto?> AttemptToInitiateTradeAsync()
     {
         //TODO: Temporary for testing.
         //  Will need to answer whether I should sell, buy, or hold?
 
-        TradeOrderDto? tradeOrder = _tradeAnalyzerService.AnalyzePotentialTrade();
+        DTOs.TradeOrderDto? tradeOrder = _tradeAnalyzerService.AnalyzePotentialTrade();
         int? userId = _userAccessService.GetSessionEndUserId();
 
         if (tradeOrder != null
             && userId != null
-            && (tradeOrder.TransactionType == TradeOrderDto.TransactionTypes.Buy && _exchangeService.Buy(tradeOrder)
-                || tradeOrder.TransactionType == TradeOrderDto.TransactionTypes.Sell && _exchangeService.Sell(tradeOrder)))
+            && (tradeOrder.TransactionType == DTOs.TradeOrderDto.TransactionTypes.Buy && _exchangeService.Buy(tradeOrder)
+                || tradeOrder.TransactionType == DTOs.TradeOrderDto.TransactionTypes.Sell && _exchangeService.Sell(tradeOrder)))
         {
             ValidationResult result = await _tradeValidator.ValidateAsync(tradeOrder);
             if (!result.IsValid)
@@ -127,7 +125,7 @@ public sealed class BitcoinBotTrader : IBotTrader
                 return null;
             }
 
-            _dataAccess.Create(new TradeOrder()
+            _dataAccess.Create(new Data.Entities.TradeOrder()
             {
                 EndUserId = userId.Value,
                 TimeStamp = DateTime.Now,

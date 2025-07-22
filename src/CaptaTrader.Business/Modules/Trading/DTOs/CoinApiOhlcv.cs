@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace CaptaTrader.Business.Modules.Trading.DTOs;
 
-public record CoinApiOhlcvDto
+public record CoinApiOhlcv
 {
     [JsonPropertyName("time_period_start")]
     public DateTime TimePeriodStart { get; init; }

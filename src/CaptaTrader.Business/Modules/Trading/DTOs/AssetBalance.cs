@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CaptaTrader.Business.DTOs;
+namespace CaptaTrader.Business.Modules.Trading.DTOs;
 
 public record AssetBalance
 {
