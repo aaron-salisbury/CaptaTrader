@@ -6,15 +6,9 @@ using static CaptaTrader.Presentation.CLI.Views.LoginView;
 
 namespace CaptaTrader.Presentation.CLI.Presenters;
 
-internal class LoginPresenter : Presenter
+internal sealed class LoginPresenter(Navigator navigator) : Presenter(navigator)
 {
     private LoginView? _view;
-    private IUserAccessService _userService;
-
-    public LoginPresenter(IUserAccessService userService, Navigator navigator) : base(navigator)
-    {
-        _userService = userService;
-    }
 
     internal override void Display(View view)
     {
@@ -60,7 +54,7 @@ internal class LoginPresenter : Presenter
     {
         ValidationResult result = e.NetworkCredential == null
             ? new ValidationResult([new ValidationFailure() { ErrorMessage = "No credentials found." }])
-            : _userService.Authenticate(e.NetworkCredential);
+            : Application.TradingBot.UserAccess.Authenticate(e.NetworkCredential);
    
         if (result.IsValid)
         {
@@ -77,7 +71,7 @@ internal class LoginPresenter : Presenter
     {
         ValidationResult result = e.NetworkCredential == null
             ? new ValidationResult([new ValidationFailure() { ErrorMessage = "No credentials found." }])
-            : _userService.Register(e.NetworkCredential);
+            : Application.TradingBot.UserAccess.Register(e.NetworkCredential);
             
         if (result.IsValid)
         {

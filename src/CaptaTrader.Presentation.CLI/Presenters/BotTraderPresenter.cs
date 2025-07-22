@@ -1,34 +1,30 @@
-﻿using CaptaTrader.Business.Modules.Trading.ApplicationServices;
-using CaptaTrader.Business.Modules.Trading.MessageContracts;
+﻿using CaptaTrader.Business.Modules.EventSystemEvents;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
-using MassTransit;
 using System;
 using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation.CLI.Presenters;
 
-internal class BotTraderPresenter : Presenter, IConsumer<TradeExecuted>
+internal sealed class BotTraderPresenter(Navigator navigator) : Presenter(navigator)
 {
     private BotTraderView? _view;
-    private ITradingService _tradingService;
-
-    public BotTraderPresenter(ITradingService tradingService, Navigator navigator) : base(navigator)
-    {
-        _tradingService = tradingService;
-    }
 
     internal override void Display(View view)
     {
         _view = (BotTraderView)view;
         _view.ShutdownRequested += BotTraderView_ShutdownRequested;
 
-        _tradingService.InitializeTradingAsync();
+        Application.TradingBot.EventBus.Subscribe<TradeExecutedEventArgs>(OnTradeExecuted);
+
+        Task.Run(Application.TradingBot.InitializeTradingAsync);
         _view.Show();
     }
 
     internal override void Dismiss()
     {
+        Application.TradingBot.EventBus.Unsubscribe<TradeExecutedEventArgs>(OnTradeExecuted);
+
         if (_view != null)
         {
             _view.ShutdownRequested -= BotTraderView_ShutdownRequested;
@@ -37,15 +33,13 @@ internal class BotTraderPresenter : Presenter, IConsumer<TradeExecuted>
 
     private void BotTraderView_ShutdownRequested(object? sender, EventArgs e)
     {
-        Task.Run(_tradingService.ShutdownTradingAsync).Wait();
+        Task.Run(Application.TradingBot.ShutdownTradingAsync).Wait();
 
         Navigator.NavigateTo(typeof(MainMenuPresenter));
     }
 
-    public Task Consume(ConsumeContext<TradeExecuted> context)
+    private void OnTradeExecuted(object? sender, TradeExecutedEventArgs e)
     {
-        _view?.PopupTradeOrder(context.Message.TradeOrder);
-
-        return Task.CompletedTask;
+        _view?.PopupTradeOrder(e.TradeOrder);
     }
 }

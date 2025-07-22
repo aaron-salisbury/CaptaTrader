@@ -1,6 +1,7 @@
 ﻿using CaptaTrader.Data.Base;
 using CaptaTrader.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace CaptaTrader.Data.Database;
 
@@ -11,7 +12,7 @@ namespace CaptaTrader.Data.Database;
 //  https://learn.microsoft.com/en-us/ef/core/modeling/indexes?tabs=data-annotations
 //  https://learn.microsoft.com/en-us/ef/ef6/querying/related-data
 
-public class ApplicationDbContext : DbContext
+public sealed class ApplicationDbContext : DbContext
 {
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {

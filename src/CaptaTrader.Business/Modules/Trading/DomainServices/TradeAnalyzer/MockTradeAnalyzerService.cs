@@ -1,15 +1,14 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Modules.Trading.DTOs;
+using System;
 
 namespace CaptaTrader.Business.Modules.Trading.DomainServices;
 
-public class MockTradeAnalyzerService : ITradeAnalyzerService
+public sealed class MockTradeAnalyzerService : ITradeAnalyzerService
 {
-    private readonly Random _random = new();
-
     public TradeOrderDto? AnalyzePotentialTrade()
     {
-        if (_random.Next(3) == 0)
+        if (Random.Shared.Next(3) == 0)
         {
             // Simulate a third of the time no good trade being found.
             return null;
@@ -20,12 +19,12 @@ public class MockTradeAnalyzerService : ITradeAnalyzerService
         return tradeOrder;
     }
 
-    private TradeOrderDto CreateMockTradeTransaction()
+    private static TradeOrderDto CreateMockTradeTransaction()
     {
         TradeOrderDto.TransactionTypes transactionType;
         string symbol;
 
-        if (_random.Next(2) == 1)
+        if (Random.Shared.Next(2) == 1)
         {
             transactionType = TradeOrderDto.TransactionTypes.Buy;
             symbol = "BTC";
@@ -36,8 +35,8 @@ public class MockTradeAnalyzerService : ITradeAnalyzerService
             symbol = "USDT";
         }
 
-        decimal quantity = _random.NextDecimal(0.001M, 0.01M).PrecisionTruncate(3);
-        decimal price = _random.NextDecimal(55000.00M, 60000.00M).PrecisionTruncate(2);
+        decimal quantity = Random.Shared.NextDecimal(0.001M, 0.01M).PrecisionTruncate(3);
+        decimal price = Random.Shared.NextDecimal(55000.00M, 60000.00M).PrecisionTruncate(2);
 
         return new TradeOrderDto()
         {

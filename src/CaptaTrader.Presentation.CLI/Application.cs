@@ -2,34 +2,37 @@
 using CaptaTrader.Presentation.CLI.Base.Extensions;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Presenters;
-using MassTransit;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation.CLI;
 
-public class Application
+public sealed class Application
 {
+    internal static TradingBot? TradingBot { get; private set; }
     internal static FigletText AppTitle { get; } = SetTitle();
     internal static int ExitCode { get; set; } = 0;
 
-    private readonly DomainInitializer _domainInitializer;
     private readonly Navigator _navigator;
+    private readonly ILogger _logger;
 
-    public Application(DomainInitializer domainInitializer, Navigator navigator)
+    public Application(Navigator navigator, ILogger logger)
     {
-        _domainInitializer = domainInitializer;
         _navigator = navigator;
+        _logger = logger;
 
         AppDomain.CurrentDomain.ProcessExit += Application_ProcessExit;
     }
 
-    public async Task<int> RunAsync()
+    public async Task<int> RunAsync(bool mockExternalAPICalls)
     {
-        await _domainInitializer.StartAsync();
+        TradingBot = new TradingBot(new TradingBotConfig() { UseMockTransactions = mockExternalAPICalls }, _logger);
+
+        await TradingBot.StartAsync();
 
         _navigator.NavigateTo(typeof(LoginPresenter));
 
@@ -38,24 +41,20 @@ public class Application
 
     private void Application_ProcessExit(object? sender, EventArgs e)
     {
-        _domainInitializer.ShutdownAsync().Wait();
+        ValueTask? valueTask = TradingBot?.DisposeAsync();
+        AppDomain.CurrentDomain.ProcessExit -= Application_ProcessExit;
 
         //AnsiConsole.Clear();
         AnsiConsole.WriteLine("Capta Trader application exited.");
     }
 
-    internal static void AddPresentersAndConsumers(IServiceCollection services)
+    internal static IEnumerable<Type> GetPresenterTypes()
     {
         foreach (Type assemblyType in Assembly.GetExecutingAssembly().GetTypes())
         {
-            if (typeof(IConsumer).IsAssignableFrom(assemblyType))
+            if (assemblyType.Name.EndsWith("Presenter") && !assemblyType.Name.Equals("Presenter"))
             {
-                // Consumers have to be singletons if their Consume method uses instance values.
-                services.AddSingleton(assemblyType);
-            }
-            else if (assemblyType.Name.EndsWith("Presenter") && !assemblyType.Name.Equals("Presenter"))
-            {
-                services.AddScoped(assemblyType);
+                yield return assemblyType;
             }
         }
     }

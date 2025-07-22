@@ -1,6 +1,4 @@
-﻿using CaptaTrader.Business;
-using CaptaTrader.Presentation.CLI.Base;
-using CaptaTrader.Presentation.CLI.Base.Commands;
+﻿using CaptaTrader.Presentation.CLI.Base.Commands;
 using CaptaTrader.Presentation.CLI.Base.Infrastructure;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using Microsoft.Extensions.DependencyInjection;
@@ -63,12 +61,12 @@ public class Program
         IServiceCollection services = new ServiceCollection()
             .AddLogging(configure => configure.AddSerilog(Serilog.Log.Logger))
             .AddSingleton(sp => sp.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(Application)))
-            .AddSingleton<ISessionValueProvider, Session>()
             .AddSingleton<Navigator, Navigator>();
 
-        Application.AddPresentersAndConsumers(services);
-
-        services.AddBusinessServices();
+        foreach (Type presenterType in Application.GetPresenterTypes())
+        {
+            services.AddScoped(presenterType);
+        }
 
         services.AddSingleton<Application, Application>();
 

@@ -1,13 +1,14 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Modules.Trading.DTOs;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 
-public class MockExchangeService : IExchangeService
+public sealed class MockExchangeService : IExchangeService
 {
-    private readonly Random _random = new();
-
     private Dictionary<string, AssetBalance> _balancesByAssets = new()
     {
         { "USDT", new AssetBalance()
@@ -39,7 +40,7 @@ public class MockExchangeService : IExchangeService
                 }
                 else
                 {
-                    decimal balance = _random.NextDecimal(0.001M, 0.02M).PrecisionTruncate(3);
+                    decimal balance = Random.Shared.NextDecimal(0.001M, 0.02M).PrecisionTruncate(3);
                     balancesForAsset = new AssetBalance()
                     {
                         Asset = uppercaseAsset,
@@ -59,7 +60,7 @@ public class MockExchangeService : IExchangeService
 
     public async Task<decimal?> GetSpotPriceAsync(string symbol, string quoteAsset)
     {
-        decimal price = await Task.Run(() => { return _random.NextDecimal(55000.00M, 60000.00M).PrecisionTruncate(2); });
+        decimal price = await Task.Run(() => { return Random.Shared.NextDecimal(55000.00M, 60000.00M).PrecisionTruncate(2); });
 
         return price;
     }

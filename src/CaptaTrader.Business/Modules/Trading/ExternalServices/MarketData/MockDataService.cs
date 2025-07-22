@@ -1,12 +1,13 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.DTOs;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 
-public class MockDataService : IMarketDataService
+public sealed class MockDataService : IMarketDataService
 {
-    private readonly Random _random = new();
-
     public async Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals(string exchangeID, string baseAsset)
     {
         List<PriceInterval> priceIntervals = [];
@@ -17,8 +18,8 @@ public class MockDataService : IMarketDataService
             {
                 DateTime startDate = DateTime.Now.Date.AddDays(-i);
                 DateTime endDate = startDate.AddDays(1).AddMinutes(-1);
-                decimal startPrice = _random.NextDecimal(55000.00M, 60000.00M).PrecisionTruncate(2);
-                decimal endPrice = _random.NextDecimal(startPrice - 250.0M, startPrice + 250.0M).PrecisionTruncate(2);
+                decimal startPrice = Random.Shared.NextDecimal(55000.00M, 60000.00M).PrecisionTruncate(2);
+                decimal endPrice = Random.Shared.NextDecimal(startPrice - 250.0M, startPrice + 250.0M).PrecisionTruncate(2);
 
                 priceIntervals.Add(new PriceInterval()
                 {

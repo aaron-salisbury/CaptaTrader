@@ -4,14 +4,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
-namespace CaptaTrader.Data;
+namespace CaptaTrader.Data.Services;
 
 /// <summary>
 /// CRUD wrapper for DbContext.
 /// </summary>
-public class ApplicationDataAccess : IDataAccess
+public sealed class ApplicationDataAccess : IDataAccess
 {
     private readonly ILogger _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
@@ -20,6 +24,11 @@ public class ApplicationDataAccess : IDataAccess
     {
         _logger = logger;
         _serviceScopeFactory = serviceScopeFactory;
+
+        using IServiceScope scope = _serviceScopeFactory.CreateScope();
+        ApplicationDbContext context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        //TODO: Replace with Migrate() after starting to use migrations.
+        context.Database.EnsureCreated();
     }
 
     public TEntity Create<TEntity>(TEntity entity)

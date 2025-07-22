@@ -1,34 +1,38 @@
 ﻿using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Modules.Trading.DTOs;
-using CaptaTrader.Business.Modules.UserAccess.DomainServices;
+using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Business.Modules.UserAccess.DTOs;
-using CaptaTrader.Data;
+using CaptaTrader.Data.Services;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 
 // API Documentation: https://docs.coinapi.io/
-public class CoinApiDataService : IMarketDataService
+public sealed class CoinApiDataService : IMarketDataService
 {
     private const string ENDPOINT = "https://rest.coinapi.io/"; //TODO: Don't hard-code URLs; should be stored in configuration.
     private const string QUERY_FORMAT_OHLCV_LATEST = "v1/ohlcv/{0}_SPOT_{1}_{2}/latest?period_id=1DAY&limit=30"; // {0} = Exchange ID, {1} = Base Asset, {2} = Quote Asset
     private const string QUOTE_ASSET = "USDT";
 
     private readonly ILogger _logger;
-    private readonly WebRequester _webRequester;
-    private readonly SessionValueResolver _sessionValueResolver;
+    private readonly IWebRequester _webRequester;
+    private readonly IUserAccessService _userAccessService;
 
-    public CoinApiDataService(ILogger logger, WebRequester webRequester, SessionValueResolver sessionValueResolver)
+    public CoinApiDataService(ILogger logger, IWebRequester webRequester, IUserAccessService userAccessService)
     {
         _logger = logger;
         _webRequester = webRequester;
-        _sessionValueResolver = sessionValueResolver;
+        _userAccessService = userAccessService;
     }
 
     public async Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals(string exchangeID, string baseAsset)
     {
-        string? apiKey = _sessionValueResolver.GetSessionUser(nameof(EndUserDto.UserConfig))?.UserConfig?.MarketDataAPIKey;
+        string? apiKey = _userAccessService.GetSessionUser(nameof(EndUserDto.UserConfig))?.UserConfig?.MarketDataAPIKey;
 
         if (apiKey == null)
         {
@@ -42,8 +46,11 @@ public class CoinApiDataService : IMarketDataService
 
             string? json = await _webRequester.SendHTTPJsonRequestAsync(
                 url,
-                useCompression: true, // CoinApi requests that compression be used.
-                requestHeaders: new Dictionary<string, string>() { { "Authorization", apiKey } });
+                new Data.Base.HTTPJsonRequest()
+                {
+                    UseCompression = true, // CoinApi requests that compression be used.
+                    RequestHeaders = new Dictionary<string, string>() { { "Authorization", apiKey } }
+                });
 
             if (!string.IsNullOrEmpty(json) &&
                 JsonSerializer.Deserialize<List<CoinApiOhlcvDto>>(json) is List<CoinApiOhlcvDto> intervals)

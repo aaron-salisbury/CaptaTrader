@@ -1,20 +1,24 @@
 ﻿using CaptaTrader.Business.Modules.Trading.DTOs;
-using CaptaTrader.Data;
+using CaptaTrader.Data.Services;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 
 // API Documentation: https://alternative.me/crypto/fear-and-greed-index/#api
-public class AlternativeCFGI : ICryptoFearAndGreedIndex
+public sealed class AlternativeCFGI : ICryptoFearAndGreedIndex
 {
     private const string ENDPOINT = "https://api.alternative.me/"; //TODO: Don't hard-code URLs; should be stored in configuration.
     private const string QUERY_FORMAT = "fng/?limit={0}&format=json&date_format=us";
 
     private readonly ILogger _logger;
-    private readonly WebRequester _webRequester;
+    private readonly IWebRequester _webRequester;
 
-    public AlternativeCFGI(ILogger logger, WebRequester webRequester)
+    public AlternativeCFGI(ILogger logger, IWebRequester webRequester)
     {
         _logger = logger;
         _webRequester = webRequester;

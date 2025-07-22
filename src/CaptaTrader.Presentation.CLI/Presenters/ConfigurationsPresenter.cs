@@ -1,5 +1,4 @@
-﻿using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
-using CaptaTrader.Business.Modules.UserAccess.DTOs;
+﻿using CaptaTrader.Business.Modules.UserAccess.DTOs;
 using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
 using FluentValidation.Results;
@@ -7,20 +6,14 @@ using static CaptaTrader.Presentation.CLI.Views.ConfigurationsView;
 
 namespace CaptaTrader.Presentation.CLI.Presenters;
 
-internal class ConfigurationsPresenter : Presenter
+internal sealed class ConfigurationsPresenter(Navigator navigator) : Presenter(navigator)
 {
-    private ConfigurationsView? _view;
-    private IUserAccessService _userService;
     private UserConfigDto? _currentConfig;
-
-    public ConfigurationsPresenter(IUserAccessService userService, Navigator navigator) : base(navigator)
-    {
-        _userService = userService;
-        _currentConfig = _userService.GetSessionUserConfig();
-    }
+    private ConfigurationsView? _view;
 
     internal override void Display(View view)
     {
+        _currentConfig = Application.TradingBot.UserAccess.GetSessionUserConfig();
         _view = (ConfigurationsView)view;
 
         _view.ConfigurationOptionSelected += ConfigurationsView_ConfigurationOptionSelected;
@@ -109,7 +102,7 @@ internal class ConfigurationsPresenter : Presenter
         }
         else
         {
-            result = _userService.SaveSessionUserConfigAsync(_currentConfig).Result;
+            result = Application.TradingBot.UserAccess.SaveSessionUserConfigAsync(_currentConfig).Result;
         }
 
         if (!result.IsValid)

@@ -34,7 +34,7 @@ internal static class Authorizer
 
     private static byte[] GenerateSalt()
     {
-        var bytes = new byte[SALT_LENGTH];
+        byte[] bytes = new byte[SALT_LENGTH];
 
         using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
         {
@@ -46,9 +46,7 @@ internal static class Authorizer
 
     private static byte[] GenerateHash(byte[] password, byte[] salt, int workFactor)
     {
-        using (Rfc2898DeriveBytes deriveBytes = new(password, salt, workFactor, HashAlgorithmName.SHA256))
-        {
-            return deriveBytes.GetBytes(SALT_LENGTH);
-        }
+        using Rfc2898DeriveBytes deriveBytes = new(password, salt, workFactor, HashAlgorithmName.SHA256);
+        return deriveBytes.GetBytes(SALT_LENGTH);
     }
 }

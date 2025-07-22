@@ -2,7 +2,6 @@
 
 namespace CaptaTrader.Business.DTOs;
 
-[Serializable]
 public record PriceInterval
 {
     public required string Symbol { get; set; }

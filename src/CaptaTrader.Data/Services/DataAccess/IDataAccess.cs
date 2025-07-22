@@ -1,6 +1,9 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 
-namespace CaptaTrader.Data;
+namespace CaptaTrader.Data.Services;
 
 public interface IDataAccess
 {

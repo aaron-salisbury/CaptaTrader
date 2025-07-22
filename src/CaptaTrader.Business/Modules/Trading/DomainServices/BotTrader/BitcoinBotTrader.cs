@@ -2,15 +2,20 @@
 using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Modules.Trading.DTOs;
 using CaptaTrader.Business.Modules.Trading.ExternalServices;
-using CaptaTrader.Data;
+using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Data.Entities;
+using CaptaTrader.Data.Services;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CaptaTrader.Business.Modules.Trading.DomainServices;
 
-public class BitcoinBotTrader : IBotTrader
+public sealed class BitcoinBotTrader : IBotTrader
 {
     private const string BITCOIN_SYMBOL = "BTC";
     private const string QUOTE_ASSET = "USDT";
@@ -25,18 +30,18 @@ public class BitcoinBotTrader : IBotTrader
     private readonly IExchangeService _exchangeService;
     private readonly ITradeAnalyzerService _tradeAnalyzerService;
     private readonly IDataAccess _dataAccess;
-    private readonly ISessionValueProvider _sessionValueProvider;
+    private readonly IUserAccessService _userAccessService;
     private IValidator<TradeOrderDto> _tradeValidator;
     private ILogger _logger;
 
     public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, IDataAccess dataAccess,
-        ISessionValueProvider sessionValueProvider, IValidator<TradeOrderDto> tradeValidator, ILogger logger)
+        IUserAccessService userAccessService, IValidator<TradeOrderDto> tradeValidator, ILogger logger)
     {
         _cryptoDataService = cryptoDataService;
         _exchangeService = exchangeService;
         _tradeAnalyzerService = tradeAnalyzerService;
         _dataAccess = dataAccess;
-        _sessionValueProvider = sessionValueProvider;
+        _userAccessService = userAccessService;
         _tradeValidator = tradeValidator;
         _logger = logger;
     }
@@ -108,7 +113,7 @@ public class BitcoinBotTrader : IBotTrader
         //  Will need to answer whether I should sell, buy, or hold?
 
         TradeOrderDto? tradeOrder = _tradeAnalyzerService.AnalyzePotentialTrade();
-        int? userId = _sessionValueProvider.GetUserID();
+        int? userId = _userAccessService.GetSessionEndUserId();
 
         if (tradeOrder != null
             && userId != null

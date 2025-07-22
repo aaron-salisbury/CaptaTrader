@@ -4,7 +4,7 @@ using static CaptaTrader.Presentation.CLI.Views.MainMenuView;
 
 namespace CaptaTrader.Presentation.CLI.Presenters;
 
-internal class MainMenuPresenter : Presenter
+internal sealed class MainMenuPresenter : Presenter
 {
     private MainMenuView? _view;
 

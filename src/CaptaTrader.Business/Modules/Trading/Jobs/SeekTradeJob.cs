@@ -1,17 +1,17 @@
-﻿using CaptaTrader.Business.Modules.Trading.DomainServices;
+﻿using CaptaTrader.Business.Modules.EventSystemEvents;
+using CaptaTrader.Business.Modules.Trading.DomainServices;
 using CaptaTrader.Business.Modules.Trading.DTOs;
-using CaptaTrader.Business.Modules.Trading.MessageContracts;
-using MassTransit;
 using Quartz;
+using System.Threading.Tasks;
 
 namespace CaptaTrader.Business.Modules.Trading.Jobs;
 
-internal class SeekTradeJob : IJob
+internal sealed class SeekTradeJob : IJob
 {
-    private readonly IBus _bus;
+    private readonly IEventSystem _bus;
     private readonly IBotTrader _botTrader;
 
-    public SeekTradeJob(IBus bus, IBotTrader botTrader)
+    public SeekTradeJob(IEventSystem bus, IBotTrader botTrader)
     {
         _bus = bus;
         _botTrader = botTrader;
@@ -23,7 +23,7 @@ internal class SeekTradeJob : IJob
 
         if (tradeOrder != null)
         {
-            await _bus.Publish<TradeExecuted>(new { TradeOrder = tradeOrder });
+            _bus.Publish(this, new TradeExecutedEventArgs() { TradeOrder = tradeOrder });
         }
     }
 }

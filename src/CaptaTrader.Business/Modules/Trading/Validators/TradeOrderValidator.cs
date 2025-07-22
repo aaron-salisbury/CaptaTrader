@@ -1,9 +1,10 @@
 ﻿using CaptaTrader.Business.Modules.Trading.DTOs;
 using FluentValidation;
+using System;
 
 namespace CaptaTrader.Business.Modules.Trading.Validators
 {
-    public class TradeOrderValidator : AbstractValidator<TradeOrderDto>
+    public sealed class TradeOrderValidator : AbstractValidator<TradeOrderDto>
     {
         public TradeOrderValidator()
         {

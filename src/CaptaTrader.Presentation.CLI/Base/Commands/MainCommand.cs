@@ -26,8 +26,8 @@ internal sealed class MainCommand : AsyncCommand<MainCommand.Settings>
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
         //TODO: Temporary for testing.
-        //settings.MockExternalAPICalls = true;
-
-        return await _app.RunAsync();
+        settings.MockExternalAPICalls = true;
+ 
+        return await _app.RunAsync(settings.MockExternalAPICalls);
     }
 }

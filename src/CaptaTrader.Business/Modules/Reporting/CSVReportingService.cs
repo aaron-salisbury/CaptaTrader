@@ -1,29 +1,33 @@
 ﻿using CaptaTrader.Business.Modules.Trading;
 using CaptaTrader.Business.Modules.Trading.DTOs;
-using CaptaTrader.Data;
+using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Data.Base;
 using CaptaTrader.Data.Entities;
+using CaptaTrader.Data.Services;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace CaptaTrader.Business.Modules.Reporting.ApplicationServices;
+namespace CaptaTrader.Business.Modules;
 
-public class ReportingService : IReportingService
+public sealed class CSVReportingService : IReportingService
 {
     private readonly IDataAccess _dataAccess;
+    private readonly IUserAccessService _userAccessService;
     private readonly ILogger _logger;
-    private readonly ISessionValueProvider _sessionValueProvider;
     private readonly TradingMapper _tradingMapper = new();
 
-    public ReportingService(IDataAccess dataAccess, ILogger logger, ISessionValueProvider sessionValueProvider)
+    public CSVReportingService(IDataAccess dataAccess, IUserAccessService userAccessService, ILogger logger)
     {
         _dataAccess = dataAccess;
+        _userAccessService = userAccessService;
         _logger = logger;
-        _sessionValueProvider = sessionValueProvider;
     }
 
     public async Task WriteTradeOrdersAsync()
     {
-        int? sessionUserId = _sessionValueProvider.GetUserID();
+        int? sessionUserId = _userAccessService.GetSessionEndUserId();
 
         if (sessionUserId != null)
         {

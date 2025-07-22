@@ -2,7 +2,6 @@
 
 namespace CaptaTrader.Business.DTOs;
 
-[Serializable]
 public record AssetBalance
 {
     public required string Asset { get; set; }

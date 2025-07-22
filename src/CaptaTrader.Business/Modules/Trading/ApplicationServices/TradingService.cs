@@ -1,10 +1,13 @@
 ﻿using CaptaTrader.Business.Modules.Trading.Jobs;
 using Quartz;
 using Quartz.Impl.Matchers;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CaptaTrader.Business.Modules.Trading.ApplicationServices;
 
-public class TradingService : ITradingService
+public sealed class TradingService : ITradingService
 {
     private readonly IScheduler _scheduler;
 

@@ -10,7 +10,7 @@ using static CaptaTrader.Presentation.CLI.Views.LoginView;
 
 namespace CaptaTrader.Presentation.CLI.Views;
 
-internal class LoginView : View
+internal sealed class LoginView : View
 {
     internal event EventHandler<LoginViewEventArgs>? LoginOptionSelected;
     internal event EventHandler<LoginViewEventArgs>? LoginCredentialsEntered;

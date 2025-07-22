@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace CaptaTrader.Business.Modules.Trading.Validators;
 
-public class EndUserValidator : AbstractValidator<EndUserDto>
+public sealed class EndUserValidator : AbstractValidator<EndUserDto>
 {
     public EndUserValidator()
     {

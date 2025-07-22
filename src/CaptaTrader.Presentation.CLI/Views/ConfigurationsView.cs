@@ -9,7 +9,7 @@ using static CaptaTrader.Presentation.CLI.Views.ConfigurationsView;
 
 namespace CaptaTrader.Presentation.CLI.Views;
 
-internal class ConfigurationsView : View
+internal sealed class ConfigurationsView : View
 {
     internal event EventHandler<ConfigViewEventArgs>? ConfigurationOptionSelected;
     internal event EventHandler<ConfigViewEventArgs>? ConfigurationEntered;

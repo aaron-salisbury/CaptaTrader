@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace CaptaTrader.Data.Base.Extensions;
 
@@ -11,10 +14,8 @@ internal static class HttpClientExtensions
     {
         // ref: https://stackoverflow.com/a/66270371
 
-        using (Stream stream = await client.GetStreamAsync(address))
-        using (FileStream fileStream = new(fileName, FileMode.CreateNew))
-        {
-            await stream.CopyToAsync(fileStream);
-        }
+        using Stream stream = await client.GetStreamAsync(address);
+        using FileStream fileStream = new(fileName, FileMode.CreateNew);
+        await stream.CopyToAsync(fileStream);
     }
 }

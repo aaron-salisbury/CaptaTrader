@@ -1,24 +1,25 @@
 ﻿using CaptaTrader.Business.Modules.UserAccess.DomainServices;
 using CaptaTrader.Business.Modules.UserAccess.DTOs;
-using CaptaTrader.Data;
 using CaptaTrader.Data.Entities;
+using CaptaTrader.Data.Services;
 using FluentValidation;
 using FluentValidation.Results;
+using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 
-public class UserAccessService : IUserAccessService
+public sealed class UserAccessService : IUserAccessService
 {
     private readonly IDataAccess _dataAccess;
-    private readonly SessionValueResolver _sessionValueResolver;
-    private IValidator<UserConfigDto> _userConfigValidator;
+    private readonly IValidator<UserConfigDto> _userConfigValidator;
     private readonly UserAccessMapper _userAccessMapper = new();
+    private int? _sessionEndUserId;
 
-    public UserAccessService(IDataAccess dataAccess, SessionValueResolver sessionValueResolver, IValidator<UserConfigDto> userConfigValidator)
+    public UserAccessService(IDataAccess dataAccess, IValidator<UserConfigDto> userConfigValidator)
     {
         _dataAccess = dataAccess;
-        _sessionValueResolver = sessionValueResolver;
         _userConfigValidator = userConfigValidator;
     }
 
@@ -35,7 +36,7 @@ public class UserAccessService : IUserAccessService
             return new ValidationResult([new ValidationFailure() { ErrorMessage = "Bad credentials." }]);
         }
 
-        _sessionValueResolver.SetSessionUserID(user.EndUserId);
+        _sessionEndUserId = user.EndUserId;
         return new ValidationResult();
     }
 
@@ -55,13 +56,13 @@ public class UserAccessService : IUserAccessService
 
         EndUser userEntity = _dataAccess.Update(_userAccessMapper.MapToEntity<EndUser>(newUser));
 
-        _sessionValueResolver.SetSessionUserID(userEntity.EndUserId);
+        _sessionEndUserId = userEntity.EndUserId;
         return new ValidationResult();
     }
 
     public UserConfigDto? GetSessionUserConfig()
     {
-        return _sessionValueResolver.GetSessionUser(nameof(EndUserDto.UserConfig))?.UserConfig;
+        return GetSessionUser(nameof(EndUserDto.UserConfig))?.UserConfig;
     }
 
     public async Task<ValidationResult> SaveSessionUserConfigAsync(UserConfigDto userConfig)
@@ -74,5 +75,26 @@ public class UserAccessService : IUserAccessService
         }
 
         return result;
+    }
+
+    public EndUserDto? GetSessionUser(params string[] relationships)
+    {
+        if (_sessionEndUserId == null)
+        {
+            return null;
+        }
+
+        EndUser? endUser = _dataAccess.ReadFiltered<EndUser>(eu => eu.EndUserId == _sessionEndUserId.Value, relationships).SingleOrDefault();
+        if (endUser == null)
+        {
+            return null;
+        }
+
+        return _userAccessMapper.MapToDto<EndUserDto>(endUser);
+    }
+
+    public int? GetSessionEndUserId()
+    {
+        return _sessionEndUserId;
     }
 }

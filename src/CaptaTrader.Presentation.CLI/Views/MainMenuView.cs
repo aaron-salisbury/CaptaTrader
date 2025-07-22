@@ -9,7 +9,7 @@ using static CaptaTrader.Presentation.CLI.Views.MainMenuView;
 
 namespace CaptaTrader.Presentation.CLI.Views;
 
-internal class MainMenuView : View
+internal sealed class MainMenuView : View
 {
     internal event EventHandler<MainMenuViewEventArgs>? MainMenuOptionSelected;
 

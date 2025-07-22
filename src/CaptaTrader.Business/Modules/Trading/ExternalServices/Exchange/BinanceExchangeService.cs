@@ -1,32 +1,39 @@
 ﻿using Binance.Net;
 using Binance.Net.Clients;
 using Binance.Net.Objects.Models.Spot;
+using Binance.Net.Objects.Options;
 using CaptaTrader.Business.DTOs;
 using CaptaTrader.Business.Modules.Trading.DTOs;
-using CaptaTrader.Business.Modules.UserAccess.DomainServices;
+using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Business.Modules.UserAccess.DTOs;
 using CryptoExchange.Net.Authentication;
 using CryptoExchange.Net.Objects;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 
 // API Documentation: https://docs.binance.us/#introduction
 // Helper Library: https://github.com/JKorf/Binance.Net
-public class BinanceExchangeService : IExchangeService
+public sealed class BinanceExchangeService : IExchangeService
 {
     //TODO: Could probably write my own API access methods and remove my dependency on both Binance.Net and Microsoft.Extensions.Http.
     private readonly ILogger _logger;
     private readonly ILoggerFactory _loggerFactory;
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly SessionValueResolver _sessionValueResolver;
+    private readonly IUserAccessService _userAccessService;
 
-    public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, SessionValueResolver sessionValueResolver)
+    public BinanceExchangeService(ILogger logger, ILoggerFactory loggerFactory, IHttpClientFactory httpClientFactory, IUserAccessService userAccessService)
     {
         _logger = logger;
         _loggerFactory = loggerFactory;
         _httpClientFactory = httpClientFactory;
-        _sessionValueResolver = sessionValueResolver;
+        _userAccessService = userAccessService;
     }
 
     public string GetExchangeID() => "BINANCE";
@@ -35,27 +42,25 @@ public class BinanceExchangeService : IExchangeService
     {
         try
         {
-            using (HttpClient httpClient = _httpClientFactory.CreateClient())
-            using (BinanceRestClient restClient = CreateDefaultRestClient(httpClient))
+            using HttpClient httpClient = _httpClientFactory.CreateClient();
+            using BinanceRestClient restClient = CreateDefaultRestClient(httpClient);
+            WebCallResult<BinanceAccountInfo> result = await restClient.SpotApi.Account.GetAccountInfoAsync();
+
+            if (result.Error != null)
             {
-                WebCallResult<BinanceAccountInfo> result = await restClient.SpotApi.Account.GetAccountInfoAsync();
-
-                if (result.Error != null)
-                {
-                    _logger.LogError("Failed to get account balance: {resultErrorMessage}", result.Error.Message);
-                    return null;
-                }
-
-                return result.Data.Balances
-                    .Where(b => assets.Contains(b.Asset))
-                    .Select(b => new AssetBalance()
-                    {
-                        Asset = b.Asset,
-                        Available = b.Available,
-                        Locked = b.Locked,
-                        Total = b.Total
-                    });
+                _logger.LogError("Failed to get account balance: {resultErrorMessage}", result.Error.Message);
+                return null;
             }
+
+            return result.Data.Balances
+                .Where(b => assets.Contains(b.Asset))
+                .Select(b => new AssetBalance()
+                {
+                    Asset = b.Asset,
+                    Available = b.Available,
+                    Locked = b.Locked,
+                    Total = b.Total
+                });
         }
         catch (Exception ex)
         {
@@ -68,14 +73,12 @@ public class BinanceExchangeService : IExchangeService
     {
         try
         {
-            using (HttpClient httpClient = _httpClientFactory.CreateClient())
-            using (BinanceRestClient restClient = CreateDefaultRestClient(httpClient))
-            {
-                WebCallResult<BinanceBookPrice> result = await restClient.SpotApi.ExchangeData.GetBookPriceAsync($"{symbol}{quoteAsset}");
-                decimal price = result.Data.BestAskPrice;
+            using HttpClient httpClient = _httpClientFactory.CreateClient();
+            using BinanceRestClient restClient = CreateDefaultRestClient(httpClient);
+            WebCallResult<BinanceBookPrice> result = await restClient.SpotApi.ExchangeData.GetBookPriceAsync($"{symbol}{quoteAsset}");
+            decimal price = result.Data.BestAskPrice;
 
-                return price;
-            }
+            return price;
         }
         catch (Exception ex)
         {
@@ -126,10 +129,12 @@ public class BinanceExchangeService : IExchangeService
 
     private BinanceRestClient CreateDefaultRestClient(HttpClient httpClient)
     {
-        BinanceRestClient restClient = new(
-            httpClient,
-            _loggerFactory,
-            (options) => options.Environment = BinanceEnvironment.Us); // https://dev.binance.vision/t/error-restricted-location-according-b-eligibility/13838/2
+        IOptions<BinanceRestOptions> options = Options.Create(new BinanceRestOptions
+        {
+            Environment = BinanceEnvironment.Us // https://dev.binance.vision/t/error-restricted-location-according-b-eligibility/13838/2
+        });
+
+        BinanceRestClient restClient = new(httpClient, _loggerFactory, options); 
 
         ApiCredentials? apiCredentials = GetApiCredentialsForSessionUser();
         if (apiCredentials != null)
@@ -146,7 +151,7 @@ public class BinanceExchangeService : IExchangeService
 
     private ApiCredentials? GetApiCredentialsForSessionUser()
     {
-        UserConfigDto? userConfig = _sessionValueResolver.GetSessionUser(nameof(EndUserDto.UserConfig))?.UserConfig;
+        UserConfigDto? userConfig = _userAccessService.GetSessionUser(nameof(EndUserDto.UserConfig))?.UserConfig;
 
         if (userConfig?.ExchangeAPIKey != null && userConfig?.ExchangeSecretKey != null)
         {

@@ -1,6 +1,8 @@
 ﻿using CaptaTrader.Data.Database;
+using CaptaTrader.Data.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
+using System.Net.Http;
 
 namespace CaptaTrader.Data;
 
@@ -9,7 +11,7 @@ public static class Startup
     /// <summary>
     /// Adds the <see cref="IHttpClientFactory"/> and related services to the <see cref="IServiceCollection"/> and configures
     /// a named <see cref="HttpClient"/> used for compression.
-    /// Also adds a scoped service of the type <see cref="WebRequester"/> that is a wrapper for web requests.
+    /// Also adds a scoped service of the type <see cref="IWebRequester"/> that is a wrapper for web requests.
     /// </summary>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddWebRequesting(this IServiceCollection services)
@@ -21,22 +23,20 @@ public static class Startup
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
             });
 
-        services.AddScoped<WebRequester, WebRequester>();
+        services.AddScoped<IWebRequester, WebRequester>();
 
         return services;
     }
 
     /// <summary>
     /// Registers the <see cref="ApplicationDbContext"/> as a service.
-    /// Also adds a scoped service of the type <see cref="IDataAccess"/> that is a CRUD wrapper for the context and 
-    /// includes <see cref="DataInitializer"/> for initializing the database.
+    /// Also adds a scoped service of the type <see cref="IDataAccess"/> that is a CRUD wrapper for the context.
     /// </summary>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddDataAccess(this IServiceCollection services)
     {
         services.AddDbContext<ApplicationDbContext>()
-            .AddScoped<IDataAccess, ApplicationDataAccess>()
-            .AddScoped<DataInitializer, DataInitializer>();
+            .AddScoped<IDataAccess, ApplicationDataAccess>();
 
         return services;
     }

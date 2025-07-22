@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace CaptaTrader.Presentation.CLI.Views;
 
-internal class BotTraderView : View
+internal sealed class BotTraderView : View
 {
     internal event EventHandler? ShutdownRequested;
 

@@ -2,7 +2,11 @@
 using CsvHelper.Configuration;
 using Humanizer;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace CaptaTrader.Data.Base;
 
@@ -29,16 +33,14 @@ public static class IO
             string fileName = $"{beingWritten} - {writeTime}.csv";
             string fullPath = Path.Join(writePath, fileName);
 
-            using (StreamWriter writer = new(fullPath))
-            using (CsvWriter csv = new(writer, CultureInfo.InvariantCulture))
+            using StreamWriter writer = new(fullPath);
+            using CsvWriter csv = new(writer, CultureInfo.InvariantCulture);
+            if (classMap != null)
             {
-                if (classMap != null)
-                {
-                    csv.Context.RegisterClassMap(classMap);
-                }
-                
-                await csv.WriteRecordsAsync(objects);
+                csv.Context.RegisterClassMap(classMap);
             }
+
+            await csv.WriteRecordsAsync(objects);
         }
         catch (Exception ex)
         {
