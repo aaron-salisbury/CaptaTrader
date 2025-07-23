@@ -10,12 +10,18 @@ internal partial class UserAccessMapper
     internal partial TTarget MapToDto<TTarget>(object source);
     internal partial TTarget MapToEntity<TTarget>(object source);
 
+    [MapperIgnoreSource(nameof(EndUser.TradeOrders))]
     private partial EndUserDto MapToDto(EndUser source);
+    [MapperIgnoreTarget(nameof(EndUser.TradeOrders))]
     private partial EndUser MapToEntity(EndUserDto source);
 
+    [MapperIgnoreSource(nameof(UserCredential.EndUser))]
     private partial UserCredentialDto MapToDto(UserCredential source);
+    [MapperIgnoreTarget(nameof(UserCredential.EndUser))]
     private partial UserCredential MapToEntity(UserCredentialDto source);
 
+    [MapperIgnoreSource(nameof(UserConfig.EndUser))]
     private partial UserConfigDto MapToDto(UserConfig source);
+    [MapperIgnoreTarget(nameof(UserConfig.EndUser))]
     private partial UserConfig MapToEntity(UserConfigDto source);
 }
