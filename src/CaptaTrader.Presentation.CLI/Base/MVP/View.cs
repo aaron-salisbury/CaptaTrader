@@ -8,7 +8,7 @@ internal abstract class View
 {
     internal const string PROMPT_FORMAT = "{0}: ";
 
-    internal virtual void Show() { throw new NotImplementedException(); }
+    internal abstract void Show();
 
     internal void PopupProcessFail(string processName, FluentValidation.Results.ValidationResult validationResult)
     {

@@ -7,6 +7,8 @@ using Serilog;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation.CLI;
@@ -63,7 +65,7 @@ public class Program
             .AddSingleton(sp => sp.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(Application)))
             .AddSingleton<Navigator, Navigator>();
 
-        foreach (Type presenterType in Application.GetPresenterTypes())
+        foreach (Type presenterType in GetPresenterTypes())
         {
             services.AddScoped(presenterType);
         }
@@ -71,5 +73,16 @@ public class Program
         services.AddSingleton<Application, Application>();
 
         return services;
+    }
+
+    private static IEnumerable<Type> GetPresenterTypes()
+    {
+        foreach (Type assemblyType in Assembly.GetExecutingAssembly().GetTypes())
+        {
+            if (assemblyType.Name.EndsWith(nameof(Presenter)) && !assemblyType.Name.Equals(nameof(Presenter)))
+            {
+                yield return assemblyType;
+            }
+        }
     }
 }

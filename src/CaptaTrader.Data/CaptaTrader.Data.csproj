@@ -4,8 +4,6 @@
 	<TargetFramework>net8.0</TargetFramework>
 	<ImplicitUsings>disable</ImplicitUsings>
 	<Nullable>enable</Nullable>
-	<PublishSingleFile>true</PublishSingleFile>
-	<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	<Optimize>true</Optimize>
   </PropertyGroup>
 

@@ -3,15 +3,10 @@
 namespace CaptaTrader.Presentation.CLI.Base.MVP;
 
 // Inspired by https://stackoverflow.com/a/13030590
-public class Navigator
+public class Navigator(IServiceProvider serviceProvider)
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
     private Presenter? _current;
-
-    public Navigator(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
 
     internal void NavigateTo(Type nextPresenterType)
     {
@@ -32,7 +27,7 @@ public class Navigator
 
     private static View FindView(Presenter presenter)
     {
-        string? name = presenter.GetType().FullName!.Replace("Presenter", "View");
+        string? name = presenter.GetType().FullName!.Replace(nameof(Presenter), nameof(View));
         Type? type = Type.GetType(name);
 
         if (type != null && Activator.CreateInstance(type) is View view)
@@ -40,6 +35,6 @@ public class Navigator
             return view;
         }
 
-        throw new Exception("View not found for presenter.");
+        throw new Exception("View not found for presenter. Presenters and Views must be named identically, except for their respective \"Presenter\" and \"View\" suffixes.");
     }
 }
