@@ -1,4 +1,5 @@
-﻿using CaptaTrader.Business.Modules.Trading.DTOs;
+﻿using CaptaTrader.Business.Base;
+using CaptaTrader.Business.Modules.Trading.DTOs;
 using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Business.Modules.UserAccess.DTOs;
 using CaptaTrader.Data.Services;
@@ -14,7 +15,6 @@ namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 // API Documentation: https://docs.coinapi.io/
 public sealed class CoinApiDataService : IMarketDataService
 {
-    private const string ENDPOINT = "https://rest.coinapi.io/"; //TODO: Don't hard-code URLs; should be stored in configuration.
     private const string QUERY_FORMAT_OHLCV_LATEST = "v1/ohlcv/{0}_SPOT_{1}_{2}/latest?period_id=1DAY&limit=30"; // {0} = Exchange ID, {1} = Base Asset, {2} = Quote Asset
     private const string QUOTE_ASSET = "USDT";
 
@@ -41,7 +41,7 @@ public sealed class CoinApiDataService : IMarketDataService
 
         try
         {
-            string url = $"{ENDPOINT}{string.Format(QUERY_FORMAT_OHLCV_LATEST, exchangeID, baseAsset, QUOTE_ASSET)}";
+            string url = $"{Resources.CoinApiEndpoint}{string.Format(QUERY_FORMAT_OHLCV_LATEST, exchangeID, baseAsset, QUOTE_ASSET)}";
 
             string? json = await _webRequester.SendHTTPJsonRequestAsync(
                 url,
