@@ -1,7 +1,8 @@
 ﻿- Reduce Mapping Pain
 	Right now I am separating business (domain) models from data (entity) models for decoupling and maintainability. 
-	However, even with an automated Mapping library, mapping can be tedious.
+	However, even with an automated mapping library, mapping can be tedious.
 	Something I could consider is using projection at query time. This could look like reading the entire entity but explicitly selecting the properties I want to use in the business model.
+	Or maybe I simply abandon Entity Framework and Entities and use a more lightweight approach like Dapper or even raw SQL queries.
 
 - Research
 	APIs
