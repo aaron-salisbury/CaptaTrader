@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation.CLI;
 
-public sealed class Application
+internal sealed class Application
 {
     internal static TradingBot? TradingBot { get; private set; }
     internal static FigletText AppTitle { get; } = SetTitle();
