@@ -8,6 +8,13 @@ public sealed class MockTradeAnalyzerService : ITradeAnalyzerService
 {
     public TradeOrderDto? AnalyzePotentialTrade()
     {
+        //TODO: Some questions a real analyzer service would answer:
+        // - Is the current market favorable for a trade?
+        // - Is the current price of the asset within a reasonable range for buying/selling?
+        // - Are there any recent trends or patterns that suggest a good time to trade?
+
+
+
         if (Random.Shared.Next(3) == 0)
         {
             // Simulate a third of the time no good trade being found.
