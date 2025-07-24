@@ -1,3 +1,7 @@
+<p align="left">
+  <img src="logo.png" width="175" alt="Capta Trader Logo">
+</p>
+
 Capta Trader
 ===============
 
