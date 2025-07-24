@@ -8,7 +8,7 @@ public record EndUserDto
 
     public required string UserName { get; init; }
 
-    public required UserCredentialDto UserCredential { get; init; }
+    public UserCredentialDto? UserCredential { get; set; }
 
-    public required UserConfigDto UserConfig { get; init; }
+    public UserConfigDto? UserConfig { get; set; }
 }

@@ -1,16 +1,29 @@
-﻿        TODO: Look Into:
-         APIs
-         https://unplu.gg/test_api.html
-         https://site.financialmodelingprep.com/developer/docs
-         https://www.browsercat.com/pricing
-         https://alternative.me/crypto/api/
-         https://stackoverflow.com/questions/249760/how-can-i-convert-a-unix-timestamp-to-datetime-and-vice-versa
+﻿- Reduce Mapping Pain
+	Right now I am separating business (domain) models from data (entity) models for decoupling and maintainability. 
+	However, even with an automated mapping library, mapping can be tedious.
+	Something I could consider is using projection at query time. This could look like reading the entire entity but explicitly selecting the properties I want to use in the business model.
+	Or maybe I simply abandon Entity Framework and Entities and use a more lightweight approach like Dapper or even raw SQL queries.
 
-         Architecture
-         https://stackoverflow.com/a/12078590
-         https://www.youtube.com/watch?v=ZA2X1gaAhJk
-         https://codeopinion.com/restructuring-to-a-vertical-slice-architecture/
-         https://www.youtube.com/watch?v=T-EwN9UqRwE
-         https://github.com/ardalis/CleanArchitecture/tree/main
-         https://www.thereformedprogrammer.net/creating-domain-driven-design-entity-classes-with-entity-framework-core/
-         I could probably learn a lot from https://github.com/kgrzybek/modular-monolith-with-ddd
+- Research
+	APIs
+	https://unplu.gg/test_api.html
+	https://site.financialmodelingprep.com/developer/docs
+	https://www.browsercat.com/pricing
+	https://alternative.me/crypto/api/
+	https://stackoverflow.com/questions/249760/how-can-i-convert-a-unix-timestamp-to-datetime-and-vice-versa
+
+	Architecture
+	https://stackoverflow.com/a/12078590
+	https://www.youtube.com/watch?v=ZA2X1gaAhJk
+	https://codeopinion.com/restructuring-to-a-vertical-slice-architecture/
+	https://www.youtube.com/watch?v=T-EwN9UqRwE
+	https://github.com/ardalis/CleanArchitecture/tree/main
+	https://www.thereformedprogrammer.net/creating-domain-driven-design-entity-classes-with-entity-framework-core/
+	I could probably learn a lot from https://github.com/kgrzybek/modular-monolith-with-ddd
+
+	Entity Framework
+	https://learn.microsoft.com/en-us/ef/core/modeling/
+	https://learn.microsoft.com/en-us/ef/core/querying/single-split-queries
+	https://learn.microsoft.com/en-us/ef/core/performance/efficient-querying#use-indexes-properly
+	https://learn.microsoft.com/en-us/ef/core/modeling/indexes?tabs=data-annotations
+	https://learn.microsoft.com/en-us/ef/ef6/querying/related-data

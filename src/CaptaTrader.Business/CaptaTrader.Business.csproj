@@ -4,8 +4,6 @@
 	  <TargetFramework>net8.0</TargetFramework>
 	  <ImplicitUsings>disable</ImplicitUsings>
 	  <Nullable>enable</Nullable>
-	  <PublishSingleFile>true</PublishSingleFile>
-	  <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	  <Optimize>true</Optimize>
   </PropertyGroup>
 
@@ -20,6 +18,21 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CaptaTrader.Data\CaptaTrader.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Base\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Base\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

@@ -11,7 +11,7 @@ internal abstract class Presenter
         Navigator = navigator;
     }
 
-    internal virtual void Display(View view) { throw new NotImplementedException(); }
+    internal abstract void Display(View view);
 
     internal virtual void Dismiss() { }
 }

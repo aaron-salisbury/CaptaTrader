@@ -5,13 +5,12 @@ using CaptaTrader.Presentation.CLI.Presenters;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
 namespace CaptaTrader.Presentation.CLI;
 
-public sealed class Application
+internal sealed class Application
 {
     internal static TradingBot? TradingBot { get; private set; }
     internal static FigletText AppTitle { get; } = SetTitle();
@@ -46,17 +45,6 @@ public sealed class Application
 
         //AnsiConsole.Clear();
         AnsiConsole.WriteLine("Capta Trader application exited.");
-    }
-
-    internal static IEnumerable<Type> GetPresenterTypes()
-    {
-        foreach (Type assemblyType in Assembly.GetExecutingAssembly().GetTypes())
-        {
-            if (assemblyType.Name.EndsWith("Presenter") && !assemblyType.Name.Equals("Presenter"))
-            {
-                yield return assemblyType;
-            }
-        }
     }
 
     private static FigletText SetTitle()

@@ -1,4 +1,5 @@
-﻿using CaptaTrader.Business.Modules.Trading.DTOs;
+﻿using CaptaTrader.Business.Base;
+using CaptaTrader.Business.Modules.Trading.DTOs;
 using CaptaTrader.Data.Services;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,7 +13,6 @@ namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 // API Documentation: https://alternative.me/crypto/fear-and-greed-index/#api
 public sealed class AlternativeCFGI : ICryptoFearAndGreedIndex
 {
-    private const string ENDPOINT = "https://api.alternative.me/"; //TODO: Don't hard-code URLs; should be stored in configuration.
     private const string QUERY_FORMAT = "fng/?limit={0}&format=json&date_format=us";
 
     private readonly ILogger _logger;
@@ -28,7 +28,7 @@ public sealed class AlternativeCFGI : ICryptoFearAndGreedIndex
     {
         try
         {
-            string url = $"{ENDPOINT}{string.Format(QUERY_FORMAT, limit)}";
+            string url = $"{Resources.AlternativeCFGIEndpoint}{string.Format(QUERY_FORMAT, limit)}";
 
             string? json = await _webRequester.SendHTTPJsonRequestAsync(url);
 

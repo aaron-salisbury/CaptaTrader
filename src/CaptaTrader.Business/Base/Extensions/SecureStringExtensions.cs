@@ -21,8 +21,6 @@ public static class SecureStringExtensions
     {
         // ref: https://stackoverflow.com/a/38016279
 
-        NetworkCredential secureStringAsNetworkCredential = new(string.Empty, secureString);
-
-        return secureStringAsNetworkCredential.Password;
+        return new NetworkCredential(string.Empty, secureString).Password;
     }
 }
