@@ -30,7 +30,7 @@ internal sealed class BotTraderView : View
         transactionGrid.AddRow(_tradeOrderColumnHeaders);
         transactionGrid.AddRow(GetTradeOrderAsDataRow(trade));
 
-        string headerColor = trade.TransactionType == TradeOrderDto.TransactionTypes.Sell ? "green" : "purple";
+        string headerColor = trade.TransactionType == TradeOrderDto.TransactionTypes.Sell ? "green" : "darkorange";
 
         Panel transactionPanel = new(transactionGrid)
         {
