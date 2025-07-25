@@ -1,5 +1,4 @@
-﻿- Utility Main Menu Option
-	I need to be able to dump all trades executed to a CSV file. Probably in descending order by date.
+﻿- Data entities are not final and some can probably end up being removed entirely.
 
 - Reduce Mapping Pain
 	Right now I am separating business (domain) models from data (entity) models for decoupling and maintainability. 

@@ -34,7 +34,7 @@ internal sealed class ConfigurationsView : View
         ClearConsole();
 
         IEnumerable<ConfigurationOptions> options = Enum.GetValues(typeof(ConfigurationOptions)).Cast<ConfigurationOptions>();
-        List<string> readableOptions = options.Select(co => co.GetDisplayName()).ToList();
+        List<string> readableOptions = [.. options.Select(co => co.GetDisplayName())];
 
         string readableChoice = AnsiConsole.Prompt(
             new SelectionPrompt<string>()

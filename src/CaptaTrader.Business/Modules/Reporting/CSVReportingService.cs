@@ -35,7 +35,7 @@ internal sealed class CSVReportingService : IReportingService
                 .OrderByDescending(to => to.TimeStamp)
                 .Select(_tradingMapper.MapToDto<TradeOrderDto>);
 
-            //TODO: will need to make a mapper and pass it in.
+            //TODO: will need to make a mapper (ClassMap<TradeOrderDto>) and pass it in. One thing for sure to do is convert price to two decimal places since just one looks weird for a price.
             await IO.WriteToCSVAsync(thisUsersTrades, _logger);
         }
     }

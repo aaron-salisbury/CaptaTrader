@@ -32,6 +32,7 @@ public sealed class TradingBot : IAsyncDisposable
 
     private static readonly object _lock = new();
     private readonly IScheduler _scheduler;
+    private readonly IReportingService _reportingService;
     private bool _isTradingInitialized = false;
 
     private TradingBot(TradingBotConfig tradingBotConfig, ILogger applicationLogger)
@@ -42,6 +43,7 @@ public sealed class TradingBot : IAsyncDisposable
         UserAccess = services.GetRequiredService<IUserAccessService>();
 
         _scheduler = services.GetRequiredService<IScheduler>();
+        _reportingService = services.GetRequiredService<IReportingService>();
     }
 
     public static void Initialize(TradingBotConfig tradingBotConfig, ILogger applicationLogger)
@@ -51,6 +53,11 @@ public sealed class TradingBot : IAsyncDisposable
             if (_instance != null) { throw new InvalidOperationException("TradingBot has already been initialized."); }
             _instance = new TradingBot(tradingBotConfig, applicationLogger);
         }
+    }
+
+    public async Task WriteAllHistoricalTradesAsync()
+    {
+        await _reportingService.WriteTradeOrdersAsync();
     }
 
     public async Task StartAsync()

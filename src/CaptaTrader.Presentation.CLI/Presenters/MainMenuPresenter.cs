@@ -37,6 +37,9 @@ internal sealed class MainMenuPresenter : Presenter
             case MainMenuOptions.EnterConfigurations:
                 Navigator.NavigateTo(typeof(ConfigurationsPresenter));
                 break;
+            case MainMenuOptions.Utilities:
+                Navigator.NavigateTo(typeof(UtilitiesPresenter));
+                break;
             case MainMenuOptions.Exit:
                 return;
         }

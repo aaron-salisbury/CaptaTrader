@@ -40,13 +40,13 @@ internal sealed class MockTradeAnalyzer : ITradeAnalyzer
         decimal quantity;
         if (transactionType == TransactionTypes.Sell)
         {
-            // If selling, sell all we have.
-            quantity = asset.AvailableBalance;
+            // If selling, sell all we have, capped to eight decimals.
+            quantity = asset.AvailableBalance.PrecisionTruncate(8);
         }
         else
         {
             // If buying, spend all the currency we have, capped to two decimals and ensuring we don't spend less than one unit.
-            quantity = asset.AvailableBalance.PrecisionTruncate(2) / spotPrice;
+            quantity = (asset.AvailableBalance.PrecisionTruncate(2) / spotPrice).PrecisionTruncate(8);
             if (quantity * spotPrice < 1.0M)
             {
                 quantity = 0.0M;

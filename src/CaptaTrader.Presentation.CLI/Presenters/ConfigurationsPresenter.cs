@@ -49,6 +49,8 @@ internal sealed class ConfigurationsPresenter(Navigator navigator) : Presenter(n
                 Save();
                 break;
             case ConfigurationOptions.Return:
+                Navigator.NavigateTo(typeof(MainMenuPresenter));
+                break;
             default:
                 Serilog.Log.Warning("Invalid configuration option selected.");
                 Navigator.NavigateTo(typeof(MainMenuPresenter));

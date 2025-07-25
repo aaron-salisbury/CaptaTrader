@@ -19,6 +19,7 @@ internal sealed class MainMenuView : View
         LaunchBot,
         [Display(Name = "Enter Configurations")]
         EnterConfigurations,
+        Utilities,
         Exit
     }
 
@@ -27,7 +28,7 @@ internal sealed class MainMenuView : View
         ClearConsole();
 
         IEnumerable<MainMenuOptions> options = Enum.GetValues(typeof(MainMenuOptions)).Cast<MainMenuOptions>();
-        List<string> readableOptions = options.Select(mmo => mmo.GetDisplayName()).ToList();
+        List<string> readableOptions = [.. options.Select(mmo => mmo.GetDisplayName())];
 
         string choice = AnsiConsole.Prompt(
             new SelectionPrompt<string>()

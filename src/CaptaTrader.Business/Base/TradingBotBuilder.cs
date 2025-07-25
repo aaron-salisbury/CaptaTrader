@@ -44,6 +44,7 @@ internal static class TradingBotBuilder
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddScoped<ITradeAnalyzer, MockTradeAnalyzer>(); //TODO: Obviously will need a real analyzer.
         services.AddScoped<IBotTrader, BitcoinBotTrader>();
+        services.AddScoped<IReportingService, CSVReportingService>();
 
         // Top application-level modules.
         services.AddScoped<IUserAccessService, UserAccessService>();
