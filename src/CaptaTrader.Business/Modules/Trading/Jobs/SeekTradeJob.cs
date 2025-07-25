@@ -2,6 +2,7 @@
 using CaptaTrader.Business.Modules.Trading.DomainServices;
 using CaptaTrader.Business.Modules.Trading.DTOs;
 using Quartz;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace CaptaTrader.Business.Modules.Trading.Jobs;
@@ -19,9 +20,9 @@ internal sealed class SeekTradeJob : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
-        TradeOrderDto? tradeOrder = await _botTrader.AttemptToInitiateTradeAsync();
+        IEnumerable<TradeOrderDto> tradeOrders = await _botTrader.AttemptToInitiateTradesAsync();
 
-        if (tradeOrder != null)
+        foreach (TradeOrderDto tradeOrder in tradeOrders)
         {
             _bus.Publish(this, new TradeExecutedEventArgs() { TradeOrder = tradeOrder });
         }

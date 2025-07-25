@@ -44,13 +44,17 @@ internal sealed class BotTraderView : View
 
     private static string[] GetTradeOrderAsDataRow(TradeOrderDto tradeOrder)
     {
+        string cryptoSymbol = tradeOrder.TransactionType == TradeOrderDto.TransactionTypes.Buy
+            ? tradeOrder.AssetSymbolBuying
+            : tradeOrder.AssetSymbolSpending;
+
         return
             [
                 tradeOrder.TimeStamp.ToString(),
                 tradeOrder.TransactionType.ToString(),
-                tradeOrder.Symbol,
-                tradeOrder.PriceUSDT.ToString(),
-                tradeOrder.Amount.ToString()
+                cryptoSymbol,
+                tradeOrder.Price.ToString(),
+                tradeOrder.Amount.ToString("F2")
             ];
     }
 
@@ -60,15 +64,13 @@ internal sealed class BotTraderView : View
             [
                 nameof(TradeOrderDto.TimeStamp),
                 nameof(TradeOrderDto.TransactionType),
-                nameof(TradeOrderDto.Symbol),
-                nameof(TradeOrderDto.PriceUSDT),
+                "Symbol",
+                nameof(TradeOrderDto.Price),
                 nameof(TradeOrderDto.Amount)
             ];
 
         Style columnsHeaderStyle = new(decoration: Decoration.Bold);
 
-        return columnNames
-            .Select(ttc => new Text(ttc, columnsHeaderStyle))
-            .ToArray();
+        return [.. columnNames.Select(ttc => new Text(ttc, columnsHeaderStyle))];
     }
 }

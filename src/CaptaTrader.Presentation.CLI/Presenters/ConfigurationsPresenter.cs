@@ -13,7 +13,7 @@ internal sealed class ConfigurationsPresenter(Navigator navigator) : Presenter(n
 
     internal override void Display(View view)
     {
-        _currentConfig = Application.TradingBot!.UserAccess.GetSessionUserConfig();
+        _currentConfig = Application.TradingBot.UserAccess.GetSessionUserConfig();
         _view = (ConfigurationsView)view;
 
         _view.ConfigurationOptionSelected += ConfigurationsView_ConfigurationOptionSelected;
@@ -102,7 +102,7 @@ internal sealed class ConfigurationsPresenter(Navigator navigator) : Presenter(n
         }
         else
         {
-            result = Application.TradingBot!.UserAccess.SaveSessionUserConfigAsync(_currentConfig).Result;
+            result = Application.TradingBot.UserAccess.SaveSessionUserConfigAsync(_currentConfig).Result;
         }
 
         if (!result.IsValid)

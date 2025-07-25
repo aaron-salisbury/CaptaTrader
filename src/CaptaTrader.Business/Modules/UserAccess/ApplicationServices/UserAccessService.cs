@@ -15,7 +15,6 @@ public sealed class UserAccessService : IUserAccessService
     private readonly IDataAccess _dataAccess;
     private readonly IValidator<UserConfigDto> _userConfigValidator;
     private readonly UserAccessMapper _userAccessMapper = new();
-    private int? _sessionEndUserId;
 
     public UserAccessService(IDataAccess dataAccess, IValidator<UserConfigDto> userConfigValidator)
     {
@@ -36,7 +35,7 @@ public sealed class UserAccessService : IUserAccessService
             return new ValidationResult([new ValidationFailure() { ErrorMessage = "Bad credentials." }]);
         }
 
-        _sessionEndUserId = user.EndUserId;
+        TradingBot.Instance.SessionEndUserId = user.EndUserId;
         return new ValidationResult();
     }
 
@@ -56,7 +55,7 @@ public sealed class UserAccessService : IUserAccessService
 
         EndUser userEntity = _dataAccess.Update(_userAccessMapper.MapToEntity<EndUser>(newUser));
 
-        _sessionEndUserId = userEntity.EndUserId;
+        TradingBot.Instance.SessionEndUserId = userEntity.EndUserId;
         return new ValidationResult();
     }
 
@@ -79,12 +78,14 @@ public sealed class UserAccessService : IUserAccessService
 
     public EndUserDto? GetSessionUser(params string[] relationships)
     {
-        if (_sessionEndUserId == null)
+        int? sessionEndUserId = GetSessionEndUserId();
+
+        if (sessionEndUserId == null)
         {
             return null;
         }
 
-        EndUser? endUser = _dataAccess.ReadFiltered<EndUser>(eu => eu.EndUserId == _sessionEndUserId.Value, relationships).SingleOrDefault();
+        EndUser? endUser = _dataAccess.ReadFiltered<EndUser>(eu => eu.EndUserId == sessionEndUserId.Value, relationships).SingleOrDefault();
         if (endUser == null)
         {
             return null;
@@ -93,8 +94,5 @@ public sealed class UserAccessService : IUserAccessService
         return _userAccessMapper.MapToDto<EndUserDto>(endUser);
     }
 
-    public int? GetSessionEndUserId()
-    {
-        return _sessionEndUserId;
-    }
+    public int? GetSessionEndUserId() => TradingBot.Instance.SessionEndUserId;
 }

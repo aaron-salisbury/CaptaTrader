@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace CaptaTrader.Business.Modules;
 
-public sealed class CSVReportingService : IReportingService
+internal sealed class CSVReportingService : IReportingService
 {
     private readonly IDataAccess _dataAccess;
     private readonly IUserAccessService _userAccessService;

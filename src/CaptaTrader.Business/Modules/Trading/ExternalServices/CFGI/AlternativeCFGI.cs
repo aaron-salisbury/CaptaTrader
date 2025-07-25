@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 
 // API Documentation: https://alternative.me/crypto/fear-and-greed-index/#api
-public sealed class AlternativeCFGI : ICryptoFearAndGreedIndex
+internal sealed class AlternativeCFGI : ICryptoFearAndGreedIndex
 {
     private const string QUERY_FORMAT = "fng/?limit={0}&format=json&date_format=us";
 

@@ -19,7 +19,7 @@ namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 
 // API Documentation: https://docs.binance.us/#introduction
 // Helper Library: https://github.com/JKorf/Binance.Net
-public sealed class BinanceExchangeService : IExchangeService
+internal sealed class BinanceExchangeService : IExchangeService
 {
     //TODO: Could probably write my own API access methods and remove my dependency on both Binance.Net and Microsoft.Extensions.Http.
     private readonly ILogger _logger;
@@ -36,6 +36,8 @@ public sealed class BinanceExchangeService : IExchangeService
     }
 
     public string GetExchangeID() => "BINANCE";
+
+    public string GetExchangeMediumSymbol() => "USDT";
 
     public async Task<IEnumerable<AssetBalance>?> GetAccountBalancesAsync(IEnumerable<string> assets)
     {
@@ -56,9 +58,8 @@ public sealed class BinanceExchangeService : IExchangeService
                 .Select(b => new AssetBalance()
                 {
                     Asset = b.Asset,
-                    Available = b.Available,
-                    Locked = b.Locked,
-                    Total = b.Total
+                    AvailableBalance = b.Available,
+                    UnavailableBalance = b.Total - b.Available
                 });
         }
         catch (Exception ex)
@@ -68,13 +69,13 @@ public sealed class BinanceExchangeService : IExchangeService
         }
     }
 
-    public async Task<decimal?> GetSpotPriceAsync(string symbol, string quoteAsset)
+    public async Task<decimal?> GetSpotPriceAsync(string symbol)
     {
         try
         {
             using HttpClient httpClient = _httpClientFactory.CreateClient();
             using BinanceRestClient restClient = CreateDefaultRestClient(httpClient);
-            WebCallResult<BinanceBookPrice> result = await restClient.SpotApi.ExchangeData.GetBookPriceAsync($"{symbol}{quoteAsset}");
+            WebCallResult<BinanceBookPrice> result = await restClient.SpotApi.ExchangeData.GetBookPriceAsync($"{symbol}{GetExchangeMediumSymbol()}");
             decimal price = result.Data.BestAskPrice;
 
             return price;
@@ -86,44 +87,54 @@ public sealed class BinanceExchangeService : IExchangeService
         }
     }
 
-    public bool Buy(TradeOrderDto tradeOrder)
+    public async Task<DateTime?> BuyAsync(TradeOrderDto tradeOrder)
     {
-        //try
-        //{
-        //    using (var client = new BinanceClient())
-        //    {
-        //        WebCallResult<BinancePlacedOrder> result = client.Spot.Order.PlaceOrder(symbol, OrderSide.Buy, OrderType.Limit, quantity, price: price, timeInForce: TimeInForce.ImmediateOrCancel);
+        DateTime transactionTimeStamp = await Task.Run(() =>
+        {
+            //try
+            //{
+            //    using (var client = new BinanceClient())
+            //    {
+            //        WebCallResult<BinancePlacedOrder> result = client.Spot.Order.PlaceOrder(symbol, OrderSide.Buy, OrderType.Limit, quantity, price: price, timeInForce: TimeInForce.ImmediateOrCancel);
 
-        //        return result.Success;
-        //    }
-        //}
-        //catch (Exception ex)
-        //{
-        //    _logger.LogError(ex, "Failed to buy {quantity} of {symbol} at ${price}.", quantity, symbol, price);
-        //    return false;
-        //}
+            //        return DateTime.Now;
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger.LogError(ex, "Failed to buy {quantity} of {symbol} at ${price}.", quantity, symbol, price);
+            //    return null;
+            //}
 
-        return false;
+            return DateTime.Now;
+        });
+
+        return transactionTimeStamp;
     }
 
-    public bool Sell(TradeOrderDto tradeOrder)
+    public async Task<DateTime?> SellAsync(TradeOrderDto tradeOrder)
     {
-        //try
-        //{
-        //    using (var client = new BinanceClient())
-        //    {
-        //        WebCallResult<BinancePlacedOrder> result = client.Spot.Order.PlaceOrder(symbol, OrderSide.Sell, OrderType.Limit, quantity, price: price, timeInForce: TimeInForce.ImmediateOrCancel);
+        DateTime transactionTimeStamp = await Task.Run(() =>
+        {
+            //try
+            //{
+            //    using (var client = new BinanceClient())
+            //    {
+            //        WebCallResult<BinancePlacedOrder> result = client.Spot.Order.PlaceOrder(symbol, OrderSide.Sell, OrderType.Limit, quantity, price: price, timeInForce: TimeInForce.ImmediateOrCancel);
 
-        //        return result.Success;
-        //    }
-        //}
-        //catch (Exception ex)
-        //{
-        //    _logger.LogError(ex, "Failed to sell {quantity} of {symbol} at ${price}.", quantity, symbol, price);
-        //    return false;
-        //}
+            //        return DateTime.Now;
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger.LogError(ex, "Failed to sell {quantity} of {symbol} at ${price}.", quantity, symbol, price);
+            //    return null;
+            //}
 
-        return false;
+            return DateTime.Now;
+        });
+
+        return transactionTimeStamp;
     }
 
     private BinanceRestClient CreateDefaultRestClient(HttpClient httpClient)

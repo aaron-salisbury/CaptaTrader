@@ -8,11 +8,13 @@ namespace CaptaTrader.Business.Modules.Trading.Validators
     {
         public TradeOrderValidator()
         {
-            RuleFor(dto => dto.TimeStamp).LessThan(DateTime.Now.AddSeconds(1)).WithMessage("Trades must be made for the present.");
+            //RuleFor(dto => dto.TimeStamp).LessThan(DateTime.Now.AddSeconds(1)).WithMessage("Trades must be made for the present.");
 
-            RuleFor(or => or.PriceUSDT).GreaterThan(0.0M);
+            RuleFor(or => or.Price).GreaterThan(0.0M);
 
             RuleFor(or => or.Amount).GreaterThan(0.0M);
+
+            //TODO: Seems that Binance requires buys to spend at least 1 USDT and at 2 decimal places.
         }
     }
 }

@@ -20,13 +20,16 @@ public class TradeOrder
     public required DateTime TimeStamp { get; set; }
 
     [Required]
-    public required int TransactionType { get; set; }
+    public required int TransactionType { get; set; } // 0 = Buy, 1 = Sell
 
     [Required]
-    public required string Symbol { get; set; }
+    public required string AssetSymbolBuying { get; set; }
 
     [Required]
-    public required decimal PriceUSDT { get; set; }
+    public required string AssetSymbolSpending { get; set; }
+
+    [Required]
+    public required decimal Price { get; set; }
 
     [Required]
     public required decimal Amount { get; set; }

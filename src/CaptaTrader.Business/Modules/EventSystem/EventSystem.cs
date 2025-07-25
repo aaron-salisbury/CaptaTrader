@@ -7,7 +7,7 @@ using System.Linq;
 namespace CaptaTrader.Business.Modules;
 
 // Note: If we ever start to see GC pressure or performance issues, we may want to consider a more involved solution, like Disruptor-net.
-internal sealed class EventSystem(ILogger logger) : IEventSystem
+public sealed class EventSystem(ILogger logger) : IEventSystem
 {
     private readonly ConcurrentDictionary<Type, ImmutableList<Delegate>> _handlers = new();
     private readonly ILogger _logger = logger;

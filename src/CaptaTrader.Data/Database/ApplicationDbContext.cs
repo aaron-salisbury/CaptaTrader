@@ -20,4 +20,5 @@ public sealed class ApplicationDbContext : DbContext
     internal DbSet<UserCredential> UserCredentials { get; set; }
     internal DbSet<UserConfig> UserConfigs { get; set; }
     internal DbSet<TradeOrder> TradeOrders { get; set; }
+    internal DbSet<CryptoAsset> CryptoAssets { get; set; }
 }

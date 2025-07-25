@@ -15,7 +15,7 @@ internal sealed class BotTraderPresenter(Navigator navigator) : Presenter(naviga
         _view = (BotTraderView)view;
         _view.ShutdownRequested += BotTraderView_ShutdownRequested;
 
-        Application.TradingBot!.EventBus.Subscribe<TradeExecutedEventArgs>(OnTradeExecuted);
+        Application.TradingBot.EventBus.Subscribe<TradeExecutedEventArgs>(OnTradeExecuted);
 
         Task.Run(Application.TradingBot.InitializeTradingAsync);
         _view.Show();
@@ -23,7 +23,7 @@ internal sealed class BotTraderPresenter(Navigator navigator) : Presenter(naviga
 
     internal override void Dismiss()
     {
-        Application.TradingBot!.EventBus.Unsubscribe<TradeExecutedEventArgs>(OnTradeExecuted);
+        Application.TradingBot.EventBus.Unsubscribe<TradeExecutedEventArgs>(OnTradeExecuted);
 
         if (_view != null)
         {
@@ -33,7 +33,7 @@ internal sealed class BotTraderPresenter(Navigator navigator) : Presenter(naviga
 
     private void BotTraderView_ShutdownRequested(object? sender, EventArgs e)
     {
-        Task.Run(Application.TradingBot!.ShutdownTradingAsync).Wait();
+        Task.Run(Application.TradingBot.ShutdownTradingAsync).Wait();
 
         Navigator.NavigateTo(typeof(MainMenuPresenter));
     }

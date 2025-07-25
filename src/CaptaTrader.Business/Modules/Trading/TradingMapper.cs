@@ -10,7 +10,9 @@ namespace CaptaTrader.Business.Modules.Trading
         internal partial TTarget MapToDto<TTarget>(object source);
         internal partial TTarget MapToEntity<TTarget>(object source);
 
-        private partial DTOs.TradeOrderDto MapToDto(Data.Entities.TradeOrder source);
-        private partial Data.Entities.TradeOrder MapToEntity(DTOs.TradeOrderDto source);
+        [MapperIgnoreSource(nameof(TradeOrder.TradeOrderId)), MapperIgnoreSource(nameof(TradeOrder.EndUserId)), MapperIgnoreSource(nameof(TradeOrder.EndUser))]
+        private partial TradeOrderDto MapToDto(TradeOrder source);
+        [MapperIgnoreTarget(nameof(TradeOrder.TradeOrderId)), MapperIgnoreTarget(nameof(TradeOrder.EndUserId)), MapperIgnoreTarget(nameof(TradeOrder.EndUser))]
+        private partial Data.Entities.TradeOrder MapToEntity(TradeOrderDto source);
     }
 }

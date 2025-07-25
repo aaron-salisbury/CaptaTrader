@@ -2,7 +2,7 @@
 
 namespace CaptaTrader.Business.Modules;
 
-public interface IReportingService
+internal interface IReportingService
 {
     Task WriteTradeOrdersAsync();
 }

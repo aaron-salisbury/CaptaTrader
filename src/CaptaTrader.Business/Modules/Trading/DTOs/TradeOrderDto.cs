@@ -14,9 +14,11 @@ public record TradeOrderDto
 
     public required TransactionTypes TransactionType { get; init; }
 
-    public required string Symbol { get; init; }
+    public required string AssetSymbolBuying { get; init; }
 
-    public required decimal PriceUSDT { get; init; }
+    public required string AssetSymbolSpending { get; init; }
+
+    public required decimal Price { get; init; }
 
     public required decimal Amount { get; init; }
 }

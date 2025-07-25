@@ -1,4 +1,7 @@
-﻿- Reduce Mapping Pain
+﻿- Utility Main Menu Option
+	I need to be able to dump all trades executed to a CSV file. Probably in descending order by date.
+
+- Reduce Mapping Pain
 	Right now I am separating business (domain) models from data (entity) models for decoupling and maintainability. 
 	However, even with an automated mapping library, mapping can be tedious.
 	Something I could consider is using projection at query time. This could look like reading the entire entity but explicitly selecting the properties I want to use in the business model.

@@ -1,7 +1,7 @@
 ﻿using CaptaTrader.Business.Modules;
-using CaptaTrader.Business.Modules.Trading.ApplicationServices;
 using CaptaTrader.Business.Modules.Trading.DomainServices;
 using CaptaTrader.Business.Modules.Trading.ExternalServices;
+using CaptaTrader.Business.Modules.Trading.Jobs;
 using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Data;
 using FluentValidation;
@@ -29,9 +29,9 @@ internal static class TradingBotBuilder
         // External API services.
         if (tradingBotConfig.UseMockTransactions)
         {
-            services.AddScoped<IMarketDataService, MockDataService>();
-            services.AddScoped<IExchangeService, MockExchangeService>();
-            services.AddScoped<ICryptoFearAndGreedIndex, MockCFGIService>();
+            services.AddSingleton<IMarketDataService, MockDataService>();
+            services.AddSingleton<IExchangeService, MockExchangeService>();
+            services.AddSingleton<ICryptoFearAndGreedIndex, MockCFGIService>();
         }
         else
         {
@@ -42,12 +42,11 @@ internal static class TradingBotBuilder
 
         // Internal business domain logic.
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        services.AddScoped<ITradeAnalyzerService, MockTradeAnalyzerService>(); //TODO: Obviously will need a real analyzer.
+        services.AddScoped<ITradeAnalyzer, MockTradeAnalyzer>(); //TODO: Obviously will need a real analyzer.
         services.AddScoped<IBotTrader, BitcoinBotTrader>();
 
         // Top application-level modules.
         services.AddScoped<IUserAccessService, UserAccessService>();
-        services.AddScoped<ITradingService, TradingService>();
 
         return services.BuildServiceProvider();
     }
@@ -60,7 +59,11 @@ internal static class TradingBotBuilder
             c.UseSimpleTypeLoader();
             c.UseInMemoryStore();
 
-            TradingService.ConfigureJobs(c);
+            JobKey seekTradeJobKey = new(nameof(SeekTradeJob), nameof(TradingBot));
+            c.AddJob<SeekTradeJob>(seekTradeJobKey, configure => configure.StoreDurably(true));
+
+            //JobKey bitcoinPriceIntervalsJobKey = new(nameof(BitcoinPriceIntervalsJob), nameof(TradingService));
+            //configure.AddJob<BitcoinPriceIntervalsJob>(bitcoinPriceIntervalsJobKey, configure => configure.StoreDurably(true));
         });
 
         services.AddSingleton(sp => sp.GetRequiredService<ISchedulerFactory>().GetScheduler().Result);

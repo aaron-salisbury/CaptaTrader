@@ -6,21 +6,25 @@ using System.Threading.Tasks;
 
 namespace CaptaTrader.Business.Modules.Trading.ExternalServices;
 
-public sealed class MockExchangeService : IExchangeService
+internal sealed class MockExchangeService : IExchangeService
 {
-    private Dictionary<string, AssetBalance> _balancesByAssets = new()
+    private const string EXCHANGE_MEDIUM_SYMBOL = "USDT";
+
+    private readonly Dictionary<string, AssetBalance> _balancesByAssets = new(2);
+
+    public MockExchangeService()
     {
-        { "USDT", new AssetBalance()
-            {
-                Asset = "USDT",
-                Available = 250000.00M,
-                Locked = 0.0M,
-                Total = 250000.00M
-            }
-        }
-    };
+        _balancesByAssets[EXCHANGE_MEDIUM_SYMBOL] = new AssetBalance()
+        {
+            Asset = EXCHANGE_MEDIUM_SYMBOL,
+            AvailableBalance = 250000.00M,
+            UnavailableBalance = 0.0M
+        };
+    }
 
     public string GetExchangeID() => "MockExchange";
+
+    public string GetExchangeMediumSymbol() => EXCHANGE_MEDIUM_SYMBOL;
 
     public async Task<IEnumerable<AssetBalance>?> GetAccountBalancesAsync(IEnumerable<string> assets)
     {
@@ -39,13 +43,11 @@ public sealed class MockExchangeService : IExchangeService
                 }
                 else
                 {
-                    decimal balance = Random.Shared.NextDecimal(0.001M, 0.02M).PrecisionTruncate(3);
                     balancesForAsset = new AssetBalance()
                     {
                         Asset = uppercaseAsset,
-                        Available = balance,
-                        Locked = 0.0M,
-                        Total = balance
+                        AvailableBalance = 0.0M,
+                        UnavailableBalance = 0.0M
                     };
                     _balancesByAssets[uppercaseAsset] = balancesForAsset;
                 }
@@ -57,42 +59,58 @@ public sealed class MockExchangeService : IExchangeService
         return assetBalances;
     }
 
-    public async Task<decimal?> GetSpotPriceAsync(string symbol, string quoteAsset)
+    public async Task<decimal?> GetSpotPriceAsync(string symbol)
     {
         decimal price = await Task.Run(() => { return Random.Shared.NextDecimal(55000.00M, 60000.00M).PrecisionTruncate(2); });
 
         return price;
     }
 
-    public bool Buy(TradeOrderDto tradeOrder)
+    public async Task<DateTime?> BuyAsync(TradeOrderDto tradeOrder)
     {
-        decimal totalPrice = tradeOrder.Amount * tradeOrder.PriceUSDT;
-        AssetBalance usd = _balancesByAssets["USDT"];
-
-        if (usd.Available >= totalPrice && _balancesByAssets.TryGetValue(tradeOrder.Symbol.ToUpper(), out AssetBalance? asset))
+        DateTime transactionTimeStamp = await Task.Run(() => 
         {
-            usd.Available -= totalPrice;
-            asset.Available += tradeOrder.Amount;
+            _balancesByAssets[tradeOrder.AssetSymbolBuying] = new AssetBalance() // Getting Crypto
+            {
+                Asset = _balancesByAssets[tradeOrder.AssetSymbolBuying].Asset,
+                AvailableBalance = _balancesByAssets[tradeOrder.AssetSymbolBuying].AvailableBalance + tradeOrder.Amount,
+                UnavailableBalance = _balancesByAssets[tradeOrder.AssetSymbolBuying].UnavailableBalance
+            };
 
-            return true;
-        }
+            _balancesByAssets[tradeOrder.AssetSymbolSpending] = new AssetBalance() // Spending Exchange Medium
+            {
+                Asset = _balancesByAssets[tradeOrder.AssetSymbolSpending].Asset,
+                AvailableBalance = _balancesByAssets[tradeOrder.AssetSymbolSpending].AvailableBalance - (tradeOrder.Amount * tradeOrder.Price),
+                UnavailableBalance = _balancesByAssets[tradeOrder.AssetSymbolSpending].UnavailableBalance
+            };
 
-        return false;
+            return DateTime.Now;
+        });
+
+        return transactionTimeStamp;
     }
 
-    public bool Sell(TradeOrderDto tradeOrder)
+    public async Task<DateTime?> SellAsync(TradeOrderDto tradeOrder)
     {
-        decimal totalPrice = tradeOrder.Amount * tradeOrder.PriceUSDT;
-        AssetBalance usd = _balancesByAssets["USDT"];
-
-        if (_balancesByAssets.TryGetValue(tradeOrder.Symbol.ToUpper(), out AssetBalance? asset) && asset.Available >= tradeOrder.Amount)
+        DateTime transactionTimeStamp = await Task.Run(() =>
         {
-            usd.Available += totalPrice;
-            asset.Available -= tradeOrder.Amount;
+            _balancesByAssets[tradeOrder.AssetSymbolBuying] = new AssetBalance() // Getting Exchange Medium
+            {
+                Asset = _balancesByAssets[tradeOrder.AssetSymbolBuying].Asset,
+                AvailableBalance = _balancesByAssets[tradeOrder.AssetSymbolBuying].AvailableBalance + (tradeOrder.Amount * tradeOrder.Price),
+                UnavailableBalance = _balancesByAssets[tradeOrder.AssetSymbolBuying].UnavailableBalance
+            };
 
-            return true;
-        }
+            _balancesByAssets[tradeOrder.AssetSymbolSpending] = new AssetBalance() // Selling Crypto
+            {
+                Asset = _balancesByAssets[tradeOrder.AssetSymbolSpending].Asset,
+                AvailableBalance = _balancesByAssets[tradeOrder.AssetSymbolSpending].AvailableBalance - tradeOrder.Amount,
+                UnavailableBalance = _balancesByAssets[tradeOrder.AssetSymbolSpending].UnavailableBalance
+            };
 
-        return false;
+            return DateTime.Now;
+        });
+
+        return transactionTimeStamp;
     }
 }

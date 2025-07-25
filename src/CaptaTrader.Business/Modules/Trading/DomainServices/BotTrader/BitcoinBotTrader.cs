@@ -1,5 +1,4 @@
-﻿using CaptaTrader.Business.Base.Extensions;
-using CaptaTrader.Business.Modules.Trading.DTOs;
+﻿using CaptaTrader.Business.Modules.Trading.DTOs;
 using CaptaTrader.Business.Modules.Trading.ExternalServices;
 using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Data.Services;
@@ -7,16 +6,17 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static CaptaTrader.Business.Modules.Trading.DTOs.TradeOrderDto;
 
 namespace CaptaTrader.Business.Modules.Trading.DomainServices;
 
-public sealed class BitcoinBotTrader : IBotTrader
+internal sealed class BitcoinBotTrader : IBotTrader
 {
     private const string BITCOIN_SYMBOL = "BTC";
-    private const string QUOTE_ASSET = "USDT";
     private const decimal TRADING_FEE_SPOT = 0.001M;
     private const decimal TRADING_FEE_INSTANT = 0.005M;
 
@@ -24,56 +24,142 @@ public sealed class BitcoinBotTrader : IBotTrader
     internal PriceInterval? PriceIntervalMonth { get; set; }
     internal PriceInterval? PriceIntervalDay { get; set; }
 
-    private readonly IMarketDataService _cryptoDataService;
-    private readonly IExchangeService _exchangeService;
-    private readonly ITradeAnalyzerService _tradeAnalyzerService;
+    private readonly IMarketDataService _cryptoData;
+    private readonly IExchangeService _exchange;
+    private readonly ITradeAnalyzer _tradeAnalyzer;
     private readonly IDataAccess _dataAccess;
-    private readonly IUserAccessService _userAccessService;
-    private IValidator<TradeOrderDto> _tradeValidator;
-    private ILogger _logger;
+    private readonly IUserAccessService _userAccess;
+    private readonly IValidator<TradeOrderDto> _tradeValidator;
+    private readonly ILogger _logger;
 
-    public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzerService tradeAnalyzerService, IDataAccess dataAccess,
-        IUserAccessService userAccessService, IValidator<DTOs.TradeOrderDto> tradeValidator, ILogger logger)
+    public BitcoinBotTrader(IMarketDataService cryptoDataService, IExchangeService exchangeService, ITradeAnalyzer tradeAnalyzerService, IDataAccess dataAccess,
+        IUserAccessService userAccessService, IValidator<TradeOrderDto> tradeValidator, ILogger logger)
     {
-        _cryptoDataService = cryptoDataService;
-        _exchangeService = exchangeService;
-        _tradeAnalyzerService = tradeAnalyzerService;
+        _cryptoData = cryptoDataService;
+        _exchange = exchangeService;
+        _tradeAnalyzer = tradeAnalyzerService;
         _dataAccess = dataAccess;
-        _userAccessService = userAccessService;
+        _userAccess = userAccessService;
         _tradeValidator = tradeValidator;
         _logger = logger;
     }
 
-    public async Task<bool> UpdateBalancesAsync()
+    public async Task<IEnumerable<TradeOrderDto>> AttemptToInitiateTradesAsync()
     {
-        bool successful = false;
-        IEnumerable<AssetBalance>? assetBalances = await _exchangeService.GetAccountBalancesAsync(new List<string>() { QUOTE_ASSET, BITCOIN_SYMBOL });
+        ConcurrentBag<TradeOrderDto> tradeOrders = [];
+
+        // 1. Verify user.
+        int? userId = _userAccess.GetSessionEndUserId();
+        if (userId == null)
+        {
+            _logger.LogError("User is not authenticated. Cannot proceed with trade.");
+            return [];
+        }
+
+        // 2. Get asset balances.
+        (AssetBalance? currency, AssetBalance? btc) = await GetAssetBalancesAsync();
+        if (currency == null || btc == null)
+        {
+            _logger.LogError("Failed to update balances. Cannot proceed with trade.");
+            return [];
+        }
+
+        // 3. Get current Bitcoin price.
+        decimal? bitcoinPrice = await _exchange.GetSpotPriceAsync(BITCOIN_SYMBOL);
+        if (bitcoinPrice == null)
+        {
+            _logger.LogError("Failed to retrieve Bitcoin price. Cannot proceed with trade.");
+            return [];
+        }
+
+        // 4. In parallel, conduct analysis for potential buying/selling of Bitcoin. Execute trade when possible.
+        async Task AnalyzeAndExecute(Func<Task<TradeOrderDto?>> analyzeFunc)
+        {
+            try
+            {
+                TradeOrderDto? order = await analyzeFunc();
+                if (order != null)
+                {
+                    await AttemptTradeExecutionAsync(userId.Value, order);
+                    tradeOrders.Add(order);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during trade analysis or execution.");
+            }
+        }
+
+        Task buyTask = AnalyzeAndExecute(() => _tradeAnalyzer.AnalyzePotentialBuyAsync(BITCOIN_SYMBOL, currency, bitcoinPrice.Value));
+        Task sellTask = AnalyzeAndExecute(() => _tradeAnalyzer.AnalyzePotentialSellAsync(btc, currency.Asset, bitcoinPrice.Value));
+
+        await Task.WhenAll(buyTask, sellTask);
+
+        return tradeOrders;
+    }
+
+    private async Task AttemptTradeExecutionAsync(int userID, TradeOrderDto order)
+    {
+        ValidationResult validationResult = await _tradeValidator.ValidateAsync(order);
+        if (!validationResult.IsValid)
+        {
+            _logger.LogError("Trade order validation failed: {errors}", validationResult.ToString());
+            return;
+        }
+
+        DateTime? transactionTimeStamp = order.TransactionType == TransactionTypes.Buy 
+            ? await _exchange.BuyAsync(order) 
+            : await _exchange.SellAsync(order);
+
+        if (transactionTimeStamp != null)
+        {
+            _dataAccess.Create(new Data.Entities.TradeOrder()
+            {
+                EndUserId = userID,
+                TimeStamp = transactionTimeStamp.Value,
+                TransactionType = Convert.ToInt32(order.TransactionType),
+                AssetSymbolBuying = order.AssetSymbolBuying,
+                AssetSymbolSpending = order.AssetSymbolSpending,
+                Price = order.Price,
+                Amount = order.Amount
+            });
+        }
+    }
+
+    private async Task<(AssetBalance? Currency, AssetBalance? Btc)> GetAssetBalancesAsync()
+    {
+        AssetBalance? currency = null;
+        AssetBalance? btc = null;
+        string exchangeMediumSymbol = _exchange.GetExchangeMediumSymbol();
+        IEnumerable<AssetBalance>? assetBalances = await _exchange.GetAccountBalancesAsync([exchangeMediumSymbol, BITCOIN_SYMBOL]);
 
         if (assetBalances != null)
         {
-            foreach (AssetBalance balances in assetBalances)
+            foreach (AssetBalance assetBalance in assetBalances)
             {
-                if (string.Equals(balances.Asset, QUOTE_ASSET))
+                if (string.Equals(assetBalance.Asset, exchangeMediumSymbol))
                 {
-                    //Portfolio.AccountBalance = balances.Available;
+                    currency = assetBalance;
                 }
-                else if (string.Equals(balances.Asset, BITCOIN_SYMBOL))
+                else if (string.Equals(assetBalance.Asset, BITCOIN_SYMBOL))
                 {
-                    //Portfolio.AssetBalance = balances.Available;
+                    btc = assetBalance;
                 }
             }
-
-            successful = true;
         }
 
-        return successful;
+        return (currency, btc);
     }
 
-    public async Task<bool> UpdatePriceIntervalsAsync()
+
+
+
+
+    private async Task<bool> UpdatePriceIntervalsAsync()
     {
         bool successful = false;
 
-        IEnumerable<PriceInterval>? priceIntervals = await _cryptoDataService.GetLastThirtyDaysOfPriceIntervals(_exchangeService.GetExchangeID(), BITCOIN_SYMBOL);
+        IEnumerable<PriceInterval>? priceIntervals = await _cryptoData.GetLastThirtyDaysOfPriceIntervals(_exchange.GetExchangeID(), BITCOIN_SYMBOL);
 
         DateTime dateTimeTodayStart = DateTime.Now.Date;
         if (priceIntervals != null && priceIntervals.Any())
@@ -103,41 +189,5 @@ public sealed class BitcoinBotTrader : IBotTrader
         }
 
         return successful;
-    }
-
-    public async Task<DTOs.TradeOrderDto?> AttemptToInitiateTradeAsync()
-    {
-        //TODO: Temporary for testing.
-        //  Will need to answer whether I should sell, buy, or hold?
-
-        DTOs.TradeOrderDto? tradeOrder = _tradeAnalyzerService.AnalyzePotentialTrade();
-        int? userId = _userAccessService.GetSessionEndUserId();
-
-        if (tradeOrder != null
-            && userId != null
-            && (tradeOrder.TransactionType == DTOs.TradeOrderDto.TransactionTypes.Buy && _exchangeService.Buy(tradeOrder)
-                || tradeOrder.TransactionType == DTOs.TradeOrderDto.TransactionTypes.Sell && _exchangeService.Sell(tradeOrder)))
-        {
-            ValidationResult result = await _tradeValidator.ValidateAsync(tradeOrder);
-            if (!result.IsValid)
-            {
-                _logger.LogError(result.ToStringPretty("Trade Order creation"));
-                return null;
-            }
-
-            _dataAccess.Create(new Data.Entities.TradeOrder()
-            {
-                EndUserId = userId.Value,
-                TimeStamp = DateTime.Now,
-                TransactionType = Convert.ToInt32(tradeOrder.TransactionType),
-                Symbol = tradeOrder.Symbol,
-                PriceUSDT = tradeOrder.PriceUSDT,
-                Amount = tradeOrder.Amount
-            });
-
-            //await UpdateBalancesAsync();
-        }
-
-        return tradeOrder;
     }
 }

@@ -12,7 +12,7 @@ namespace CaptaTrader.Presentation.CLI;
 
 internal sealed class Application
 {
-    internal static TradingBot? TradingBot { get; private set; }
+    internal static TradingBot TradingBot { get { return TradingBot.Instance; } }
     internal static FigletText AppTitle { get; } = SetTitle();
     internal static int ExitCode { get; set; } = 0;
 
@@ -29,9 +29,9 @@ internal sealed class Application
 
     public async Task<int> RunAsync(bool mockExternalAPICalls)
     {
-        TradingBot = new TradingBot(new TradingBotConfig() { UseMockTransactions = mockExternalAPICalls }, _logger);
+        TradingBot.Initialize(new TradingBotConfig() { UseMockTransactions = mockExternalAPICalls }, _logger);
 
-        await TradingBot.StartAsync();
+        await TradingBot.Instance.StartAsync();
 
         _navigator.NavigateTo(typeof(LoginPresenter));
 
@@ -40,10 +40,10 @@ internal sealed class Application
 
     private void Application_ProcessExit(object? sender, EventArgs e)
     {
-        ValueTask? valueTask = TradingBot?.DisposeAsync();
+        ValueTask valueTask = TradingBot.DisposeAsync();
         AppDomain.CurrentDomain.ProcessExit -= Application_ProcessExit;
 
-        //AnsiConsole.Clear();
+        AnsiConsole.Clear();
         AnsiConsole.WriteLine("Capta Trader application exited.");
     }
 

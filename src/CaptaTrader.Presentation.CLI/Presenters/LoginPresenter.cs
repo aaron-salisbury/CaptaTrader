@@ -54,7 +54,7 @@ internal sealed class LoginPresenter(Navigator navigator) : Presenter(navigator)
     {
         ValidationResult result = e.NetworkCredential == null
             ? new ValidationResult([new ValidationFailure() { ErrorMessage = "No credentials found." }])
-            : Application.TradingBot!.UserAccess.Authenticate(e.NetworkCredential);
+            : Application.TradingBot.UserAccess.Authenticate(e.NetworkCredential);
    
         if (result.IsValid)
         {
@@ -71,7 +71,7 @@ internal sealed class LoginPresenter(Navigator navigator) : Presenter(navigator)
     {
         ValidationResult result = e.NetworkCredential == null
             ? new ValidationResult([new ValidationFailure() { ErrorMessage = "No credentials found." }])
-            : Application.TradingBot!.UserAccess.Register(e.NetworkCredential);
+            : Application.TradingBot.UserAccess.Register(e.NetworkCredential);
             
         if (result.IsValid)
         {
