@@ -1,5 +1,5 @@
-﻿using CaptaTrader.Business.Base.Extensions;
-using CaptaTrader.Business.Modules.Trading.DTOs;
+﻿using CaptaTrader.Business.Modules.Trading.DTOs;
+using RunnethOverStudio.AppToolkit.Core.Extensions;
 using System;
 using System.Threading.Tasks;
 using static CaptaTrader.Business.Modules.Trading.DTOs.TradeOrderDto;

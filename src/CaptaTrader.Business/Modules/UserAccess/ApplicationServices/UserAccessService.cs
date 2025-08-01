@@ -1,9 +1,12 @@
-﻿using CaptaTrader.Business.Modules.UserAccess.DomainServices;
+﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Modules.UserAccess.DTOs;
 using CaptaTrader.Data.Entities;
 using CaptaTrader.Data.Services;
 using FluentValidation;
 using FluentValidation.Results;
+using RunnethOverStudio.AppToolkit.Core;
+using RunnethOverStudio.AppToolkit.Modules.UserAccess;
+using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -22,28 +25,28 @@ public sealed class UserAccessService : IUserAccessService
         _userConfigValidator = userConfigValidator;
     }
 
-    public ValidationResult Authenticate(NetworkCredential networkCredentials)
+    public ProcessResult Authenticate(NetworkCredential networkCredentials)
     {
         EndUser? user = _dataAccess.ReadFiltered<EndUser>(u => string.Equals(networkCredentials.UserName, u.UserName), [nameof(EndUser.UserCredential)]).FirstOrDefault();
         if (user == null)
         {
-            return new ValidationResult([new ValidationFailure() { ErrorMessage = "User Name not found." }]);
+            return new ProcessResult([new Exception("User Name not found.")]);
         }
 
-        if (user.UserCredential == null || !Authorizer.Login(_userAccessMapper.MapToDto<UserCredentialDto>(user.UserCredential), networkCredentials.SecurePassword))
+        if (user.UserCredential == null || !Authorizer.Login(_userAccessMapper.MapToDto<UserCredentials>(user.UserCredential), networkCredentials.SecurePassword))
         {
-            return new ValidationResult([new ValidationFailure() { ErrorMessage = "Bad credentials." }]);
+            return new ProcessResult([new Exception("Bad credentials.")]);
         }
 
         TradingBot.Instance.SessionEndUserId = user.EndUserId;
-        return new ValidationResult();
+        return ProcessResult.Success();
     }
 
-    public ValidationResult Register(NetworkCredential networkCredentials)
+    public ProcessResult Register(NetworkCredential networkCredentials)
     {
         if (string.IsNullOrEmpty(networkCredentials.UserName) || _dataAccess.ReadFiltered<EndUser>(eu => string.Equals(networkCredentials.UserName, eu.UserName)).Any())
         {
-            return new ValidationResult([new ValidationFailure() { ErrorMessage = "User Name must be unique." }]);
+            return new ProcessResult([new Exception("User Name must be unique.")]);
         }
 
         EndUserDto newUser = new()
@@ -56,7 +59,7 @@ public sealed class UserAccessService : IUserAccessService
         EndUser userEntity = _dataAccess.Update(_userAccessMapper.MapToEntity<EndUser>(newUser));
 
         TradingBot.Instance.SessionEndUserId = userEntity.EndUserId;
-        return new ValidationResult();
+        return ProcessResult.Success();
     }
 
     public UserConfigDto? GetSessionUserConfig()
@@ -64,7 +67,7 @@ public sealed class UserAccessService : IUserAccessService
         return GetSessionUser(nameof(EndUserDto.UserConfig))?.UserConfig;
     }
 
-    public async Task<ValidationResult> SaveSessionUserConfigAsync(UserConfigDto userConfig)
+    public async Task<ProcessResult> SaveSessionUserConfigAsync(UserConfigDto userConfig)
     {
         ValidationResult result = await _userConfigValidator.ValidateAsync(userConfig);
 
@@ -73,7 +76,7 @@ public sealed class UserAccessService : IUserAccessService
             _dataAccess.Update(_userAccessMapper.MapToEntity<UserConfig>(userConfig));
         }
 
-        return result;
+        return result.ToProcessResult();
     }
 
     public EndUserDto? GetSessionUser(params string[] relationships)

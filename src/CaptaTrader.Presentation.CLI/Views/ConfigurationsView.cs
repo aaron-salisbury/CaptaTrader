@@ -1,5 +1,5 @@
 ﻿using CaptaTrader.Presentation.CLI.Base;
-using CaptaTrader.Presentation.CLI.Base.MVP;
+using RunnethOverStudio.AppToolkit.Presentation.MVP;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -29,9 +29,9 @@ internal sealed class ConfigurationsView : View
         Return
     }
 
-    internal override void Show()
+    public override void Show()
     {
-        ClearConsole();
+        Clear();
 
         IEnumerable<ConfigurationOptions> options = Enum.GetValues(typeof(ConfigurationOptions)).Cast<ConfigurationOptions>();
         List<string> readableOptions = [.. options.Select(co => co.GetDisplayName())];

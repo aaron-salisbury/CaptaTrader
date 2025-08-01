@@ -1,6 +1,7 @@
 ﻿using CaptaTrader.Business.Modules.UserAccess.DTOs;
 using CaptaTrader.Data.Entities;
 using Riok.Mapperly.Abstractions;
+using RunnethOverStudio.AppToolkit.Modules.UserAccess;
 
 namespace CaptaTrader.Business.Modules.UserAccess;
 
@@ -16,9 +17,9 @@ internal partial class UserAccessMapper
     private partial EndUser MapToEntity(EndUserDto source);
 
     [MapperIgnoreSource(nameof(UserCredential.EndUser))]
-    private partial UserCredentialDto MapToDto(UserCredential source);
+    private partial UserCredentials MapToDto(UserCredential source);
     [MapperIgnoreTarget(nameof(UserCredential.EndUser))]
-    private partial UserCredential MapToEntity(UserCredentialDto source);
+    private partial UserCredential MapToEntity(UserCredentials source);
 
     [MapperIgnoreSource(nameof(UserConfig.EndUser))]
     private partial UserConfigDto MapToDto(UserConfig source);

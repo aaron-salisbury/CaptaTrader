@@ -1,4 +1,4 @@
-﻿using System;
+﻿using RunnethOverStudio.AppToolkit.Modules.UserAccess;
 
 namespace CaptaTrader.Business.Modules.UserAccess.DTOs;
 
@@ -8,7 +8,7 @@ public record EndUserDto
 
     public required string UserName { get; init; }
 
-    public UserCredentialDto? UserCredential { get; set; }
+    public UserCredentials? UserCredential { get; set; }
 
     public UserConfigDto? UserConfig { get; set; }
 }

@@ -1,8 +1,8 @@
 ﻿using CaptaTrader.Presentation.CLI.Base.Commands;
 using CaptaTrader.Presentation.CLI.Base.Infrastructure;
-using CaptaTrader.Presentation.CLI.Base.MVP;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using RunnethOverStudio.AppToolkit.Presentation.MVP;
 using Serilog;
 using Spectre.Console;
 using Spectre.Console.Cli;

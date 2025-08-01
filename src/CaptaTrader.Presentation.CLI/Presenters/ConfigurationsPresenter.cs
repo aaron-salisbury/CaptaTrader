@@ -1,7 +1,8 @@
 ﻿using CaptaTrader.Business.Modules.UserAccess.DTOs;
-using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
-using FluentValidation.Results;
+using RunnethOverStudio.AppToolkit.Core;
+using RunnethOverStudio.AppToolkit.Presentation.MVP;
+using System;
 using static CaptaTrader.Presentation.CLI.Views.ConfigurationsView;
 
 namespace CaptaTrader.Presentation.CLI.Presenters;
@@ -11,7 +12,7 @@ internal sealed class ConfigurationsPresenter(Navigator navigator) : Presenter(n
     private UserConfigDto? _currentConfig;
     private ConfigurationsView? _view;
 
-    internal override void Display(View view)
+    public override void Display(View view)
     {
         _currentConfig = Application.TradingBot.UserAccess.GetSessionUserConfig();
         _view = (ConfigurationsView)view;
@@ -23,7 +24,7 @@ internal sealed class ConfigurationsPresenter(Navigator navigator) : Presenter(n
         _view.Show();
     }
 
-    internal override void Dismiss()
+    public override void Dismiss()
     {
         if (_view != null)
         {
@@ -96,11 +97,11 @@ internal sealed class ConfigurationsPresenter(Navigator navigator) : Presenter(n
 
     private void Save()
     {
-        ValidationResult result;
+        ProcessResult result;
 
         if (_currentConfig == null)
         {
-            result = new ValidationResult([new ValidationFailure() { ErrorMessage = "No user config found to update." }]);
+            result = new ProcessResult([new Exception("No user config found to update.")]);
         }
         else
         {
@@ -109,7 +110,7 @@ internal sealed class ConfigurationsPresenter(Navigator navigator) : Presenter(n
 
         if (!result.IsValid)
         {
-            _view?.PopupProcessFail("Save User Config", result);
+            _view?.ShowProcessFail("Save User Config", result);
             _view?.Show();
         }
 

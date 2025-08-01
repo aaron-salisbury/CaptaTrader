@@ -1,7 +1,8 @@
 ﻿using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
-using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
-using FluentValidation.Results;
+using RunnethOverStudio.AppToolkit.Core;
+using RunnethOverStudio.AppToolkit.Presentation.MVP;
+using System;
 using static CaptaTrader.Presentation.CLI.Views.LoginView;
 
 namespace CaptaTrader.Presentation.CLI.Presenters;
@@ -10,7 +11,7 @@ internal sealed class LoginPresenter(Navigator navigator) : Presenter(navigator)
 {
     private LoginView? _view;
 
-    internal override void Display(View view)
+    public override void Display(View view)
     {
         _view = (LoginView)view;
 
@@ -21,7 +22,7 @@ internal sealed class LoginPresenter(Navigator navigator) : Presenter(navigator)
         _view.Show();
     }
 
-    internal override void Dismiss()
+    public override void Dismiss()
     {
         if (_view != null)
         {
@@ -52,8 +53,8 @@ internal sealed class LoginPresenter(Navigator navigator) : Presenter(navigator)
 
     private void LoginView_LoginCredentialsEntered(object? sender, LoginViewEventArgs e)
     {
-        ValidationResult result = e.NetworkCredential == null
-            ? new ValidationResult([new ValidationFailure() { ErrorMessage = "No credentials found." }])
+        ProcessResult result = e.NetworkCredential == null
+            ? new ProcessResult([new Exception("No credentials found.")])
             : Application.TradingBot.UserAccess.Authenticate(e.NetworkCredential);
    
         if (result.IsValid)
@@ -62,15 +63,15 @@ internal sealed class LoginPresenter(Navigator navigator) : Presenter(navigator)
         }
         else
         {
-            _view?.PopupProcessFail(nameof(IUserAccessService.Authenticate), result);
+            _view?.ShowProcessFail(nameof(IUserAccessService.Authenticate), result);
             _view?.Show();
         }
     }
 
     private void LoginView_RegisterNewCredentialsEntered(object? sender, LoginViewEventArgs e)
     {
-        ValidationResult result = e.NetworkCredential == null
-            ? new ValidationResult([new ValidationFailure() { ErrorMessage = "No credentials found." }])
+        ProcessResult result = e.NetworkCredential == null
+            ? new ProcessResult([new Exception("No credentials found.")])
             : Application.TradingBot.UserAccess.Register(e.NetworkCredential);
             
         if (result.IsValid)
@@ -79,7 +80,7 @@ internal sealed class LoginPresenter(Navigator navigator) : Presenter(navigator)
         }
         else
         {
-            _view?.PopupProcessFail(nameof(IUserAccessService.Register), result);
+            _view?.ShowProcessFail(nameof(IUserAccessService.Register), result);
             _view?.Show();
         }
     }

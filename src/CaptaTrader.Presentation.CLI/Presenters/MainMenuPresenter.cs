@@ -1,5 +1,5 @@
-﻿using CaptaTrader.Presentation.CLI.Base.MVP;
-using CaptaTrader.Presentation.CLI.Views;
+﻿using CaptaTrader.Presentation.CLI.Views;
+using RunnethOverStudio.AppToolkit.Presentation.MVP;
 using static CaptaTrader.Presentation.CLI.Views.MainMenuView;
 
 namespace CaptaTrader.Presentation.CLI.Presenters;
@@ -10,7 +10,7 @@ internal sealed class MainMenuPresenter : Presenter
 
     public MainMenuPresenter(Navigator navigator) : base(navigator) { }
 
-    internal override void Display(View view)
+    public override void Display(View view)
     {
         _view = (MainMenuView)view;
 
@@ -19,7 +19,7 @@ internal sealed class MainMenuPresenter : Presenter
         _view.Show();
     }
 
-    internal override void Dismiss()
+    public override void Dismiss()
     {
         if (_view != null)
         {

@@ -1,7 +1,7 @@
-﻿using CaptaTrader.Data.Base;
-using CaptaTrader.Data.Entities;
+﻿using CaptaTrader.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
+using ROSIO = RunnethOverStudio.AppToolkit.DataAccess.IO;
 
 namespace CaptaTrader.Data.Database;
 
@@ -9,7 +9,7 @@ public sealed class ApplicationDbContext : DbContext
 {
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        string appFolderPath = IO.GetAppDirectoryPath();
+        string appFolderPath = ROSIO.GetAppDirectoryPath();
         string appName = new DirectoryInfo(appFolderPath).Name;
         string dbPath = Path.Join(appFolderPath, $"{appName}.db");
 

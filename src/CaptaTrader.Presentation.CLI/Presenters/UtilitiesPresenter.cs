@@ -1,5 +1,5 @@
-﻿using CaptaTrader.Presentation.CLI.Base.MVP;
-using CaptaTrader.Presentation.CLI.Views;
+﻿using CaptaTrader.Presentation.CLI.Views;
+using RunnethOverStudio.AppToolkit.Presentation.MVP;
 using System.Threading.Tasks;
 using static CaptaTrader.Presentation.CLI.Views.UtilitiesView;
 
@@ -9,7 +9,7 @@ internal sealed class UtilitiesPresenter(Navigator navigator) : Presenter(naviga
 {
     private UtilitiesView? _view;
 
-    internal override void Display(View view)
+    public override void Display(View view)
     {
         _view = (UtilitiesView)view;
 
@@ -18,7 +18,7 @@ internal sealed class UtilitiesPresenter(Navigator navigator) : Presenter(naviga
         _view.Show();
     }
 
-    internal override void Dismiss()
+    public override void Dismiss()
     {
         if (_view != null)
         {

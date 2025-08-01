@@ -1,5 +1,5 @@
 ﻿using CaptaTrader.Presentation.CLI.Base;
-using CaptaTrader.Presentation.CLI.Base.MVP;
+using RunnethOverStudio.AppToolkit.Presentation.MVP;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -24,9 +24,9 @@ internal sealed class LoginView : View
         Exit
     }
 
-    internal override void Show()
+    public override void Show()
     {
-        ClearConsole();
+        Clear();
 
         IEnumerable<LoginMenuOptions> options = Enum.GetValues(typeof(LoginMenuOptions)).Cast<LoginMenuOptions>();
         List<string> readableOptions = options.Select(mmo => mmo.GetDisplayName()).ToList();

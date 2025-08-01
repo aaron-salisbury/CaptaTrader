@@ -1,8 +1,8 @@
 ﻿using CaptaTrader.Business;
 using CaptaTrader.Presentation.CLI.Base.Extensions;
-using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Presenters;
 using Microsoft.Extensions.Logging;
+using RunnethOverStudio.AppToolkit.Presentation.MVP;
 using Spectre.Console;
 using System;
 using System.Reflection;
@@ -13,7 +13,6 @@ namespace CaptaTrader.Presentation.CLI;
 internal sealed class Application
 {
     internal static TradingBot TradingBot { get { return TradingBot.Instance; } }
-    internal static FigletText AppTitle { get; } = SetTitle();
     internal static int ExitCode { get; set; } = 0;
 
     private readonly Navigator _navigator;
@@ -23,6 +22,8 @@ internal sealed class Application
     {
         _navigator = navigator;
         _logger = logger;
+
+        View.AppTitleFiglet = SetTitle();
 
         AppDomain.CurrentDomain.ProcessExit += Application_ProcessExit;
     }

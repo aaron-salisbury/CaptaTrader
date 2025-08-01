@@ -1,6 +1,6 @@
 ﻿using CaptaTrader.Business.Modules.EventSystemEvents;
-using CaptaTrader.Presentation.CLI.Base.MVP;
 using CaptaTrader.Presentation.CLI.Views;
+using RunnethOverStudio.AppToolkit.Presentation.MVP;
 using System;
 using System.Threading.Tasks;
 
@@ -10,7 +10,7 @@ internal sealed class BotTraderPresenter(Navigator navigator) : Presenter(naviga
 {
     private BotTraderView? _view;
 
-    internal override void Display(View view)
+    public override void Display(View view)
     {
         _view = (BotTraderView)view;
         _view.ShutdownRequested += BotTraderView_ShutdownRequested;
@@ -21,7 +21,7 @@ internal sealed class BotTraderPresenter(Navigator navigator) : Presenter(naviga
         _view.Show();
     }
 
-    internal override void Dismiss()
+    public override void Dismiss()
     {
         Application.TradingBot.EventBus.Unsubscribe<TradeExecutedEventArgs>(OnTradeExecuted);
 

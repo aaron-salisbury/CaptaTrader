@@ -1,6 +1,7 @@
 ﻿using CaptaTrader.Data.Database;
 using CaptaTrader.Data.Services;
 using Microsoft.Extensions.DependencyInjection;
+using RunnethOverStudio.AppToolkit.DataAccess;
 using System.Net;
 using System.Net.Http;
 
@@ -11,7 +12,7 @@ public static class Startup
     /// <summary>
     /// Adds the <see cref="IHttpClientFactory"/> and related services to the <see cref="IServiceCollection"/> and configures
     /// a named <see cref="HttpClient"/> used for compression.
-    /// Also adds a scoped service of the type <see cref="IWebRequester"/> that is a wrapper for web requests.
+    /// Also adds a scoped service of the type <see cref="WebRequester"/> that is a wrapper for web requests.
     /// </summary>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddWebRequesting(this IServiceCollection services)
@@ -23,7 +24,7 @@ public static class Startup
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
             });
 
-        services.AddScoped<IWebRequester, WebRequester>();
+        services.AddScoped<WebRequester, WebRequester>();
 
         return services;
     }

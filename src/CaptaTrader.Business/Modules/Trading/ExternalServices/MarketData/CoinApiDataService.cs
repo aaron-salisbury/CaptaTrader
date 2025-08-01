@@ -2,8 +2,8 @@
 using CaptaTrader.Business.Modules.Trading.DTOs;
 using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Business.Modules.UserAccess.DTOs;
-using CaptaTrader.Data.Services;
 using Microsoft.Extensions.Logging;
+using RunnethOverStudio.AppToolkit.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,10 +19,10 @@ public sealed class CoinApiDataService : IMarketDataService
     private const string QUOTE_ASSET = "USDT";
 
     private readonly ILogger _logger;
-    private readonly IWebRequester _webRequester;
+    private readonly WebRequester _webRequester;
     private readonly IUserAccessService _userAccessService;
 
-    public CoinApiDataService(ILogger logger, IWebRequester webRequester, IUserAccessService userAccessService)
+    public CoinApiDataService(ILogger logger, WebRequester webRequester, IUserAccessService userAccessService)
     {
         _logger = logger;
         _webRequester = webRequester;
@@ -45,7 +45,7 @@ public sealed class CoinApiDataService : IMarketDataService
 
             string? json = await _webRequester.SendHTTPJsonRequestAsync(
                 url,
-                new Data.Base.HTTPJsonRequest()
+                new HTTPJsonRequest()
                 {
                     UseCompression = true, // CoinApi requests that compression be used.
                     RequestHeaders = new Dictionary<string, string>() { { "Authorization", apiKey } }

@@ -1,5 +1,5 @@
 ﻿using CaptaTrader.Business.Modules.Trading.DTOs;
-using CaptaTrader.Presentation.CLI.Base.MVP;
+using RunnethOverStudio.AppToolkit.Presentation.MVP;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -13,9 +13,9 @@ internal sealed class BotTraderView : View
 
     private static readonly Text[] _tradeOrderColumnHeaders = BuildTradeOrderColumnHeaders();
 
-    internal override void Show()
+    public override void Show()
     {
-        ClearConsole();
+        Clear();
 
         AnsiConsole.MarkupLine("Bot is [lime]active[/], press any key to shutdown..." + Environment.NewLine);
         Console.ReadKey();

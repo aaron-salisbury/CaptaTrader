@@ -1,7 +1,7 @@
 ﻿using CaptaTrader.Business.Base;
 using CaptaTrader.Business.Modules.Trading.DTOs;
-using CaptaTrader.Data.Services;
 using Microsoft.Extensions.Logging;
+using RunnethOverStudio.AppToolkit.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +16,9 @@ internal sealed class AlternativeCFGI : ICryptoFearAndGreedIndex
     private const string QUERY_FORMAT = "fng/?limit={0}&format=json&date_format=us";
 
     private readonly ILogger _logger;
-    private readonly IWebRequester _webRequester;
+    private readonly WebRequester _webRequester;
 
-    public AlternativeCFGI(ILogger logger, IWebRequester webRequester)
+    public AlternativeCFGI(ILogger logger, WebRequester webRequester)
     {
         _logger = logger;
         _webRequester = webRequester;
