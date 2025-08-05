@@ -3,7 +3,7 @@ using CaptaTrader.Business.Modules.Trading.DTOs;
 using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Business.Modules.UserAccess.DTOs;
 using Microsoft.Extensions.Logging;
-using RunnethOverStudio.AppToolkit.DataAccess;
+using RunnethOverStudio.AppToolkit.Modules.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,13 +19,13 @@ public sealed class CoinApiDataService : IMarketDataService
     private const string QUOTE_ASSET = "USDT";
 
     private readonly ILogger _logger;
-    private readonly WebRequester _webRequester;
+    private readonly IHttpRequester _httpRequester;
     private readonly IUserAccessService _userAccessService;
 
-    public CoinApiDataService(ILogger logger, WebRequester webRequester, IUserAccessService userAccessService)
+    public CoinApiDataService(ILogger logger, IHttpRequester httpRequester, IUserAccessService userAccessService)
     {
         _logger = logger;
-        _webRequester = webRequester;
+        _httpRequester = httpRequester;
         _userAccessService = userAccessService;
     }
 
@@ -43,7 +43,7 @@ public sealed class CoinApiDataService : IMarketDataService
         {
             string url = $"{Resources.CoinApiEndpoint}{string.Format(QUERY_FORMAT_OHLCV_LATEST, exchangeID, baseAsset, QUOTE_ASSET)}";
 
-            string? json = await _webRequester.SendHTTPJsonRequestAsync(
+            string? json = await _httpRequester.SendHTTPJsonRequestAsync(
                 url,
                 new HTTPJsonRequest()
                 {

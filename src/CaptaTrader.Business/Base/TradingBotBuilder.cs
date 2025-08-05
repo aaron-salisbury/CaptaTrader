@@ -8,6 +8,8 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Quartz;
+using RunnethOverStudio.AppToolkit.Modules.Messaging;
+using RunnethOverStudio.AppToolkit.Modules.UserAccess;
 using System;
 using System.Reflection;
 
@@ -22,6 +24,7 @@ internal static class TradingBotBuilder
         // Core Systems
         services.AddSingleton(applicationLogger);
         services.AddSingleton<IEventSystem, EventSystem>();
+        services.AddSingleton<IUserAuthenticator, UserAuthenticator>();
         services.AddWebRequesting();
         services.AddDataAccess();
         services.AddScheduling();

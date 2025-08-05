@@ -2,6 +2,7 @@
 using CaptaTrader.Business.Modules.Trading.DomainServices;
 using CaptaTrader.Business.Modules.Trading.DTOs;
 using Quartz;
+using RunnethOverStudio.AppToolkit.Modules.Messaging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

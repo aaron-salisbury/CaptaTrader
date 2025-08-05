@@ -15,12 +15,14 @@ namespace CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 
 public sealed class UserAccessService : IUserAccessService
 {
+    private readonly IUserAuthenticator _userAuthenticator;
     private readonly IDataAccess _dataAccess;
     private readonly IValidator<UserConfigDto> _userConfigValidator;
     private readonly UserAccessMapper _userAccessMapper = new();
 
-    public UserAccessService(IDataAccess dataAccess, IValidator<UserConfigDto> userConfigValidator)
+    public UserAccessService(IUserAuthenticator userAuthenticator, IDataAccess dataAccess, IValidator<UserConfigDto> userConfigValidator)
     {
+        _userAuthenticator = userAuthenticator;
         _dataAccess = dataAccess;
         _userConfigValidator = userConfigValidator;
     }
@@ -33,7 +35,7 @@ public sealed class UserAccessService : IUserAccessService
             return new ProcessResult([new Exception("User Name not found.")]);
         }
 
-        if (user.UserCredential == null || !Authorizer.Login(_userAccessMapper.MapToDto<UserCredentials>(user.UserCredential), networkCredentials.SecurePassword))
+        if (user.UserCredential == null || !_userAuthenticator.VerifyCredentials(_userAccessMapper.MapToDto<UserCredentials>(user.UserCredential), networkCredentials.SecurePassword))
         {
             return new ProcessResult([new Exception("Bad credentials.")]);
         }
@@ -52,7 +54,7 @@ public sealed class UserAccessService : IUserAccessService
         EndUserDto newUser = new()
         {
             UserName = networkCredentials.UserName,
-            UserCredential = Authorizer.CreateAppCredential(networkCredentials.SecurePassword),
+            UserCredential = _userAuthenticator.CreateUserCredentials(networkCredentials.SecurePassword),
             UserConfig = new()
         };
 

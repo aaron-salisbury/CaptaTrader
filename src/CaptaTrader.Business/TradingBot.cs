@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Quartz;
 using Quartz.Impl.Matchers;
+using RunnethOverStudio.AppToolkit.Modules.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;

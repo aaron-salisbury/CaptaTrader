@@ -1,7 +1,7 @@
 ﻿using CaptaTrader.Business.Base;
 using CaptaTrader.Business.Modules.Trading.DTOs;
 using Microsoft.Extensions.Logging;
-using RunnethOverStudio.AppToolkit.DataAccess;
+using RunnethOverStudio.AppToolkit.Modules.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +16,12 @@ internal sealed class AlternativeCFGI : ICryptoFearAndGreedIndex
     private const string QUERY_FORMAT = "fng/?limit={0}&format=json&date_format=us";
 
     private readonly ILogger _logger;
-    private readonly WebRequester _webRequester;
+    private readonly IHttpRequester _httpRequester;
 
-    public AlternativeCFGI(ILogger logger, WebRequester webRequester)
+    public AlternativeCFGI(ILogger logger, IHttpRequester httpRequester)
     {
         _logger = logger;
-        _webRequester = webRequester;
+        _httpRequester = httpRequester;
     }
 
     public async Task<IEnumerable<int>?> GetCryptoFearAndGreedIndexAsync(int limit)
@@ -30,7 +30,7 @@ internal sealed class AlternativeCFGI : ICryptoFearAndGreedIndex
         {
             string url = $"{Resources.AlternativeCFGIEndpoint}{string.Format(QUERY_FORMAT, limit)}";
 
-            string? json = await _webRequester.SendHTTPJsonRequestAsync(url);
+            string? json = await _httpRequester.SendHTTPJsonRequestAsync(url);
 
             if (!string.IsNullOrEmpty(json) &&
                 JsonSerializer.Deserialize<AlternativeCFGIResult>(json) is AlternativeCFGIResult result)
