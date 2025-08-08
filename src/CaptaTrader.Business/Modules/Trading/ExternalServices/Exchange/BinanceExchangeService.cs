@@ -44,7 +44,7 @@ internal sealed class BinanceExchangeService : IExchangeService
         try
         {
             using HttpClient httpClient = _httpClientFactory.CreateClient();
-            using BinanceRestClient restClient = CreateDefaultRestClient(httpClient);
+            using BinanceRestClient restClient = await CreateDefaultRestClientAsync(httpClient);
             WebCallResult<BinanceAccountInfo> result = await restClient.SpotApi.Account.GetAccountInfoAsync();
 
             if (result.Error != null)
@@ -74,7 +74,7 @@ internal sealed class BinanceExchangeService : IExchangeService
         try
         {
             using HttpClient httpClient = _httpClientFactory.CreateClient();
-            using BinanceRestClient restClient = CreateDefaultRestClient(httpClient);
+            using BinanceRestClient restClient = await CreateDefaultRestClientAsync(httpClient);
             WebCallResult<BinanceBookPrice> result = await restClient.SpotApi.ExchangeData.GetBookPriceAsync($"{symbol}{GetExchangeMediumSymbol()}");
             decimal price = result.Data.BestAskPrice;
 
@@ -87,7 +87,7 @@ internal sealed class BinanceExchangeService : IExchangeService
         }
     }
 
-    public async Task<DateTime?> BuyAsync(TradeOrderDto tradeOrder)
+    public async Task<DateTime?> BuyAsync(TradeOrder tradeOrder)
     {
         DateTime transactionTimeStamp = await Task.Run(() =>
         {
@@ -112,7 +112,7 @@ internal sealed class BinanceExchangeService : IExchangeService
         return transactionTimeStamp;
     }
 
-    public async Task<DateTime?> SellAsync(TradeOrderDto tradeOrder)
+    public async Task<DateTime?> SellAsync(TradeOrder tradeOrder)
     {
         DateTime transactionTimeStamp = await Task.Run(() =>
         {
@@ -137,7 +137,7 @@ internal sealed class BinanceExchangeService : IExchangeService
         return transactionTimeStamp;
     }
 
-    private BinanceRestClient CreateDefaultRestClient(HttpClient httpClient)
+    private async Task<BinanceRestClient> CreateDefaultRestClientAsync(HttpClient httpClient)
     {
         IOptions<BinanceRestOptions> options = Options.Create(new BinanceRestOptions
         {
@@ -146,7 +146,7 @@ internal sealed class BinanceExchangeService : IExchangeService
 
         BinanceRestClient restClient = new(httpClient, _loggerFactory, options); 
 
-        ApiCredentials? apiCredentials = GetApiCredentialsForSessionUser();
+        ApiCredentials? apiCredentials = await GetApiCredentialsForSessionUserAsync();
         if (apiCredentials != null)
         {
             restClient.SetApiCredentials(apiCredentials);
@@ -159,9 +159,9 @@ internal sealed class BinanceExchangeService : IExchangeService
         return restClient;
     }
 
-    private ApiCredentials? GetApiCredentialsForSessionUser()
+    private async Task<ApiCredentials?> GetApiCredentialsForSessionUserAsync()
     {
-        UserConfigDto? userConfig = _userAccessService.GetSessionUser(nameof(EndUserDto.UserConfig))?.UserConfig;
+        EndUserConfig? userConfig = await _userAccessService.GetSessionUserConfigAsync();
 
         if (userConfig?.ExchangeAPIKey != null && userConfig?.ExchangeSecretKey != null)
         {

@@ -5,5 +5,5 @@ namespace CaptaTrader.Business.Modules.EventSystemEvents;
 
 public class TradeExecutedEventArgs : EventArgs
 {
-    public required TradeOrderDto TradeOrder { get; init; }
+    public required TradeOrder TradeOrder { get; init; }
 }

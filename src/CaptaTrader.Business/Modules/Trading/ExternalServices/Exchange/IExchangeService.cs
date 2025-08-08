@@ -11,6 +11,6 @@ internal interface IExchangeService
     string GetExchangeMediumSymbol();
     Task<IEnumerable<AssetBalance>?> GetAccountBalancesAsync(IEnumerable<string> assets);
     Task<decimal?> GetSpotPriceAsync(string symbol);
-    Task<DateTime?> BuyAsync(TradeOrderDto tradeOrder);
-    Task<DateTime?> SellAsync(TradeOrderDto tradeOrder);
+    Task<DateTime?> BuyAsync(TradeOrder tradeOrder);
+    Task<DateTime?> SellAsync(TradeOrder tradeOrder);
 }

@@ -5,7 +5,7 @@ namespace CaptaTrader.Business.Modules.Trading.DomainServices;
 
 internal interface ITradeAnalyzer
 {
-    Task<TradeOrderDto?> AnalyzePotentialBuyAsync(string symbolOfAssetToBuy, AssetBalance currencyAsset, decimal spotPrice);
+    Task<TradeOrder?> AnalyzePotentialBuyAsync(long userId, string symbolOfAssetToBuy, AssetBalance currencyAsset, decimal spotPrice);
 
-    Task<TradeOrderDto?> AnalyzePotentialSellAsync(AssetBalance assetToSell, string symbolOfCurrencyAsset, decimal spotPrice);
+    Task<TradeOrder?> AnalyzePotentialSellAsync(long userId, AssetBalance assetToSell, string symbolOfCurrencyAsset, decimal spotPrice);
 }

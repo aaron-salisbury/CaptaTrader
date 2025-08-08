@@ -3,18 +3,19 @@ using CaptaTrader.Presentation.CLI.Views;
 using RunnethOverStudio.AppToolkit.Core;
 using RunnethOverStudio.AppToolkit.Presentation.MVP;
 using System;
+using System.Threading.Tasks;
 using static CaptaTrader.Presentation.CLI.Views.ConfigurationsView;
 
 namespace CaptaTrader.Presentation.CLI.Presenters;
 
 internal sealed class ConfigurationsPresenter(Navigator navigator) : Presenter(navigator)
 {
-    private UserConfigDto? _currentConfig;
+    private EndUserConfig? _currentConfig;
     private ConfigurationsView? _view;
 
     public override void Display(View view)
     {
-        _currentConfig = Application.TradingBot.UserAccess.GetSessionUserConfig();
+        _currentConfig = Task.Run(Application.TradingBot.UserAccess.GetSessionUserConfigAsync).GetAwaiter().GetResult();
         _view = (ConfigurationsView)view;
 
         _view.ConfigurationOptionSelected += ConfigurationsView_ConfigurationOptionSelected;
@@ -47,7 +48,7 @@ internal sealed class ConfigurationsPresenter(Navigator navigator) : Presenter(n
                 _view?.PopupSecretConfiguration(e.MenuOption);
                 break;
             case ConfigurationOptions.Save:
-                Save();
+                Task.Run(SaveAsync).GetAwaiter();
                 break;
             case ConfigurationOptions.Return:
                 Navigator.NavigateTo(typeof(MainMenuPresenter));
@@ -95,7 +96,7 @@ internal sealed class ConfigurationsPresenter(Navigator navigator) : Presenter(n
         _view?.Show();
     }
 
-    private void Save()
+    private async Task SaveAsync()
     {
         ProcessResult result;
 
@@ -105,7 +106,7 @@ internal sealed class ConfigurationsPresenter(Navigator navigator) : Presenter(n
         }
         else
         {
-            result = Application.TradingBot.UserAccess.SaveSessionUserConfigAsync(_currentConfig).Result;
+            result = await Application.TradingBot.UserAccess.SaveSessionUserConfigAsync(_currentConfig);
         }
 
         if (!result.IsValid)

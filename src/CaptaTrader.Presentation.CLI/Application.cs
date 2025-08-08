@@ -23,7 +23,12 @@ internal sealed class Application
         _navigator = navigator;
         _logger = logger;
 
-        View.AppTitleFiglet = SetTitle();
+        View.ViewBranding = new ViewBranding()
+        {
+            AppTitle = "Capta Trader",
+            AppTitleFigletFont = GetTitleFont(),
+            PrimaryColor = Color.Green
+        };
 
         AppDomain.CurrentDomain.ProcessExit += Application_ProcessExit;
     }
@@ -48,11 +53,10 @@ internal sealed class Application
         AnsiConsole.WriteLine("Capta Trader application exited.");
     }
 
-    private static FigletText SetTitle()
+    private static FigletFont GetTitleFont()
     {
         string? font = Assembly.GetExecutingAssembly().ReadResource("Ogre.flf");
-        FigletFont figletFont = font != null ? FigletFont.Parse(font) : FigletFont.Default;
 
-        return new FigletText(figletFont, "Capta Trader").Color(Color.Green);
+        return font != null ? FigletFont.Parse(font) : FigletFont.Default;
     }
 }

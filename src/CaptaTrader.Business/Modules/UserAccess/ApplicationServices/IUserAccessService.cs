@@ -7,15 +7,13 @@ namespace CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 
 public interface IUserAccessService
 {
-    ProcessResult Authenticate(NetworkCredential networkCredentials);
+    Task<ProcessResult> AuthenticateAsync(NetworkCredential networkCredentials);
 
-    ProcessResult Register(NetworkCredential networkCredentials);
+    Task<ProcessResult> RegisterAsync(NetworkCredential networkCredentials);
 
-    UserConfigDto? GetSessionUserConfig();
+    Task<EndUserConfig?> GetSessionUserConfigAsync();
 
-    Task<ProcessResult> SaveSessionUserConfigAsync(UserConfigDto userConfig);
+    Task<ProcessResult> SaveSessionUserConfigAsync(EndUserConfig userConfig);
 
-    EndUserDto? GetSessionUser(params string[] relationships);
-
-    int? GetSessionEndUserId();
+    long? GetSessionEndUserId();
 }

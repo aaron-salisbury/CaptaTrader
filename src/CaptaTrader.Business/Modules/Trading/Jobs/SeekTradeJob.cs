@@ -21,9 +21,9 @@ internal sealed class SeekTradeJob : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
-        IEnumerable<TradeOrderDto> tradeOrders = await _botTrader.AttemptToInitiateTradesAsync();
+        IEnumerable<TradeOrder> tradeOrders = await _botTrader.AttemptToInitiateTradesAsync();
 
-        foreach (TradeOrderDto tradeOrder in tradeOrders)
+        foreach (TradeOrder tradeOrder in tradeOrders)
         {
             _bus.Publish(this, new TradeExecutedEventArgs() { TradeOrder = tradeOrder });
         }

@@ -4,9 +4,9 @@
 	<TargetFramework>net8.0</TargetFramework>
 	<ImplicitUsings>disable</ImplicitUsings>
 	<Nullable>enable</Nullable>
+	<Optimize>true</Optimize>
 	<PublishSingleFile>true</PublishSingleFile>
 	<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-	<Optimize>true</Optimize>
 	<OutputType>Exe</OutputType>
 	<AssemblyName>CaptaTrader</AssemblyName>
 	<Product>Capta Trader</Product>

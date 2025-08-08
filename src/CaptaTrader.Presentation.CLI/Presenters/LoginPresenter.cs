@@ -3,6 +3,7 @@ using CaptaTrader.Presentation.CLI.Views;
 using RunnethOverStudio.AppToolkit.Core;
 using RunnethOverStudio.AppToolkit.Presentation.MVP;
 using System;
+using System.Threading.Tasks;
 using static CaptaTrader.Presentation.CLI.Views.LoginView;
 
 namespace CaptaTrader.Presentation.CLI.Presenters;
@@ -55,7 +56,7 @@ internal sealed class LoginPresenter(Navigator navigator) : Presenter(navigator)
     {
         ProcessResult result = e.NetworkCredential == null
             ? new ProcessResult([new Exception("No credentials found.")])
-            : Application.TradingBot.UserAccess.Authenticate(e.NetworkCredential);
+            : Task.Run(() => Application.TradingBot.UserAccess.AuthenticateAsync(e.NetworkCredential)).GetAwaiter().GetResult();
    
         if (result.IsValid)
         {
@@ -63,7 +64,7 @@ internal sealed class LoginPresenter(Navigator navigator) : Presenter(navigator)
         }
         else
         {
-            _view?.ShowProcessFail(nameof(IUserAccessService.Authenticate), result);
+            _view?.ShowProcessFail(nameof(IUserAccessService.AuthenticateAsync), result);
             _view?.Show();
         }
     }
@@ -72,7 +73,7 @@ internal sealed class LoginPresenter(Navigator navigator) : Presenter(navigator)
     {
         ProcessResult result = e.NetworkCredential == null
             ? new ProcessResult([new Exception("No credentials found.")])
-            : Application.TradingBot.UserAccess.Register(e.NetworkCredential);
+            : Task.Run(() => Application.TradingBot.UserAccess.RegisterAsync(e.NetworkCredential)).GetAwaiter().GetResult();
             
         if (result.IsValid)
         {
@@ -80,7 +81,7 @@ internal sealed class LoginPresenter(Navigator navigator) : Presenter(navigator)
         }
         else
         {
-            _view?.ShowProcessFail(nameof(IUserAccessService.Register), result);
+            _view?.ShowProcessFail(nameof(IUserAccessService.RegisterAsync), result);
             _view?.Show();
         }
     }

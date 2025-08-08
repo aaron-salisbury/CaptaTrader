@@ -6,5 +6,5 @@ namespace CaptaTrader.Business.Modules.Trading.DomainServices;
 
 internal interface IBotTrader
 {
-    Task<IEnumerable<TradeOrderDto>> AttemptToInitiateTradesAsync();
+    Task<IEnumerable<TradeOrder>> AttemptToInitiateTradesAsync();
 }

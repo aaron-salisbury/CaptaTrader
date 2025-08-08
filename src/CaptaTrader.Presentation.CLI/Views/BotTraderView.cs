@@ -23,14 +23,14 @@ internal sealed class BotTraderView : View
         ShutdownRequested?.Invoke(this, EventArgs.Empty);
     }
 
-    internal void PopupTradeOrder(TradeOrderDto trade)
+    internal void PopupTradeOrder(TradeOrder trade)
     {
         Grid transactionGrid = new();
         transactionGrid.AddColumns(_tradeOrderColumnHeaders.Length);
         transactionGrid.AddRow(_tradeOrderColumnHeaders);
         transactionGrid.AddRow(GetTradeOrderAsDataRow(trade));
 
-        string headerColor = trade.TransactionType == TradeOrderDto.TransactionTypes.Sell ? "green" : "darkorange";
+        string headerColor = trade.TransactionType == TradeOrder.TransactionTypes.Sell ? "green" : "darkorange";
 
         Panel transactionPanel = new(transactionGrid)
         {
@@ -42,9 +42,9 @@ internal sealed class BotTraderView : View
         AnsiConsole.Write(transactionPanel);
     }
 
-    private static string[] GetTradeOrderAsDataRow(TradeOrderDto tradeOrder)
+    private static string[] GetTradeOrderAsDataRow(TradeOrder tradeOrder)
     {
-        string cryptoSymbol = tradeOrder.TransactionType == TradeOrderDto.TransactionTypes.Buy
+        string cryptoSymbol = tradeOrder.TransactionType == TradeOrder.TransactionTypes.Buy
             ? tradeOrder.AssetSymbolBuying
             : tradeOrder.AssetSymbolSpending;
 
@@ -62,11 +62,11 @@ internal sealed class BotTraderView : View
     {
         IEnumerable<string> columnNames = 
             [
-                nameof(TradeOrderDto.TimeStamp),
-                nameof(TradeOrderDto.TransactionType),
+                nameof(TradeOrder.TimeStamp),
+                nameof(TradeOrder.TransactionType),
                 "Symbol",
-                nameof(TradeOrderDto.Price),
-                nameof(TradeOrderDto.Amount)
+                nameof(TradeOrder.Price),
+                nameof(TradeOrder.Amount)
             ];
 
         Style columnsHeaderStyle = new(decoration: Decoration.Bold);

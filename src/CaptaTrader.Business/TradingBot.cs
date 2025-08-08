@@ -21,17 +21,24 @@ public sealed class TradingBot : IAsyncDisposable
     {
         get
         {
-            if (_instance == null) { throw new InvalidOperationException("TradingBot has not been initialized. Call Initialize first."); }
+            if (_instance == null)
+            {
+                if (_initializationException != null)
+                    throw new InvalidOperationException("TradingBot initialization failed.", _initializationException);
+                throw new InvalidOperationException("TradingBot has not been initialized. Call Initialize first.");
+            }
             return _instance;
         }
     }
 
-    public int? SessionEndUserId { get; set; }
+    public long? SessionEndUserId { get; set; }
 
     public IEventSystem EventBus { get; }
     public IUserAccessService UserAccess { get; }
 
     private static readonly object _lock = new();
+    private static Exception? _initializationException;
+
     private readonly IScheduler _scheduler;
     private readonly IReportingService _reportingService;
     private bool _isTradingInitialized = false;
@@ -51,8 +58,19 @@ public sealed class TradingBot : IAsyncDisposable
     {
         lock (_lock)
         {
-            if (_instance != null) { throw new InvalidOperationException("TradingBot has already been initialized."); }
-            _instance = new TradingBot(tradingBotConfig, applicationLogger);
+            if (_instance != null)
+                throw new InvalidOperationException("TradingBot has already been initialized.");
+
+            try
+            {
+                _instance = new TradingBot(tradingBotConfig, applicationLogger);
+                _initializationException = null;
+            }
+            catch (Exception ex)
+            {
+                _initializationException = ex;
+                throw; // Optionally rethrow to fail fast on initialization
+            }
         }
     }
 

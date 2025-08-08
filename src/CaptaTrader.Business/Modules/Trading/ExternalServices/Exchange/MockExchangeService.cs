@@ -66,7 +66,7 @@ internal sealed class MockExchangeService : IExchangeService
         return price;
     }
 
-    public async Task<DateTime?> BuyAsync(TradeOrderDto tradeOrder)
+    public async Task<DateTime?> BuyAsync(TradeOrder tradeOrder)
     {
         DateTime transactionTimeStamp = await Task.Run(() => 
         {
@@ -90,7 +90,7 @@ internal sealed class MockExchangeService : IExchangeService
         return transactionTimeStamp;
     }
 
-    public async Task<DateTime?> SellAsync(TradeOrderDto tradeOrder)
+    public async Task<DateTime?> SellAsync(TradeOrder tradeOrder)
     {
         DateTime transactionTimeStamp = await Task.Run(() =>
         {

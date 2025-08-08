@@ -2,7 +2,7 @@
 
 namespace CaptaTrader.Business.Modules.Trading.DTOs;
 
-public record TradeOrderDto
+public record TradeOrder
 {
     public enum TransactionTypes
     {
@@ -10,7 +10,9 @@ public record TradeOrderDto
         Sell
     }
 
-    public required DateTime TimeStamp { get; init; }
+    public required long EndUserId { get; init; }
+
+    public DateTime? TimeStamp { get; set; } // Not set until actual trade execution.
 
     public required TransactionTypes TransactionType { get; init; }
 

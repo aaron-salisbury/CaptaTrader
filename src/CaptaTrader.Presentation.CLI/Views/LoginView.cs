@@ -13,7 +13,7 @@ namespace CaptaTrader.Presentation.CLI.Views;
 internal sealed class LoginView : View
 {
     internal event EventHandler<LoginViewEventArgs>? LoginOptionSelected;
-    internal event EventHandler<LoginViewEventArgs>? LoginCredentialsEntered;
+    internal event EventHandler<LoginViewEventArgs>? LoginCredentialsEntered; //TODO: Instead of EventHandler, define a custom event pattern that supports async handlers, such as using Func<object?, EventArgs, Task> and then replace usages of GetAwaiter() with awaits.
     internal event EventHandler<LoginViewEventArgs>? RegisterNewCredentialsEntered;
 
     internal enum LoginMenuOptions
@@ -29,7 +29,7 @@ internal sealed class LoginView : View
         Clear();
 
         IEnumerable<LoginMenuOptions> options = Enum.GetValues(typeof(LoginMenuOptions)).Cast<LoginMenuOptions>();
-        List<string> readableOptions = options.Select(mmo => mmo.GetDisplayName()).ToList();
+        List<string> readableOptions = [.. options.Select(mmo => mmo.GetDisplayName())];
 
         string choice = AnsiConsole.Prompt(
             new SelectionPrompt<string>()

@@ -1,12 +1,12 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Modules.UserAccess.DTOs;
-using CaptaTrader.Data.Entities;
 using CaptaTrader.Data.Services;
 using FluentValidation;
 using FluentValidation.Results;
 using RunnethOverStudio.AppToolkit.Core;
 using RunnethOverStudio.AppToolkit.Modules.UserAccess;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -16,88 +16,128 @@ namespace CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 public sealed class UserAccessService : IUserAccessService
 {
     private readonly IUserAuthenticator _userAuthenticator;
-    private readonly IDataAccess _dataAccess;
-    private readonly IValidator<UserConfigDto> _userConfigValidator;
-    private readonly UserAccessMapper _userAccessMapper = new();
+    private readonly ISQLDataAccess _dataAccess;
+    private readonly IValidator<EndUserConfig> _userConfigValidator;
 
-    public UserAccessService(IUserAuthenticator userAuthenticator, IDataAccess dataAccess, IValidator<UserConfigDto> userConfigValidator)
+    public UserAccessService(IUserAuthenticator userAuthenticator, ISQLDataAccess dataAccess, IValidator<EndUserConfig> userConfigValidator)
     {
         _userAuthenticator = userAuthenticator;
         _dataAccess = dataAccess;
         _userConfigValidator = userConfigValidator;
     }
 
-    public ProcessResult Authenticate(NetworkCredential networkCredentials)
+    public async Task<ProcessResult> AuthenticateAsync(NetworkCredential networkCredentials)
     {
-        EndUser? user = _dataAccess.ReadFiltered<EndUser>(u => string.Equals(networkCredentials.UserName, u.UserName), [nameof(EndUser.UserCredential)]).FirstOrDefault();
-        if (user == null)
+        //TODO: Need to be able to support relationships/joins in order to do this all in one operation.
+        EndUser? endUser = (await _dataAccess.ReadAsync<EndUser>("Username = @Username", new { Username = networkCredentials.UserName }, "EndUserId")).FirstOrDefault();
+        if (endUser?.EndUserId == null)
         {
-            return new ProcessResult([new Exception("User Name not found.")]);
+            return new ProcessResult([new Exception("User not found for username.")]);
         }
 
-        if (user.UserCredential == null || !_userAuthenticator.VerifyCredentials(_userAccessMapper.MapToDto<UserCredentials>(user.UserCredential), networkCredentials.SecurePassword))
+        EndUserCredential? endUserCredentialEntity = (await _dataAccess.ReadAsync<EndUserCredential>("EndUserId = @EndUserId", new { EndUserId = endUser.EndUserId.Value })).FirstOrDefault();
+        if (endUserCredentialEntity == null)
         {
-            return new ProcessResult([new Exception("Bad credentials.")]);
+            return new ProcessResult([new Exception("Credentials not found for user.")]);
         }
 
-        TradingBot.Instance.SessionEndUserId = user.EndUserId;
-        return ProcessResult.Success();
-    }
-
-    public ProcessResult Register(NetworkCredential networkCredentials)
-    {
-        if (string.IsNullOrEmpty(networkCredentials.UserName) || _dataAccess.ReadFiltered<EndUser>(eu => string.Equals(networkCredentials.UserName, eu.UserName)).Any())
+        //TODO: Won't need this after EndUserCredential in the ROS library gets included in the next NuGet version.
+        UserCredentials userCredentials = new()
         {
-            return new ProcessResult([new Exception("User Name must be unique.")]);
-        }
-
-        EndUserDto newUser = new()
-        {
-            UserName = networkCredentials.UserName,
-            UserCredential = _userAuthenticator.CreateUserCredentials(networkCredentials.SecurePassword),
-            UserConfig = new()
+            LoginHash = (byte[])endUserCredentialEntity.LoginHash,
+            LoginSalt = (byte[])endUserCredentialEntity.LoginSalt,
+            LoginWorkFactor = (int)endUserCredentialEntity.LoginWorkFactor
         };
 
-        EndUser userEntity = _dataAccess.Update(_userAccessMapper.MapToEntity<EndUser>(newUser));
+        if (!_userAuthenticator.VerifyCredentials(userCredentials, networkCredentials.SecurePassword))
+        {
+            return new ProcessResult([new Exception("Invalid credentials.")]);
+        }
 
-        TradingBot.Instance.SessionEndUserId = userEntity.EndUserId;
+        TradingBot.Instance.SessionEndUserId = endUser.EndUserId;
         return ProcessResult.Success();
     }
 
-    public UserConfigDto? GetSessionUserConfig()
+    public async Task<ProcessResult> RegisterAsync(NetworkCredential networkCredentials)
     {
-        return GetSessionUser(nameof(EndUserDto.UserConfig))?.UserConfig;
+        // Check if the user name is provided and unique.
+        if (string.IsNullOrEmpty(networkCredentials.UserName))
+        {
+            return new ProcessResult([new Exception("Username is required.")]);
+        }
+
+        IEnumerable<EndUser> existingUsers = await _dataAccess.ReadAsync<EndUser>("Username = @Username", new { Username = networkCredentials.UserName });
+        if (existingUsers.Any())
+        {
+            return new ProcessResult([new Exception("Username must be unique.")]);
+        }
+
+        // Create a new user with the provided user name.
+        long? newUserId = await _dataAccess.CreateAsync(new EndUser() { Username = networkCredentials.UserName });
+        if (newUserId == null)
+        {
+            return new ProcessResult([new Exception("Failed to create user.")]);
+        }
+
+        // Create user credentials with the provided password.
+        //TODO: EndUserCredential should be in the ROS library.
+        UserCredentials userCredential = _userAuthenticator.CreateUserCredentials(networkCredentials.SecurePassword);
+        EndUserCredential endUserCredential = new()
+        {
+            EndUserId = newUserId,
+            LoginSalt = userCredential.LoginSalt,
+            LoginHash = userCredential.LoginHash,
+            LoginWorkFactor = userCredential.LoginWorkFactor
+        };
+
+        long? endUserCredentialId = await _dataAccess.CreateAsync(endUserCredential);
+        if (endUserCredentialId == null)
+        {
+            await _dataAccess.DeleteByPrimaryKeyAsync<EndUser>(newUserId.Value);
+            return new ProcessResult([new Exception("Failed to create user credentials. User creation rolled back.")]);
+        }
+
+        TradingBot.Instance.SessionEndUserId = newUserId;
+        return ProcessResult.Success();
     }
 
-    public async Task<ProcessResult> SaveSessionUserConfigAsync(UserConfigDto userConfig)
+    public async Task<EndUserConfig?> GetSessionUserConfigAsync()
+    {
+        long? endUserId = GetSessionEndUserId();
+        if (endUserId == null)
+        {
+            return null;
+        }
+
+        return (await _dataAccess.ReadAsync<EndUserConfig>("EndUserId = @EndUserId", new { EndUserId = endUserId.Value }))
+            .FirstOrDefault();
+    }
+
+    public async Task<ProcessResult> SaveSessionUserConfigAsync(EndUserConfig userConfig)
     {
         ValidationResult result = await _userConfigValidator.ValidateAsync(userConfig);
 
         if (result.IsValid)
         {
-            _dataAccess.Update(_userAccessMapper.MapToEntity<UserConfig>(userConfig));
+            Dictionary<string, object?> columnsAndValues = new()
+            {
+                { "Email", userConfig.Email },
+                { "MarketDataAPI", (int?)userConfig.MarketDataAPI },
+                { "MarketDataAPIKey", userConfig.MarketDataAPIKey },
+                { "ExchangeAPI", (int?)userConfig.ExchangeAPI },
+                { "ExchangeAPIKey", userConfig.ExchangeAPIKey },
+                { "ExchangeSecretKey", userConfig.ExchangeSecretKey }
+            };
+
+            bool updated = await _dataAccess.UpdateByPrimaryKeyAsync<EndUserConfig>(userConfig.EndUserConfigId, columnsAndValues);
+            if (!updated)
+            {
+                return new ProcessResult([new Exception("Failed to update user configuration.")]);
+            }
         }
 
         return result.ToProcessResult();
     }
 
-    public EndUserDto? GetSessionUser(params string[] relationships)
-    {
-        int? sessionEndUserId = GetSessionEndUserId();
-
-        if (sessionEndUserId == null)
-        {
-            return null;
-        }
-
-        EndUser? endUser = _dataAccess.ReadFiltered<EndUser>(eu => eu.EndUserId == sessionEndUserId.Value, relationships).SingleOrDefault();
-        if (endUser == null)
-        {
-            return null;
-        }
-
-        return _userAccessMapper.MapToDto<EndUserDto>(endUser);
-    }
-
-    public int? GetSessionEndUserId() => TradingBot.Instance.SessionEndUserId;
+    public long? GetSessionEndUserId() => TradingBot.Instance.SessionEndUserId;
 }

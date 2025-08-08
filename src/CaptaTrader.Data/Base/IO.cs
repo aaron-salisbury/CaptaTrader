@@ -35,6 +35,7 @@ public static class IO
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to write objects to CSV file.");
+            //TODO: It seems that even if WriteRecordsAsync fails, the file is still created so we should delete it.
         }
     }
 }

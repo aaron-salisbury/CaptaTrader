@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace CaptaTrader.Business.Modules.Trading.Validators
 {
-    public sealed class UserConfigValidator : AbstractValidator<UserConfigDto>
+    public sealed class UserConfigValidator : AbstractValidator<EndUserConfig>
     {
         public UserConfigValidator()
         {

@@ -1,7 +1,6 @@
 ﻿using CaptaTrader.Business.Base;
 using CaptaTrader.Business.Modules.Trading.DTOs;
 using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
-using CaptaTrader.Business.Modules.UserAccess.DTOs;
 using Microsoft.Extensions.Logging;
 using RunnethOverStudio.AppToolkit.Modules.DataAccess;
 using System;
@@ -31,7 +30,7 @@ public sealed class CoinApiDataService : IMarketDataService
 
     public async Task<IEnumerable<PriceInterval>?> GetLastThirtyDaysOfPriceIntervals(string exchangeID, string baseAsset)
     {
-        string? apiKey = _userAccessService.GetSessionUser(nameof(EndUserDto.UserConfig))?.UserConfig?.MarketDataAPIKey;
+        string? apiKey = (await _userAccessService.GetSessionUserConfigAsync())?.MarketDataAPIKey;
 
         if (apiKey == null)
         {

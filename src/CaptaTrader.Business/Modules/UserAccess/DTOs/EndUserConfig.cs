@@ -2,7 +2,7 @@
 
 namespace CaptaTrader.Business.Modules.UserAccess.DTOs
 {
-    public record UserConfigDto
+    public record EndUserConfig
     {
         public enum MarketDataAPIs
         {
@@ -15,9 +15,9 @@ namespace CaptaTrader.Business.Modules.UserAccess.DTOs
 
         }
 
-        public int UserConfigId { get; init; }
+        public long EndUserConfigId { get; init; }
 
-        public int EndUserId { get; init; }
+        public long EndUserId { get; init; }
 
         public string? Email { get; set; }
 

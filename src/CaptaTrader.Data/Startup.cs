@@ -30,14 +30,14 @@ public static class Startup
     }
 
     /// <summary>
-    /// Registers the <see cref="ApplicationDbContext"/> as a service.
-    /// Also adds a scoped service of the type <see cref="IDataAccess"/> that is a CRUD wrapper for the context.
+    /// Adds a singleton service of the type <see cref="ISQLDataAccess"/> that is a CRUD wrapper for the application's data store.
     /// </summary>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddDataAccess(this IServiceCollection services)
     {
-        services.AddDbContext<ApplicationDbContext>()
-            .AddScoped<IDataAccess, ApplicationDataAccess>();
+        SqliteDatabaseInitializer.InitializeDatabase();
+
+        services.AddSingleton<ISQLDataAccess>(_ => new DapperSQLiteDataAccess(SqliteDatabaseInitializer.GetDBPath()));
 
         return services;
     }
