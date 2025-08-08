@@ -1,8 +1,8 @@
 ﻿using CaptaTrader.Business.Modules.Trading.DTOs;
 using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
 using CaptaTrader.Data.Base;
-using CaptaTrader.Data.Services;
 using Microsoft.Extensions.Logging;
+using RunnethOverStudio.AppToolkit.Modules.DataAccess;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

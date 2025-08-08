@@ -1,9 +1,9 @@
 ﻿using CaptaTrader.Business.Base.Extensions;
 using CaptaTrader.Business.Modules.UserAccess.DTOs;
-using CaptaTrader.Data.Services;
 using FluentValidation;
 using FluentValidation.Results;
 using RunnethOverStudio.AppToolkit.Core;
+using RunnethOverStudio.AppToolkit.Modules.DataAccess;
 using RunnethOverStudio.AppToolkit.Modules.UserAccess;
 using System;
 using System.Collections.Generic;
@@ -35,21 +35,13 @@ public sealed class UserAccessService : IUserAccessService
             return new ProcessResult([new Exception("User not found for username.")]);
         }
 
-        EndUserCredential? endUserCredentialEntity = (await _dataAccess.ReadAsync<EndUserCredential>("EndUserId = @EndUserId", new { EndUserId = endUser.EndUserId.Value })).FirstOrDefault();
-        if (endUserCredentialEntity == null)
+        EndUserCredential? endUserCredential = (await _dataAccess.ReadAsync<EndUserCredential>("EndUserId = @EndUserId", new { EndUserId = endUser.EndUserId.Value })).FirstOrDefault();
+        if (endUserCredential == null)
         {
             return new ProcessResult([new Exception("Credentials not found for user.")]);
         }
 
-        //TODO: Won't need this after EndUserCredential in the ROS library gets included in the next NuGet version.
-        UserCredentials userCredentials = new()
-        {
-            LoginHash = (byte[])endUserCredentialEntity.LoginHash,
-            LoginSalt = (byte[])endUserCredentialEntity.LoginSalt,
-            LoginWorkFactor = (int)endUserCredentialEntity.LoginWorkFactor
-        };
-
-        if (!_userAuthenticator.VerifyCredentials(userCredentials, networkCredentials.SecurePassword))
+        if (!_userAuthenticator.VerifyCredentials(endUserCredential, networkCredentials.SecurePassword))
         {
             return new ProcessResult([new Exception("Invalid credentials.")]);
         }
@@ -80,15 +72,8 @@ public sealed class UserAccessService : IUserAccessService
         }
 
         // Create user credentials with the provided password.
-        //TODO: EndUserCredential should be in the ROS library.
-        UserCredentials userCredential = _userAuthenticator.CreateUserCredentials(networkCredentials.SecurePassword);
-        EndUserCredential endUserCredential = new()
-        {
-            EndUserId = newUserId,
-            LoginSalt = userCredential.LoginSalt,
-            LoginHash = userCredential.LoginHash,
-            LoginWorkFactor = userCredential.LoginWorkFactor
-        };
+        EndUserCredential endUserCredential = _userAuthenticator.CreateUserCredentials(networkCredentials.SecurePassword);
+        endUserCredential.EndUserId = newUserId;
 
         long? endUserCredentialId = await _dataAccess.CreateAsync(endUserCredential);
         if (endUserCredentialId == null)

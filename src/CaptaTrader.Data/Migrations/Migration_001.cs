@@ -1,7 +1,8 @@
 ﻿using Dapper;
+using RunnethOverStudio.AppToolkit.Modules.DataAccess;
 using System.Data.Common;
 
-namespace CaptaTrader.Data.Database.Migrations;
+namespace CaptaTrader.Data.Migrations;
 
 internal sealed class Migration_001 : BaseMigration
 {

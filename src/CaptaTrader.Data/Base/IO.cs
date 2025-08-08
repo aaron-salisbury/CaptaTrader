@@ -2,12 +2,12 @@
 using CsvHelper.Configuration;
 using Humanizer;
 using Microsoft.Extensions.Logging;
+using RunnethOverStudio.AppToolkit.Modules.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
-using ROSIO = RunnethOverStudio.AppToolkit.Modules.DataAccess.IO;
 
 namespace CaptaTrader.Data.Base;
 
@@ -17,7 +17,7 @@ public static class IO
     {
         try
         {
-            writePath ??= ROSIO.GetAppDirectoryPath();
+            writePath ??= AppFileSystem.GetAppDirectoryPath();
             string beingWritten = typeof(T).Name.Pluralize().Humanize(LetterCasing.Title);
             string writeTime = DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss");
             string fileName = $"{beingWritten} - {writeTime}.csv";

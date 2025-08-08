@@ -1,10 +1,10 @@
 ﻿using CaptaTrader.Business.Modules.Trading.DTOs;
 using CaptaTrader.Business.Modules.Trading.ExternalServices;
 using CaptaTrader.Business.Modules.UserAccess.ApplicationServices;
-using CaptaTrader.Data.Services;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
+using RunnethOverStudio.AppToolkit.Modules.DataAccess;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

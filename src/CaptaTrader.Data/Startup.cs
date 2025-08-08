@@ -1,6 +1,4 @@
-﻿using CaptaTrader.Data.Database;
-using CaptaTrader.Data.Services;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using RunnethOverStudio.AppToolkit.Modules.DataAccess;
 using System.Net;
 using System.Net.Http;
