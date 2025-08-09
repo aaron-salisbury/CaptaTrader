@@ -8,7 +8,7 @@ Capta Trader
 Simple, as-is, Bitcoin trading bot written in C#.
 
 > [!IMPORTANT]  
-> This app is experimental and for educational purposes only.
+> This app is experimental and just for fun.
 
 ## Architecture
 This is a cross-platform CLI application with a three-tier architecture. The presentation layer follows a MVP design pattern and the business layer is a modular monolith with locality of behavior in mind.
