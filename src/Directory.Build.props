@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!--
+    PrettyConsole ships an AI-assistant skill that its Payload dependency copies to .agents/skills/pretty-console-expert
+    on every build of any project that references it, directly or transitively. Copying is off so builds never write
+    into the repository; set CopyOnBuild to true to opt in.
+  -->
+  <ItemGroup>
+    <PayloadPolicy Include="PrettyConsole" Tag="PrettyConsoleExpert" CopyOnBuild="false" />
+  </ItemGroup>
+</Project>

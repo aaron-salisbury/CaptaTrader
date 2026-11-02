@@ -1,35 +1,19 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFramework>net8.0</TargetFramework>
-	  <ImplicitUsings>disable</ImplicitUsings>
-	  <Nullable>enable</Nullable>
-	  <Optimize>true</Optimize>
+    <Description>Business tier of application.</Description>
   </PropertyGroup>
 
+  <!-- Let our unit tests access and verify the behavior of internal classes, methods, and properties. -->
   <ItemGroup>
-    <PackageReference Include="Binance.Net" Version="11.4.0" />
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
-    <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.15.0" />
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>CaptaTrader.Tests</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CaptaTrader.Data\CaptaTrader.Data.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Base\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Base\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.13" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.13" />
   </ItemGroup>
 
 </Project>

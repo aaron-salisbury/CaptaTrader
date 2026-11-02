@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="CaptaTrader.Business/CaptaTrader.Business.csproj" />
+  <Project Path="CaptaTrader.Data/CaptaTrader.Data.csproj" />
+  <Project Path="CaptaTrader.Integrations/CaptaTrader.Integrations.csproj" />
+  <Project Path="CaptaTrader.CLIApp/CaptaTrader.CLIApp.csproj" />
+  <Project Path="CaptaTrader.Tests/CaptaTrader.Tests.csproj" />
+</Solution>

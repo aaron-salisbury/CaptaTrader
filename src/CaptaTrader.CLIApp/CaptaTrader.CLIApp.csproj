@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <AssemblyName>CaptaTrader</AssemblyName>
+    <RootNamespace>CaptaTrader.CLIApp</RootNamespace>
+    <AssemblyTitle>Capta Trader</AssemblyTitle>
+    <Product>Capta Trader</Product>
+    <Description>An as-is Bitcoin trading bot for educational purposes only.</Description>
+    <Authors>Aaron Salisbury</Authors>
+    <Copyright>© Aaron Salisbury</Copyright>
+    <RepositoryUrl>https://github.com/aaron-salisbury/CaptaTrader</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Version>0.2.0</Version>
+  </PropertyGroup>
+
+  <!-- Let our unit tests access and verify the behavior of internal classes, methods, and properties. -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>CaptaTrader.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.13" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.12" />
+    <PackageReference Include="PrettyConsole" Version="6.0.2" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CaptaTrader.Business\CaptaTrader.Business.csproj" />
+    <ProjectReference Include="..\CaptaTrader.Data\CaptaTrader.Data.csproj" />
+    <ProjectReference Include="..\CaptaTrader.Integrations\CaptaTrader.Integrations.csproj" />
+  </ItemGroup>
+
+</Project>

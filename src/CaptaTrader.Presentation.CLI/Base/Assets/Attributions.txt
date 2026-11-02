@@ -1,2 +1,0 @@
-﻿Ogre.flf font
-https://github.com/xero/figlet-fonts
