@@ -1,6 +1,4 @@
-<p align="left">
-  <img src="logo.png" width="175" alt="Capta Trader Logo">
-</p>
+![Capta Trader](./brand/logo_100.png)
 
 Capta Trader
 ===============
