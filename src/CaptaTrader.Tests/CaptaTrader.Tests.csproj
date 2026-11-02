@@ -1,0 +1,35 @@
+<Project Sdk="MSTest.Sdk/4.5.1">
+
+  <PropertyGroup>
+    <Description>Unit tests for the CaptaTrader application.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CaptaTrader.Business\CaptaTrader.Business.csproj" />
+    <ProjectReference Include="..\CaptaTrader.Data\CaptaTrader.Data.csproj" />
+    <ProjectReference Include="..\CaptaTrader.Integrations\CaptaTrader.Integrations.csproj" />
+    <ProjectReference Include="..\CaptaTrader.CLIApp\CaptaTrader.CLIApp.csproj" />
+  </ItemGroup>
+
+  <!--
+    Microsoft.Testing.Platform eagerly creates its results directory, defaulting to TestResults under whatever the current
+    directory is, so `dotnet test`, Cake, and IDEs leave empty TestResults folders wherever they were launched from. A
+    relative resultDirectory has the same problem, so generate the test config with an absolute path into this project's
+    output folder, which is already ignored by git and removed by `dotnet clean`.
+  -->
+  <Target Name="WriteTestResultsConfig" AfterTargets="CopyFilesToOutputDirectory">
+    <!-- Evaluated inside the target because TargetDir is only defined by the SDK targets imported after this file. -->
+    <PropertyGroup>
+      <_TestConfigPath>$(TargetDir)$(AssemblyName).testconfig.json</_TestConfigPath>
+      <_TestResultsDirectory>$([System.String]::Copy('$(TargetDir)TestResults').Replace('\', '/'))</_TestResultsDirectory>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(_TestConfigPath)"
+                      Lines="{ &quot;platformOptions&quot;: { &quot;resultDirectory&quot;: &quot;$(_TestResultsDirectory)&quot; } }"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true" />
+    <ItemGroup>
+      <FileWrites Include="$(_TestConfigPath)" />
+    </ItemGroup>
+  </Target>
+
+</Project>
